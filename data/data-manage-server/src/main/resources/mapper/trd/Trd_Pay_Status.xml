@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="trdpaystatus">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="TRD_DATE" jdbcType="VARCHAR" property="trdDate" />
+    <result column="TRD_TIME" jdbcType="VARCHAR" property="trdTime" />
+    <result column="CLEAR_DATE" jdbcType="VARCHAR" property="clearDate" />
+    <result column="HOSPITAL_ID" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="CHANNEL" jdbcType="VARCHAR" property="channel" />
+    <result column="TRD_TYPE" jdbcType="VARCHAR" property="trdType" />
+    <result column="PAY_TYPE" jdbcType="VARCHAR" property="payType" />
+    <result column="OPEN_ID" jdbcType="VARCHAR" property="openId" />
+    <result column="CARD_NO" jdbcType="VARCHAR" property="cardNo" />
+    <result column="PAT_ID" jdbcType="VARCHAR" property="patId" />
+    <result column="PAT_NAME" jdbcType="VARCHAR" property="patName" />
+    <result column="PAY_ORDER_NO" jdbcType="VARCHAR" property="payOrderNo" />
+    <result column="PAY_SEQ_NO" jdbcType="VARCHAR" property="paySeqNo" />
+    <result column="REFUND_ORDER_NO" jdbcType="VARCHAR" property="refundOrderNo" />
+    <result column="REFUND_SEQ_NO" jdbcType="VARCHAR" property="refundSeqNo" />
+    <result column="AMT" jdbcType="VARCHAR" property="amt" />
+    <result column="ORDER_AMT" jdbcType="VARCHAR" property="orderAmt" />
+    <result column="TRD_STATUS" jdbcType="VARCHAR" property="trdStatus" />
+    <result column="STATUS" jdbcType="VARCHAR" property="status" />
+    <result column="NOTIFY_URL" jdbcType="VARCHAR" property="notifyUrl" />
+    <result column="PROJ_ID" jdbcType="VARCHAR" property="projId" />
+    <result column="PAD1" jdbcType="VARCHAR" property="pad1" />
+    <result column="PAD2" jdbcType="VARCHAR" property="pad2" />
+    <result column="PAD3" jdbcType="VARCHAR" property="pad3" />
+  </resultMap>
+  
+  
+  <sql id="Base_Column_List">
+    TRD_DATE, TRD_TIME, CLEAR_DATE, HOSPITAL_ID, CHANNEL, TRD_TYPE, PAY_TYPE, OPEN_ID, 
+    CARD_NO, PAT_ID, PAT_NAME, PAY_ORDER_NO, PAY_SEQ_NO, REFUND_ORDER_NO, REFUND_SEQ_NO, 
+    AMT, ORDER_AMT, TRD_STATUS, STATUS, NOTIFY_URL, PROJ_ID, PAD1, PAD2, PAD3
+  </sql>
+
+  <select id="selectSta" parameterType="map" resultMap="BaseResultMap">
+    SELECT A.* ,
+    CONVERT(CONCAT(SUBSTR(A.TRD_DATE,1,4),'-',SUBSTR(A.TRD_DATE,5,2),'-',SUBSTR(A.TRD_DATE,7,2),' ',SUBSTR(A.TRD_TIME,1,2),':',SUBSTR(A.TRD_TIME,3,2),':',SUBSTR(A.TRD_TIME,5,2)),CHAR) fDatetime,
+    C2.CODE_NAME trtypename,
+    C3.CODE_NAME staname,
+    C4.CODE_NAME paytypename,
+    C5.CODE_NAME channelname,
+    T1.HOSPITAL_NAME hospitalname,
+    H.MD5_KEY md5Key,
+    T1.MER_ID merid
+    FROM (SELECT * FROM trd_pay_status UNION SELECT * FROM trd_pay_status_h)  A
+    LEFT OUTER JOIN sys_code C2 ON C2.PAR_ID = 'JY' AND C2.CODE_ID = A.TRD_TYPE
+    LEFT OUTER JOIN sys_code C3 ON C3.PAR_ID = 'RS' AND C3.CODE_ID = A.STATUS
+    LEFT OUTER JOIN sys_code C4 ON C4.PAR_ID = 'ZFQD' AND C4.CODE_ID = A.PAY_TYPE
+    LEFT OUTER JOIN sys_code C5 ON C5.PAR_ID = 'CH' AND C5.CODE_ID = A.CHANNEL 
+
+    LEFT OUTER JOIN com_hospital T1 ON T1.HOSPITAL_ID = A.HOSPITAL_ID
+    LEFT JOIN com_branch B ON T1.DEPT=B.DEPT_ID
+    LEFT JOIN com_branch C ON B.PAR_DEPT=C.DEPT_ID
+    LEFT JOIN com_branch D ON C.PAR_DEPT=D.DEPT_ID
+    LEFT JOIN com_hosp_cfg H ON H.PROJ_ID=A.PROJ_ID AND H.HOSPITAL_ID=A.HOSPITAL_ID
+	
+	<where>
+      <if test="enddate != null">
+        A.TRD_DATE &gt;= #{enddate}
+      </if>
+      <if test="enddate != null">
+        AND A.TRD_DATE &lt;= #{enddate}
+      </if>
+      <if test="starttime != null">
+        AND A.TRD_TIME &gt;= #{starttime}
+      </if>
+      <if test="endtime != null">
+        AND A.TRD_TIME &lt;= #{endtime}
+      </if>
+
+      <if test="fTrtype != null">
+        AND A.TRD_TYPE = #{fTrtype}
+      </if>
+      <if test="fFlowno != null">
+        AND A.PAY_ORDER_NO like concat("%",#{fFlowno},"%")
+      </if>
+      <if test="fCardno != null">
+        AND A.CARD_NO like concat("%",#{fCardno},"%")
+      </if>
+      <if test="fPaytype  != null">
+        AND A.PAY_TYPE =#{fPaytype }
+      </if>
+      <if test="hospitalid  != null">
+        AND A.HOSPITAL_ID = #{hospitalid }
+      </if>
+      <if test="hospitalname  != null">
+        AND T1.HOSPITAL_NAME like concat('%',#{hospitalname },'%')
+      </if>
+      <if test="fHospitalid  != null">
+        AND A.HOSPITAL_ID in ${fHospitalid }
+      </if>
+      <if test="fDeptid != null">
+        AND B.DEPT_LIST LIKE concat(#{fDeptid},"%")
+      </if>
+      <if test="fChannel != null">
+        AND A.CHANNEL = #{fChannel}
+      </if>
+      <if test="fRet != null">
+        AND A.STATUS = #{fRet}
+      </if>
+    </where>
+    <if test="orderby!=null">
+      ORDER BY ${orderby}
+    </if>
+    <if test="orderby == null">
+      ORDER BY A.TRD_DATE DESC,A.TRD_TIME DESC
+    </if>
+  </select>
+
+  <delete id="deleteByPayOrderNo" parameterType="map"> 
+    delete from trd_pay_status
+    where PAY_ORDER_NO in 
+    <foreach collection="list" item="item" open="(" separator="," close=")">
+        #{item.payOrderNo}
+    </foreach>
+  </delete>
+
+  <insert id="insertSelective" parameterType="map">
+    insert into trd_pay_status
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="trdDate != null">
+        TRD_DATE,
+      </if>
+      <if test="trdTime != null">
+        TRD_TIME,
+      </if>
+      <if test="clearDate != null">
+        CLEAR_DATE,
+      </if>
+      <if test="hospitalId != null">
+        HOSPITAL_ID,
+      </if>
+      <if test="channel != null">
+        CHANNEL,
+      </if>
+      <if test="trdType != null">
+        TRD_TYPE,
+      </if>
+      <if test="payType != null">
+        PAY_TYPE,
+      </if>
+      <if test="openId != null">
+        OPEN_ID,
+      </if>
+      <if test="cardNo != null">
+        CARD_NO,
+      </if>
+      <if test="patId != null">
+        PAT_ID,
+      </if>
+      <if test="patName != null">
+        PAT_NAME,
+      </if>
+      <if test="payOrderNo != null">
+        PAY_ORDER_NO,
+      </if>
+      <if test="paySeqNo != null">
+        PAY_SEQ_NO,
+      </if>
+      <if test="refundOrderNo != null">
+        REFUND_ORDER_NO,
+      </if>
+      <if test="refundSeqNo != null">
+        REFUND_SEQ_NO,
+      </if>
+      <if test="amt != null">
+        AMT,
+      </if>
+      <if test="orderAmt != null">
+        ORDER_AMT,
+      </if>
+      <if test="trdStatus != null">
+        TRD_STATUS,
+      </if>
+      <if test="status != null">
+        STATUS,
+      </if>
+      <if test="notifyUrl != null">
+        NOTIFY_URL,
+      </if>
+      <if test="projId != null">
+        PROJ_ID,
+      </if>
+      <if test="pad1 != null">
+        PAD1,
+      </if>
+      <if test="pad2 != null">
+        PAD2,
+      </if>
+      <if test="pad3 != null">
+        PAD3,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="trdDate != null">
+        #{trdDate,jdbcType=VARCHAR},
+      </if>
+      <if test="trdTime != null">
+        #{trdTime,jdbcType=VARCHAR},
+      </if>
+      <if test="clearDate != null">
+        #{clearDate,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        #{hospitalId,jdbcType=VARCHAR},
+      </if>
+      <if test="channel != null">
+        #{channel,jdbcType=VARCHAR},
+      </if>
+      <if test="trdType != null">
+        #{trdType,jdbcType=VARCHAR},
+      </if>
+      <if test="payType != null">
+        #{payType,jdbcType=VARCHAR},
+      </if>
+      <if test="openId != null">
+        #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNo != null">
+        #{cardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patId != null">
+        #{patId,jdbcType=VARCHAR},
+      </if>
+      <if test="patName != null">
+        #{patName,jdbcType=VARCHAR},
+      </if>
+      <if test="payOrderNo != null">
+        #{payOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="paySeqNo != null">
+        #{paySeqNo,jdbcType=VARCHAR},
+      </if>
+      <if test="refundOrderNo != null">
+        #{refundOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="refundSeqNo != null">
+        #{refundSeqNo,jdbcType=VARCHAR},
+      </if>
+      <if test="amt != null">
+        #{amt,jdbcType=VARCHAR},
+      </if>
+      <if test="orderAmt != null">
+        #{orderAmt,jdbcType=VARCHAR},
+      </if>
+      <if test="trdStatus != null">
+        #{trdStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="notifyUrl != null">
+        #{notifyUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="projId != null">
+        #{projId,jdbcType=VARCHAR},
+      </if>
+      <if test="pad1 != null">
+        #{pad1,jdbcType=VARCHAR},
+      </if>
+      <if test="pad2 != null">
+        #{pad2,jdbcType=VARCHAR},
+      </if>
+      <if test="pad3 != null">
+        #{pad3,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+ 
+  <update id="update" parameterType="map">
+    update trd_pay_status
+    <set>
+      <if test="trdDate != null">
+        TRD_DATE = #{trdDate,jdbcType=VARCHAR},
+      </if>
+      <if test="trdTime != null">
+        TRD_TIME = #{trdTime,jdbcType=VARCHAR},
+      </if>
+      <if test="clearDate != null">
+        CLEAR_DATE = #{clearDate,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        HOSPITAL_ID = #{hospitalId,jdbcType=VARCHAR},
+      </if>
+      <if test="channel != null">
+        CHANNEL = #{channel,jdbcType=VARCHAR},
+      </if>
+      <if test="trdType != null">
+        TRD_TYPE = #{trdType,jdbcType=VARCHAR},
+      </if>
+      <if test="payType != null">
+        PAY_TYPE = #{payType,jdbcType=VARCHAR},
+      </if>
+      <if test="openId != null">
+        OPEN_ID = #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNo != null">
+        CARD_NO = #{cardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patId != null">
+        PAT_ID = #{patId,jdbcType=VARCHAR},
+      </if>
+      <if test="patName != null">
+        PAT_NAME = #{patName,jdbcType=VARCHAR},
+      </if>
+      <if test="payOrderNo != null">
+        PAY_ORDER_NO = #{payOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="paySeqNo != null">
+        PAY_SEQ_NO = #{paySeqNo,jdbcType=VARCHAR},
+      </if>
+      <if test="refundOrderNo != null">
+        REFUND_ORDER_NO = #{refundOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="refundSeqNo != null">
+        REFUND_SEQ_NO = #{refundSeqNo,jdbcType=VARCHAR},
+      </if>
+      <if test="amt != null">
+        AMT = #{amt,jdbcType=VARCHAR},
+      </if>
+      <if test="orderAmt != null">
+        ORDER_AMT = #{orderAmt,jdbcType=VARCHAR},
+      </if>
+      <if test="trdStatus != null">
+        TRD_STATUS = #{trdStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        STATUS = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="notifyUrl != null">
+        NOTIFY_URL = #{notifyUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="projId != null">
+        PROJ_ID = #{projId,jdbcType=VARCHAR},
+      </if>
+      <if test="pad1 != null">
+        PAD1 = #{pad1,jdbcType=VARCHAR},
+      </if>
+      <if test="pad2 != null">
+        PAD2 = #{pad2,jdbcType=VARCHAR},
+      </if>
+      <if test="pad3 != null">
+        PAD3 = #{pad3,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <where>
+    	PAY_ORDER_NO = #{payOrderNo,jdbcType=VARCHAR}
+    </where>
+  </update>
+  
+  <insert id="insertBakPaySta" parameterType="map">
+    insert into trd_pay_status_h
+      (TRD_DATE, 
+       TRD_TIME, 
+       CLEAR_DATE, 
+       HOSPITAL_ID, 
+       CHANNEL, 
+       TRD_TYPE, 
+       PAY_TYPE, 
+       OPEN_ID, 
+       CARD_NO, 
+       PAT_ID, 
+       PAT_NAME, 
+       PAY_ORDER_NO, 
+       PAY_SEQ_NO, 
+       REFUND_ORDER_NO, 
+       REFUND_SEQ_NO, 
+       AMT, 
+       ORDER_AMT, 
+       TRD_STATUS, 
+       STATUS, 
+       NOTIFY_URL, 
+       PROJ_ID,
+       PAD1, 
+       PAD2, 
+       PAD3)
+    values
+    <foreach collection="payStaList" item="item" index="index" separator="," >
+    ( #{item.trdDate,jdbcType=VARCHAR},
+      #{item.trdTime,jdbcType=VARCHAR}, 
+      #{item.clearDate,jdbcType=VARCHAR}, 
+      #{item.hospitalId,jdbcType=VARCHAR}, 
+      #{item.channel,jdbcType=VARCHAR}, 
+      #{item.trdType,jdbcType=VARCHAR}, 
+      #{item.payType,jdbcType=VARCHAR}, 
+      #{item.openId,jdbcType=VARCHAR}, 
+      #{item.cardNo,jdbcType=VARCHAR}, 
+      #{item.patId,jdbcType=VARCHAR}, 
+      #{item.patName,jdbcType=VARCHAR}, 
+      #{item.payOrderNo,jdbcType=VARCHAR}, 
+      #{item.paySeqNo,jdbcType=VARCHAR}, 
+      #{item.refundOrderNo,jdbcType=VARCHAR}, 
+      #{item.refundSeqNo,jdbcType=VARCHAR}, 
+      #{item.amt,jdbcType=VARCHAR}, 
+      #{item.orderAmt,jdbcType=VARCHAR}, 
+      #{item.trdStatus,jdbcType=VARCHAR}, 
+      #{item.status,jdbcType=VARCHAR}, 
+      #{item.notifyUrl,jdbcType=VARCHAR}, 
+      #{item.projId,jdbcType=VARCHAR}, 
+      #{item.pad1,jdbcType=VARCHAR}, 
+      #{item.pad2,jdbcType=VARCHAR}, 
+      #{item.pad3,jdbcType=VARCHAR}
+      )
+    
+    </foreach>
+  </insert>
+  
+  <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+    SELECT 
+    <include refid="Base_Column_List" />
+    FROM trd_pay_status
+    <where>
+      <if test="enddate != null">
+        TRD_DATE &lt;= #{enddate}
+      </if>
+    </where>
+  </select>
+</mapper>

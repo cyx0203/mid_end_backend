@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="payTotal">
+
+  <select id="selectPieAmt" parameterType="map" resultType="map">
+    SELECT b.name AS `type`, round(SUM(a.order_amt - a.refund_amt) / 100, 2) AS `value`
+    FROM midend_pay.pay_order a
+    LEFT JOIN midend_pay.pay_goods b on a.goods_id = b.id
+    LEFT JOIN midend.com_hospital d on a.hospital_id = d.id
+    WHERE a.create_date BETWEEN #{startDate} AND #{endDate}
+    AND a.pay_status = '2'
+    <if test="hospitalId != null and hospitalId != ''">
+      AND (d.id =#{hospitalId} or d.par_id = #{hospitalId})
+    </if>
+    group by a.goods_id
+  </select>
+
+  <select id="selectPieCount" parameterType="map" resultType="map">
+    SELECT b.name AS `type`, count(*) AS `value`
+    FROM midend_pay.pay_order a
+    LEFT JOIN midend_pay.pay_goods b on a.goods_id = b.id
+    LEFT JOIN midend.com_hospital d on a.hospital_id = d.id
+    WHERE a.create_date BETWEEN #{startDate} AND #{endDate}
+    AND a.pay_status = '2'
+    AND (a.refund_status = '0' OR a.refund_status = '2')
+    <if test="hospitalId != null and hospitalId != ''">
+      AND (d.id =#{hospitalId} or d.par_id = #{hospitalId})
+    </if>
+    group by a.goods_id
+  </select>
+
+  <select id="selectLineAmt" parameterType="map" resultType="map">
+    SELECT a.create_date AS `type`,
+    ifnull(round((a.order_amt - a.refund_amt) / 100, 2), 0) AS `value`,
+    a.create_time AS cTime
+    FROM midend_pay.pay_order a
+    LEFT JOIN midend.com_hospital d on a.hospital_id = d.id
+    WHERE a.create_date BETWEEN #{startDate} AND #{endDate}
+    AND a.pay_status = '2'
+    <if test="hospitalId != null and hospitalId != ''">
+      AND (d.id =#{hospitalId} or d.par_id = #{hospitalId})
+    </if>
+  </select>
+
+  <select id="selectLineCount" parameterType="map" resultType="map">
+    SELECT a.create_date AS `type`, a.create_time AS cTime
+    FROM midend_pay.pay_order a
+    LEFT JOIN midend.com_hospital d on a.hospital_id = d.id
+    WHERE a.create_date BETWEEN #{startDate} AND #{endDate}
+    AND a.pay_status = '2'
+    AND (a.refund_status = '0' OR a.refund_status = '2')
+    <if test="hospitalId != null and hospitalId != ''">
+      AND (d.id =#{hospitalId} or d.par_id = #{hospitalId})
+    </if>
+  </select>
+
+  <select id="selectTotal" parameterType="map" resultType="map">
+    SELECT count(*) AS payCount, <!-- 交易总量 -->
+    ifnull(round(SUM(a.order_amt - a.refund_amt)/ 100, 2),0) AS payAmt <!-- 交易总金额 -->
+    FROM midend_pay.pay_order a
+    LEFT JOIN midend.com_hospital d on a.hospital_id = d.id
+    WHERE a.create_date BETWEEN #{startDate} AND #{endDate}
+    AND a.pay_status = '2'
+    AND (a.refund_status = '0' OR a.refund_status = '2')
+    <if test="hospitalId != null and hospitalId != ''">
+      AND (d.id =#{hospitalId} or d.par_id = #{hospitalId})
+    </if>
+  </select>
+
+  <select id="selectTotalByType" parameterType="map" resultType="map">
+    SELECT a.goods_id,
+    count(*) AS payCount, <!-- 交易总量 -->
+    ifnull(round(SUM(a.order_amt - a.refund_amt)/ 100, 2),0) AS payAmt <!-- 交易总金额 -->
+    FROM midend_pay.pay_order a
+    LEFT JOIN midend.com_hospital d on a.hospital_id = d.id
+    WHERE a.create_date BETWEEN #{startDate} AND #{endDate}
+    AND a.pay_status = '2'
+    AND (a.refund_status = '0' OR a.refund_status = '2')
+    <if test="hospitalId != null and hospitalId != ''">
+      AND (d.id =#{hospitalId} or d.par_id = #{hospitalId})
+    </if>
+    group by a.goods_id;
+  </select>
+
+
+</mapper>

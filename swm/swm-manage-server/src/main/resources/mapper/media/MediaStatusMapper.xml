@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mediastatus">
+  <resultMap id="BaseResultMap" type="map">
+    <id column="media_seq_no" jdbcType="VARCHAR" property="mediaSeqNo" />
+    <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="trd_type" jdbcType="CHAR" property="trdType" />
+    <result column="time_create" jdbcType="VARCHAR" property="timeCreate" />
+    <result column="time_end" jdbcType="VARCHAR" property="timeEnd" />
+    <result column="swm_id" jdbcType="VARCHAR" property="swmId" />
+    <result column="room_id" jdbcType="VARCHAR" property="roomId" />
+    <result column="job_id" jdbcType="VARCHAR" property="jobId" />
+    <result column="status" jdbcType="CHAR" property="status" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    media_seq_no, hospital_id, trd_type, DATE_FORMAT(time_create, '%Y-%m-%d') AS time_create, DATE_FORMAT(time_end, '%Y-%m-%d') AS time_end, swm_id, room_id, job_id,
+    status
+  </sql>
+<!--  查询所有业务-->
+  <select id="queryMediaStatus" parameterType="map" resultMap="BaseResultMap">
+    select
+<!--    <include refid="Base_Column_List" />-->
+    a.media_seq_no, a.hospital_id, a.trd_type, DATE_FORMAT(a.time_create, '%Y-%m-%d') AS time_create, DATE_FORMAT(a.time_end, '%Y-%m-%d') AS time_end, a.swm_id, a.room_id, a.job_id,
+    a.status,b.name
+    from media_status a left join midend.plat_code b on a.trd_type = b.id
+    where a.status = 2
+    order by a.trd_type,a.time_create
+  </select>
+<!--  查询交易类型并去重-->
+  <select id="queryTrdType" parameterType="map" resultMap="BaseResultMap">
+    select distinct a.trd_type,b.name
+    from media_status a left join midend.plat_code b on a.trd_type = b.id
+    where a.status = 2
+    order by a.trd_type
+  </select>
+<!--  按流水号查询-->
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select
+    a.media_seq_no, a.hospital_id, a.trd_type, DATE_FORMAT(a.time_create, '%Y-%m-%d') AS time_create, DATE_FORMAT(a.time_end, '%Y-%m-%d') AS time_end, a.swm_id, a.room_id, a.job_id,
+    a.status,b.name
+    from media_status a left join midend.plat_code b on a.trd_type = b.id
+    where media_seq_no = #{mediaSeqNo,jdbcType=VARCHAR} and status = 2
+  </select>
+<!--  按日期和类型查询-->
+  <select id="selectByTimeAndType" parameterType="map" resultMap="BaseResultMap">
+    select
+    a.media_seq_no, a.hospital_id, a.trd_type, DATE_FORMAT(a.time_create, '%Y-%m-%d') AS time_create, DATE_FORMAT(a.time_end, '%Y-%m-%d') AS time_end, a.swm_id, a.room_id, a.job_id,
+    a.status,b.name
+    from media_status a left join midend.plat_code b on a.trd_type = b.id
+    where (
+    (#{trdType} is null) or (#{trdType} is not null and a.trd_type = #{trdType,jdbcType=VARCHAR}))
+    and ((#{startDate} is null) or (#{startDate} is not null and a.time_create &gt;= #{startDate,jdbcType=VARCHAR}))
+    and ((#{endDate} is null) or (#{endDate} is not null and a.time_end &lt;= #{endDate,jdbcType=VARCHAR})
+    and status = 2
+    )
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from media_status
+    where media_seq_no = #{mediaSeqNo,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="map">
+    insert into media_status (media_seq_no, hospital_id, trd_type, 
+      time_create, time_end, swm_id,
+      room_id, job_id, status)
+    values (#{mediaSeqNo,jdbcType=VARCHAR}, #{hospitalId,jdbcType=VARCHAR}, #{trdType,jdbcType=CHAR}, 
+      #{timeCreate,jdbcType=TIMESTAMP}, #{timeEnd,jdbcType=TIMESTAMP}, #{swmId,jdbcType=VARCHAR},
+      #{roomId,jdbcType=VARCHAR}, #{jobId,jdbcType=VARCHAR}, #{status,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="map">
+    insert into media_status
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="mediaSeqNo != null">
+        media_seq_no,
+      </if>
+      <if test="hospitalId != null">
+        hospital_id,
+      </if>
+      <if test="trdType != null">
+        trd_type,
+      </if>
+      <if test="timeCreate != null">
+        time_create,
+      </if>
+      <if test="timeEnd != null">
+        time_end,
+      </if>
+      <if test=" != null">
+        swm_id,
+      </if>
+      <if test="roomId != null">
+        room_id,
+      </if>
+      <if test="jobId != null">
+        job_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="mediaSeqNo != null">
+        #{mediaSeqNo,jdbcType=VARCHAR},
+      </if>
+      <if test="hospitalId != null">
+        #{hospitalId,jdbcType=VARCHAR},
+      </if>
+      <if test="trdType != null">
+        #{trdType,jdbcType=CHAR},
+      </if>
+      <if test="timeCreate != null">
+        #{timeCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="timeEnd != null">
+        #{timeEnd,jdbcType=TIMESTAMP},
+      </if>
+      <if test=" != null">
+        #{swmId,jdbcType=VARCHAR},
+      </if>
+      <if test="roomId != null">
+        #{roomId,jdbcType=VARCHAR},
+      </if>
+      <if test="jobId != null">
+        #{jobId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="map">
+    update media_status
+    <set>
+      <if test="hospitalId != null">
+        hospital_id = #{hospitalId,jdbcType=VARCHAR},
+      </if>
+      <if test="trdType != null">
+        trd_type = #{trdType,jdbcType=CHAR},
+      </if>
+      <if test="timeCreate != null">
+        time_create = #{timeCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="timeEnd != null">
+        time_end = #{timeEnd,jdbcType=TIMESTAMP},
+      </if>
+      <if test=" != null">
+        swm_id = #{swmId,jdbcType=VARCHAR},
+      </if>
+      <if test="roomId != null">
+        room_id = #{roomId,jdbcType=VARCHAR},
+      </if>
+      <if test="jobId != null">
+        job_id = #{jobId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+    </set>
+    where media_seq_no = #{mediaSeqNo,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="map">
+    update media_status
+    set hospital_id = #{hospitalId,jdbcType=VARCHAR},
+      trd_type = #{trdType,jdbcType=CHAR},
+      time_create = #{timeCreate,jdbcType=TIMESTAMP},
+      time_end = #{timeEnd,jdbcType=TIMESTAMP},
+      swm_id = #{swmId,jdbcType=VARCHAR},
+      room_id = #{roomId,jdbcType=VARCHAR},
+      job_id = #{jobId,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR}
+    where media_seq_no = #{mediaSeqNo,jdbcType=VARCHAR}
+  </update>
+  
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project">
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT A.*,
+        CONVERT(CONCAT(SUBSTR(A.update_time,1,10), ' ',SUBSTR(A.update_time,12,8)),CHAR) AS updateTimeFormat,
+        B3.name branchLv3Name,
+        B2.name branchLv2Name,
+        C1.name typeName
+        FROM com_project A
+        LEFT JOIN plat_code C1 ON C1.par_id = 'MT' AND C1.id = A.type
+        , com_branch B3, com_branch B2
+        WHERE A.branch_id = B3.id AND B3.par_id = B2.id AND B3.list LIKE
+        concat(#{branchList},'%')
+        <if test="keywords != null">
+            AND (
+            A.id LIKE concat("%",#{keywords},"%") OR
+            A.name LIKE concat("%",#{keywords},"%")
+            )
+        </if>
+        <if test="projId != null">
+            AND A.id = #{projId}
+        </if>
+        ORDER BY A.create_time DESC
+    </select>
+
+</mapper>

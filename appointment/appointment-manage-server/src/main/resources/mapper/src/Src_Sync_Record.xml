@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcSyncRecord">
+
+    <resultMap id="BaseResultMap" type="map">
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="date" jdbcType="VARCHAR" property="date"/>
+        <collection property="children" javaType="java.util.ArrayList" ofType="map">
+            <id column="id" jdbcType="VARCHAR" property="id" />
+	        <result column="result" jdbcType="VARCHAR" property="result" />
+	        <result column="remark" jdbcType="VARCHAR" property="remark" />
+	        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+            <result column="update_time" jdbcType="VARCHAR" property="updateTime"/>
+        </collection>
+    </resultMap>
+    
+    <select id="selectByDate" parameterType="map" resultMap="BaseResultMap">
+        SELECT id, hospital_id, date, result, remark,
+        CONVERT(CONCAT(SUBSTR(create_time,1,10), ' ',SUBSTR(create_time,12,8)),CHAR) AS create_time,
+        CONVERT(CONCAT(SUBSTR(update_time,1,10), ' ',SUBSTR(update_time,12,8)),CHAR) AS update_time  
+        FROM src_sync_record 
+        WHERE hospital_id = #{hospitalId}
+        AND date <![CDATA[ >= ]]> #{startDate} 
+        AND date <![CDATA[ <= ]]> #{endDate} 
+        
+    </select>
+</mapper>

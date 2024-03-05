@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcOrderDetail">
+
+    <insert id="insertSrcOrderDetail" parameterType="map">
+        INSERT INTO src_order_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            order_id, `action`, cust_id, oper_id, result, create_time, remark,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{orderId}, #{action}, #{custId}, #{termId}, #{result}, NOW(), #{remark},
+        </trim>
+    </insert>
+
+    <select id="selectSrcOrderDetailExist" parameterType="map" resultType="map">
+        SELECT COUNT(1) AS total
+        FROM src_order_detail AS detail
+        WHERE detail.order_id = #{orderId} AND detail.action = #{action} AND detail.cust_id = #{custId}
+    </select>
+
+    <update id="updateSrcOrderDetailExist" parameterType="map">
+        UPDATE src_order_detail
+        SET oper_id = #{termId}, result = #{result}, create_time = NOW(), remark = #{remark}
+        WHERE order_id = #{orderId} AND action = #{action} AND cust_id = #{custId}
+    </update>
+
+</mapper>

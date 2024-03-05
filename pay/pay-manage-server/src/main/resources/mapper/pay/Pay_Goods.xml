@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="payGoods">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+
+  <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+    SELECT *
+    FROM pay_goods
+  </select>
+
+  <insert id="add" parameterType="map">
+    INSERT INTO pay_goods
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      id, `name`, create_user, create_time
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      #{id}, #{name}, #{createUser},NOW()
+    </trim>
+  </insert>
+
+  <update id="updateById" parameterType="map">
+    UPDATE pay_goods
+    SET `name` = #{name},create_user = #{createUser},create_time=NOW()
+    WHERE id = #{id}
+  </update>
+
+  <delete id="deleteById" parameterType="map">
+    DELETE FROM pay_goods
+    WHERE id = #{id}
+  </delete>
+</mapper>

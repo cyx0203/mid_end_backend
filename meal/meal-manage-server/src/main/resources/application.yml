@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: meal-manage
+  config:
+    location: file:config/application.yml

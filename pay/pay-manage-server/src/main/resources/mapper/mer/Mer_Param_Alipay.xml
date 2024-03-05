@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+  <mapper namespace="merParamAlipay">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="merchant_id" property="merchantId" jdbcType="VARCHAR"/>
+    <result column="app_id" property="appId" jdbcType="VARCHAR"/>
+    <result column="third_merchant_id" property="thirdMerchantId" jdbcType="VARCHAR"/>
+    <result column="app_public_key" property="appPublicKey" jdbcType="VARCHAR"/>
+    <result column="app_private_key" property="appPrivateKey" jdbcType="VARCHAR"/>
+    <result column="public_key" property="publicKey" jdbcType="VARCHAR"/>
+    <result column="sign_type" property="signType" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+     merchant_id,app_id, third_merchant_id,app_public_key,app_private_key,public_key,sign_type
+  </sql>
+
+  <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+	SELECT
+    <include refid="Base_Column_List" />
+	FROM mer_param_alipay
+  </select>
+
+  <insert id="insert" parameterType="map">
+    INSERT INTO mer_param_alipay
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      merchant_id,app_id, third_merchant_id,app_public_key,app_private_key,public_key,sign_type
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      #{merchantId}, #{appId},#{thirdMerchantId},#{appPublicKey},#{appPrivateKey},#{publicKey},#{signType}
+    </trim>
+  </insert>
+
+  <update id="update" parameterType="map">
+    UPDATE mer_param_alipay
+    <set>
+      <if test="appId != null">app_id = #{appId},</if>
+      <if test="thirdMerchantId != null">third_merchant_id = #{thirdMerchantId},</if>
+      <if test="appPublicKey != null">app_public_key = #{appPublicKey},</if>
+      <if test="appPrivateKey != null">app_private_key = #{appPrivateKey},</if>
+      <if test="publicKey != null">public_key = #{publicKey},</if>
+      <if test="signType != null">sign_type = #{signType},</if>
+    </set>
+    WHERE merchant_id = #{merchantId}
+  </update>
+
+  <delete id="delete" parameterType="map">
+    DELETE FROM mer_param_alipay
+        WHERE merchant_id = #{merchantId}
+  </delete>
+
+
+
+</mapper>

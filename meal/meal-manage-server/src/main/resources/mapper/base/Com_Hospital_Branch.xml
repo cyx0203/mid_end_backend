@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hospitalbranch">
+
+    <select id="queryBranch" parameterType="map" resultType="map">
+        SELECT a.*  FROM th_midend.com_hosp_branch a
+        <where>
+            1=1
+            <if test="hospitalId != null">
+                and a.hospital_id = #{hospitalId}
+            </if>
+            <if test="parId != null">
+                and a.par_id = #{parId}
+            </if>
+            <if test="level != null">
+                and a.level = #{level}
+            </if>
+        </where>
+        order by a.level,a.list
+        limit 0,1
+    </select>
+
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT a.* , a.id `value`, a.name title  FROM th_midend.com_hosp_branch a
+        left join th_midend.com_hospital b on a.hospital_id = b.id
+        <where>
+            <if test="hospitalId != null">
+                and (b.id = #{hospitalId} or b.par_id =  #{hospitalId})
+            </if>
+
+        </where>
+    </select>
+
+    <select id="selectList" parameterType="map" resultType="map">
+        SELECT a.* , a.list `value`, a.name title  FROM th_midend.com_hosp_branch a
+        left join th_midend.com_hospital b on a.hospital_id = b.id
+        <where>
+            <if test="hospitalId != null">
+                and (b.id = #{hospitalId} or b.par_id =  #{hospitalId})
+            </if>
+
+        </where>
+    </select>
+
+</mapper>

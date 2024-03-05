@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ruleChannelSchedule">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="channel_id_list" jdbcType="VARCHAR" property="channelIdList"/>
+        <result column="dept_id_list" jdbcType="VARCHAR" property="deptIdList"/>
+        <result column="register_type_list" jdbcType="VARCHAR" property="registerTypeList"/>
+        <result column="allow" jdbcType="VARCHAR" property="allow"/>
+        <result column="is_lock" jdbcType="VARCHAR" property="isLock"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT A.*,
+        CONCAT(SUBSTR(A.create_time,1,10), ' ',SUBSTR(A.create_time,12,8)) AS createTimeFormat
+        FROM rule_channel_schedule A
+        WHERE A.hospital_id = #{hospitalId}
+        <if test="queryDeptId != null">
+            AND (A.dept_id_list LIKE concat("%", #{queryDeptId}, "%") OR A.dept_id_list = '##')
+        </if>
+        <if test="queryChannelId != null">
+            AND A.channel_id_list LIKE concat("%",#{queryChannelId},"%")
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="map" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO rule_channel_schedule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            hospital_id, channel_id_list, dept_id_list, register_type_list, allow, is_lock, create_user, create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{hospitalId}, #{channelIdList}, #{deptIdList}, #{registerTypeList}, #{allow}, '0', #{createUser}, NOW()
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="map">
+        UPDATE rule_channel_schedule
+        SET channel_id_list = #{channelIdList},
+        dept_id_list = #{deptIdList},
+        register_type_list = #{registerTypeList},
+        allow = #{allow}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="map">
+        DELETE FROM rule_channel_schedule
+        WHERE id = #{id}
+    </delete>
+</mapper>

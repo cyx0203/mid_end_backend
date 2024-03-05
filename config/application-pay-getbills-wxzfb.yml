@@ -1,0 +1,100 @@
+server:
+  port: 3355
+spring:
+  mvc:
+    async:
+#      超时时间60秒
+      request-timeout: 60000
+
+  http:
+    encoding.charset: UTF-8
+    encoding.enable: true
+    encoding.force: true
+    multipart:
+      maxFileSize: 1024MB
+      maxRequestSize: 1024MB
+
+  datasource:
+    url: jdbc:mysql://127.0.0.1:12233/midend_pay?useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&connectTimeout=60000&socketTimeout=60000&autoReconnect=true&autoReconnectForPools=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC&allowMultiQueries=true
+    username: root
+    password: Admin@86970000
+    #    password: Geit@86#97$0000
+    #    password: Abc_123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+    initial-size: 1
+    min-idle: 1
+    max-active: 20
+    max-wait: 60000
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    validation-query: SELECT 1 FROM DUAL
+    test-While-Idle: true
+    test-on-borrow: false
+    test-on-return: false
+    pool-prepared-statements: false
+    filters: stat,wall,log4j,config
+
+mybatis:
+  mapper-locations: classpath:mapper/*/*.xml
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+logging:
+  config: classpath:log4j2.xml
+#   config: classpath:logback-spring.xml
+file:
+  # 服务器资源文件存放路径 根据实际情况修改
+#  uploadDir: D:/Program Files (x86)/Apache Software Foundation/Tomcat 7.0/webapps/antdlib/
+  uploadDir: /home/wechat/pay/
+  # 服务器资源访问路径
+  url: http://localhost:8080/antdlib/
+
+
+sys-constants:
+  # 国光微信网关 MD5 KEY
+#  WechatPayGate_KEY: YDB6o7suJundefinedSzSkU1dabaTxBxoWKtty3C
+  WechatPayGate_KEY: IudaX2qWj33bjcL2IWgpUTa9LHFzDejU
+  # 国光微信网关 URL
+#  WechatPayGate_URL: http://chenjt.sddzyy_commonpay.frp.ggzzrj.cn:18881/YytPay/WxApi
+  WechatPayGate_URL: http://127.0.0.1:27881/YytPay/WxApi
+  # 国光支付宝网关 MD5 KEY
+#  AliPayPayGate_KEY: YDB6o7suJundefinedSzSkU1dabaTxBxoWKtty3C
+  AliPayPayGate_KEY: IudaX2qWj33bjcL2IWgpUTa9LHFzDejU
+  # 国光支付宝网关 URL
+#  AliPayPayGate_URL: http://chenjt.sddzyy95_commonpay.frp.ggzzrj.cn:18881/YytPay/AliApi
+  AliPayPayGate_URL: http://127.0.0.1:27881/YytPay/AliApi
+  # 国光上传第三方账单服务 URL
+  UPLOAD_THIRD_BILL_URL: http://127.0.0.1:18011/pay-check-server/getOutThirdCheckData
+  # 戴庄医院 id
+#  hospitalId: 1642554482292
+  # 公司医院 id
+  hospitalId: 1603372011021
+  # 微信、支付宝 proId - merchantId - payType 配置；从上到下 merchantId 分别来自 济宁行、建行、农行
+  pro_mer_list:
+    - proId: 1642554555872
+      merchantId: 1617496845
+      payType: WeChat
+    - proId: 1642554537145
+      merchantId: 1617191377
+      payType: WeChat
+    - proId: 1642554517207
+      merchantId: 1617870517
+      payType: WeChat
+    - proId: 1642554555872
+      merchantId: 2088341147357106
+      payType: AliPay
+    - proId: 1642554537145
+      merchantId: 2088341132032216
+      payType: AliPay
+    - proId: 1642554517207
+      merchantId: 2088341236199156
+      payType: AliPay
+#    - proId: 1603372139934
+#      merchantId: P20201022214005109
+#      merchantId: 1348984001
+#      payType: WeChat
+    - proId: 1603372139934
+#      merchantId: P20201022214005109
+      merchantId: 2088221973891545
+      payType: AliPay

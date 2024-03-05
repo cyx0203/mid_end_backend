@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mealorder">
+
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+        <result column="order_date" jdbcType="CHAR" property="orderDate" />
+        <result column="user_wx_id" jdbcType="VARCHAR" property="userWxId" />
+        <result column="ship_address_id" jdbcType="VARCHAR" property="shipAddressId" />
+        <result column="receiver_name" jdbcType="VARCHAR" property="receiverName" />
+        <result column="receiver_phone_no" jdbcType="CHAR" property="receiverPhoneNo" />
+        <result column="total_amt" jdbcType="DOUBLE" property="totalAmt" />
+        <result column="pay_amt" jdbcType="DOUBLE" property="payAmt" />
+        <result column="canteen_id" jdbcType="INTEGER" property="canteenId" />
+        <result column="hosp_branch_id" jdbcType="VARCHAR" property="hospBranchId" />
+        <result column="pay_type" jdbcType="VARCHAR" property="payType" />
+        <result column="pay_order_id" jdbcType="VARCHAR" property="payOrderId" />
+        <result column="status" jdbcType="CHAR" property="status" />
+        <result column="time_interval" jdbcType="CHAR" property="timeInterval" />
+        <result column="channel" jdbcType="VARCHAR" property="channel" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="ship_address_full" jdbcType="VARCHAR" property="shipAddressFull" />
+        <result column="address" jdbcType="VARCHAR" property="address" />
+        <result column="brname2" jdbcType="VARCHAR" property="brName2" />
+        <result column="brname3" jdbcType="VARCHAR" property="brName3" />
+        <result column="refund_oper_id" jdbcType="VARCHAR" property="refundOperId" />
+        <result column="refund_oper_name" jdbcType="VARCHAR" property="refundOperName" />
+        <result column="refund_time" jdbcType="VARCHAR" property="refundTime" />
+    </resultMap>
+
+    <select id="query-order" parameterType="map" resultMap="BaseResultMap">
+        SELECT a.* , d.address, e.name as refund_oper_name
+        FROM meal_order a
+        left join meal_canteen b on a.canteen_id = b.id
+        left join th_midend.com_hospital c on b.hospital_id = c.id
+        left join meal_ship_address d on a.ship_address_id = d.id
+        left join th_midend.sys_user e on a.refund_oper_id = e.account
+        <where>
+            <if test="id != null and id != ''">
+                a.id =#{id}
+            </if>
+            <if test="orderId  != null and orderId != ''">
+                AND a.order_id = #{orderId}
+            </if>
+            <if test="startDate != null and endDate != null">
+                and a.order_date between #{startDate} and #{endDate}
+            </if>
+            <if test="receiverName != null and receiverName != ''">
+                and a.receiver_name  LIKE concat("%",#{receiverName},"%")
+            </if>
+            <if test="receiverPhoneNo  != null and receiverPhoneNo != ''">
+                AND a.receiver_phone_no = #{receiverPhoneNo}
+            </if>
+            <if test="canteenId  != null and canteenId != ''">
+                AND a.canteen_id = #{canteenId}
+            </if>
+            <if test="hospitalId  != null and hospitalId != ''">
+                AND (c.id =#{hospitalId} or c.par_id = #{hospitalId})
+            </if>
+            <if test="status  != null and status != ''">
+                AND a.status = #{status}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="hosp-order" parameterType="map" resultType="map">
+        select count(*) num, sum(pay_amt) payTotalAtm, c.id, c.name
+        from meal_order a
+        left join meal_canteen b on a.canteen_id = b.id
+        left join th_midend.com_hospital c on b.hospital_id = c.id
+        <where>
+            <if test="level != null and level != ''">
+                c.level =#{level}
+            </if>
+            <if test="hospitalId  != null and hospitalId != ''">
+                AND (c.id =#{hospitalId} or c.par_id = #{hospitalId})
+            </if>
+            <if test="startDate != null and endDate != null">
+                and a.order_date between #{startDate} and #{endDate}
+            </if>
+        </where>
+    </select>
+
+    <update id="update-orderStatus" parameterType="map">
+        update meal_order
+        set status = '5'
+        <where>
+          ship_address_full = #{shipAddressFull} and order_date = #{orderDate}
+          <if test="canteenId != null">
+              and canteen_id = #{canteenId}
+          </if>
+        </where>
+    </update>
+
+
+
+</mapper>

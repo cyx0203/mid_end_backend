@@ -1,0 +1,49 @@
+server:
+  port: 8026
+
+app:
+  version: 1.0.0
+
+spring:
+  http:
+    encoding.charset: UTF-8
+    encoding.enable: true
+    encoding.force: true
+    multipart:
+      maxFileSize: 1024MB
+      maxRequestSize: 1024MB
+
+  datasource:
+    url: jdbc:mysql://127.0.0.1:6609/midend_survey?useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&connectTimeout=60000&socketTimeout=60000&autoReconnect=true&autoReconnectForPools=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC&allowMultiQueries=true
+    username: root
+#    password: Admin@86970000
+    password: Geit@86#97$0000
+    #    password: Abc_123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+    initial-size: 1
+    min-idle: 1
+    max-active: 20
+    max-wait: 60000
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    validation-query: SELECT 1 FROM DUAL
+    test-While-Idle: true
+    test-on-borrow: false
+    test-on-return: false
+    pool-prepared-statements: false
+    filters: stat,wall,log4j,config
+
+mybatis:
+  mapper-locations: classpath:mapper/*/*.xml
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+logging:
+  config: classpath:log4j2.xml
+
+file:
+  # 服务器资源文件存放路径 根据实际情况修改
+  uploadDir: D:/Program Files (x86)/Apache Software Foundation/Tomcat 7.0/webapps/antdlib/
+  # 服务器资源访问路径
+  url: http://localhost:8080/antdlib/

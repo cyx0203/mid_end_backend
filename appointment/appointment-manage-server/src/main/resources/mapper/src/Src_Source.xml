@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcSource">
+
+    <insert id="insertBatch" parameterType="map">
+        insert into src_source
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="insertList != null">
+                src_sch_id, `order`, stime, etime, status, num_type,
+            </if>
+        </trim>
+        values
+        <foreach collection="insertList" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                <if test="item != null">
+                    #{item.srcSchId}, #{item.order}, #{item.stime}, #{item.etime}, '0', #{item.numType},
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+
+    <select id="selectScheduleId" parameterType="map" resultType="map">
+        SELECT A.*
+        FROM (
+        SELECT src.id AS id,
+              src.order AS `order`,
+              src.stime AS stime,
+              src.etime AS etime,
+              src.status AS status,
+              src.num_type AS numType,
+              so.idcard AS idcard,
+              so.user_id AS userId,
+              so.user_name AS userName,
+              so.user_phone AS userPhone,
+              C.name AS custName,
+         CONVERT(CONCAT(SUBSTR(so.update_time, 1, 10), ' ',SUBSTR(so.update_time, 12, 8)), CHAR) AS updateTime
+
+         FROM src_source src
+         LEFT JOIN src_order so ON so.src_id = src.id
+         LEFT JOIN midend.plat_channel C ON so.cust_id = C.id
+         WHERE src.src_sch_id = #{scheduleId}
+         HAVING 1
+         ORDER BY src.id, so.id DESC
+        ) AS A
+        GROUP BY A.id
+    </select>
+
+    <delete id="deleteByTask" parameterType="map">
+        DELETE src FROM src_source src
+        LEFT JOIN src_schedule sch ON src.src_sch_id = sch.id
+        LEFT JOIN src_date sd ON sch.src_date_id = sd.id
+        WHERE sd.date <![CDATA[ < ]]> DATE_FORMAT(NOW(),'%Y%m%d')
+    </delete>
+
+    <select id="selectMaxOrder" parameterType="map" resultType="map">
+        SELECT MAX(`order`) AS maxOrder
+        FROM src_source
+        WHERE src_sch_id = #{scheduleId}
+    </select>
+
+    <select id="selectAddToHis" parameterType="map" resultType="map">
+        SELECT
+        CONVERT(CONCAT(SUBSTR(sdate.date,1,4),'-',SUBSTR(sdate.date,5,2),'-',SUBSTR(sdate.date,7,2)), CHAR) AS `date`,
+        sch.noon AS noon,
+        sch.dept_id AS deptCode,
+        sch.register_type AS registerType,
+        sch.doctor_id AS doctorCode,
+        src.id AS sourceId,
+        src.order AS `order`,
+        CONVERT(CONCAT(SUBSTR(src.stime,1,2),':',SUBSTR(src.stime,3,2)), CHAR) AS `start`,
+        CONVERT(CONCAT(SUBSTR(src.etime,1,2),':',SUBSTR(src.etime,3,2)), CHAR) AS `end`,
+        src.status AS status
+        FROM src_source src
+        LEFT JOIN src_schedule sch ON sch.id = src.src_sch_id
+        LEFT JOIN src_date sdate ON sdate.id = sch.src_date_id
+        WHERE src.src_sch_id = #{scheduleId} AND src.order > #{maxOrder}
+    </select>
+
+    <select id="selectByKeywords" parameterType="map" resultType="map">
+        SELECT srcSchedule.noon, srcSchedule.dept_id AS deptId, dept.name AS deptName, srcSchedule.register_type AS
+        registerType, regType.name AS registerTypeName, srcSchedule.doctor_id AS doctorId, doctor.name AS doctorName,
+        srcSource.order, srcSource.stime, srcSource.etime, srcSource.num_type AS numType,
+        srcSourceH.order AS horder, srcSourceH.stime AS hstime, srcSourceH.etime AS hetime, srcSourceH.num_type AS hnumType, 
+        srcOrder.order_no AS orderNo, srcOrder.idcard, srcOrder.user_id AS userId, srcOrder.user_name AS userName,
+        srcOrder.user_phone AS userPhone, srcOrder.oper_id operId,
+        platChannel.name AS custName
+        FROM src_date srcDate
+        LEFT JOIN src_schedule srcSchedule ON srcDate.id = srcSchedule.src_date_id
+        LEFT OUTER JOIN src_source srcSource ON srcSchedule.id = srcSource.src_sch_id
+        LEFT OUTER JOIN src_source_h srcSourceH ON srcSchedule.id = srcSourceH.src_sch_id 
+        LEFT OUTER JOIN src_order srcOrder ON srcSource.id = srcOrder.src_id AND (srcOrder.status = '2' OR srcOrder.status = '9')
+        LEFT JOIN midend.plat_channel platChannel ON srcOrder.cust_id = platChannel.id AND platChannel.active = '1'
+        LEFT OUTER JOIN sch_dept dept ON dept.id = srcSchedule.dept_id
+        LEFT OUTER JOIN midend.com_register_type regType ON regType.id = srcSchedule.register_type
+        LEFT OUTER JOIN midend.com_doctor doctor ON doctor.id = srcSchedule.doctor_id
+        WHERE srcDate.date = #{sdate} AND srcDate.hospital_id = #{hospitalId}
+        AND srcSchedule.dept_id = #{deptId} AND srcSchedule.register_type = #{registerTypeId}
+        <if test="doctorId != null">
+            AND srcSchedule.doctor_id = #{doctorId}
+        </if>
+        ORDER BY srcSource.stime, srcSource.order, srcSourceH.stime, srcSourceH.order
+    </select>
+    
+    <update id="updateStop" parameterType="map">
+        UPDATE src_source ss
+        <set>
+            <if test="numType != null">ss.num_type = #{numType},</if>
+        </set>
+        WHERE ss.src_sch_id = #{srcSchId} 
+        AND (ss.order between #{startOrder} AND #{endOrder})
+    </update>
+</mapper>

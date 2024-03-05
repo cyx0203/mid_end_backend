@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcschedule">
+  <resultMap id="BaseResultMap" type="map">
+    <id column="id" jdbcType="CHAR" property="id" />
+    <result column="src_date_id" jdbcType="INTEGER" property="srcDateId" />
+    <result column="noon" jdbcType="CHAR" property="noon" />
+    <result column="dept_id" jdbcType="VARCHAR" property="deptId" />
+    <result column="job_id" jdbcType="VARCHAR" property="jobId" />
+    <result column="active" jdbcType="CHAR" property="active" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, src_date_id, noon, dept_id, job_id, active
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from src_schedule
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from src_schedule
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="map">
+    insert into src_schedule (id, src_date_id, noon, 
+      dept_id, job_id, active)
+    values (#{id,jdbcType=CHAR}, #{srcDateId,jdbcType=INTEGER}, #{noon,jdbcType=CHAR}, 
+      #{deptId,jdbcType=VARCHAR}, #{jobId,jdbcType=VARCHAR}, #{active,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="map">
+    insert into src_schedule
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="srcDateId != null">
+        src_date_id,
+      </if>
+      <if test="noon != null">
+        noon,
+      </if>
+      <if test="deptId != null">
+        dept_id,
+      </if>
+      <if test="jobId != null">
+        job_id,
+      </if>
+      <if test="active != null">
+        active,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=CHAR},
+      </if>
+      <if test="srcDateId != null">
+        #{srcDateId,jdbcType=INTEGER},
+      </if>
+      <if test="noon != null">
+        #{noon,jdbcType=CHAR},
+      </if>
+      <if test="deptId != null">
+        #{deptId,jdbcType=VARCHAR},
+      </if>
+      <if test="jobId != null">
+        #{jobId,jdbcType=VARCHAR},
+      </if>
+      <if test="active != null">
+        #{active,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="map">
+    update src_schedule
+    <set>
+      <if test="srcDateId != null">
+        src_date_id = #{srcDateId,jdbcType=INTEGER},
+      </if>
+      <if test="noon != null">
+        noon = #{noon,jdbcType=CHAR},
+      </if>
+      <if test="deptId != null">
+        dept_id = #{deptId,jdbcType=VARCHAR},
+      </if>
+      <if test="jobId != null">
+        job_id = #{jobId,jdbcType=VARCHAR},
+      </if>
+      <if test="active != null">
+        active = #{active,jdbcType=CHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="map">
+    update src_schedule
+    set src_date_id = #{srcDateId,jdbcType=INTEGER},
+      noon = #{noon,jdbcType=CHAR},
+      dept_id = #{deptId,jdbcType=VARCHAR},
+      job_id = #{jobId,jdbcType=VARCHAR},
+      active = #{active,jdbcType=CHAR}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  
+</mapper>

@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: appointment-api
+  config:
+    location: file:config/application.yml

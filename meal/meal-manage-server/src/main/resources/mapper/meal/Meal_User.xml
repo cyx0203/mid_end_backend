@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mealuser">
+
+    <resultMap id="BaseResultMap" type="map">
+        <id column="wx_id" jdbcType="VARCHAR" property="wxId" />
+        <result column="inpatient_id" jdbcType="VARCHAR" property="inpatientId" />
+        <result column="card_no" jdbcType="VARCHAR" property="cardNo" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="sex" jdbcType="CHAR" property="sex" />
+        <result column="birthday" jdbcType="CHAR" property="birthday" />
+        <result column="in_date" jdbcType="CHAR" property="inDate" />
+        <result column="idno" jdbcType="CHAR" property="idno" />
+        <result column="diag" jdbcType="VARCHAR" property="diag" />
+    </resultMap>
+    <select id="query-user" parameterType="map" resultMap="BaseResultMap">
+        SELECT *
+        FROM meal_user
+        <where>
+            <if test="inpatientId != null and inpatientId != ''">
+                inpatient_id =#{inpatientId}
+            </if>
+            <if test="name != null and name != ''">
+                and `name` LIKE concat("%",#{name},"%")
+            </if>
+        </where>
+    </select>
+
+
+
+    <insert id="save-user" parameterType="map">
+        insert into meal_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="wxId != null">
+                wx_id,
+            </if>
+            <if test="inpatientId != null">
+                inpatient_id,
+            </if>
+            <if test="cardNo != null">
+                card_no,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="birthday != null">
+                birthday,
+            </if>
+            <if test="inDate != null">
+                in_date,
+            </if>
+            <if test="idno != null">
+                idno,
+            </if>
+            <if test="diag != null">
+                diag,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="wxId != null">
+                #{wxId,jdbcType=VARCHAR},
+            </if>
+            <if test="inpatientId != null">
+                #{inpatientId,jdbcType=VARCHAR},
+            </if>
+            <if test="card_no != null">
+                #{cardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=CHAR},
+            </if>
+            <if test="birthday != null">
+                #{birthday,jdbcType=CHAR},
+            </if>
+            <if test="inDate != null">
+                #{inDate,jdbcType=CHAR},
+            </if>
+            <if test="idno != null">
+                #{idno,jdbcType=CHAR},
+            </if>
+            <if test="diag != null">
+                #{diag,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="update-user" parameterType="map">
+        update meal_user
+        <set>
+            <if test="name != null">
+                `name` = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="inpatientId != null">
+                inpatient_id = #{inpatientId,jdbcType=VARCHAR},
+            </if>
+            <if test="cardNo != null">
+                card_no = #{cardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="inDate != null">
+                in_date = #{inDate,jdbcType=CHAR},
+            </if>
+            <if test="idno != null">
+                idno = #{idno,jdbcType=CHAR},
+            </if>
+            <if test="diag != null">
+                diag = #{diag,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <where>
+            wx_id= #{wxId}
+        </where>
+    </update>
+
+    <delete id="delete-dishtype" parameterType="map">
+        delete from meal_user
+        where wxId = #{wx_id}
+  </delete>
+
+
+  
+</mapper>

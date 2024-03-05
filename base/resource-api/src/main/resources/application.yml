@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: resource
+  config:
+    location: file:config/application.yml

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcStopRecord">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="src_sch_id" jdbcType="CHAR" property="srcSchId"/>
+        <result column="notice_time" jdbcType="VARCHAR" property="noticeTime"/>
+        <result column="notice_type" jdbcType="VARCHAR" property="noticeType"/>
+        <result column="reason" jdbcType="VARCHAR" property="reason"/>
+        <result column="reboot" jdbcType="VARCHAR" property="reboot"/>
+        <result column="stop_type" jdbcType="VARCHAR" property="stopType"/>
+        <result column="start_order" jdbcType="VARCHAR" property="startOrder"/>
+        <result column="end_order" jdbcType="VARCHAR" property="endOrder"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT SR.*,
+        SS.noon AS noon,
+        DP.name As deptName,
+        RT.name As typeName,
+        DC.name As doctName,
+        CONVERT(CONCAT(SUBSTR(SR.create_time,1,10), ' ',SUBSTR(SR.create_time,12,8)),CHAR) AS createTimeFormat,
+        CONCAT(SUBSTR(SD.date,1,4),'-',SUBSTR(SD.date,5,2),'-',SUBSTR(SD.date,7,2)) AS aptDate
+        FROM src_schedule SS
+        INNER JOIN src_stop_record SR ON SR.src_sch_id = SS.id
+        INNER JOIN sch_dept DP ON DP.id = SS.dept_id
+        INNER JOIN src_date SD ON SD.id = SS.src_date_id
+        INNER JOIN midend.com_register_type RT ON RT.id = SS.register_type
+        LEFT OUTER JOIN midend.com_doctor DC ON DC.id = SS.doctor_id
+        WHERE SR.hospital_id = #{hospitalId}
+        AND LEFT(SR.create_time, 10) <![CDATA[ >= ]]> #{startDate} 
+        AND LEFT(SR.create_time, 10) <![CDATA[ <= ]]> #{endDate}
+        <if test="deptId != null">
+            AND (SS.dept_id = #{deptId})
+        </if>
+        <if test="registerTypeId != null">
+            AND (SS.register_type = #{registerTypeId})
+        </if>
+        <if test="doctorId != null">
+            AND (SS.doctor_id = #{doctorId})
+        </if>
+        ORDER BY SR.create_time  DESC
+    </select>
+
+    <update id="rebootRecord" parameterType="map">
+        UPDATE src_stop_record
+        SET reboot = '1'
+        WHERE src_sch_id = #{srcSchId}
+    </update>
+
+    <insert id="insert" parameterType="map" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO src_stop_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            hospital_id, src_sch_id, notice_time, notice_type, reason, stop_type, start_order, end_order, create_user, create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{hospitalId}, #{srcSchId}, #{noticeTime}, #{noticeType}, #{reason}, #{stopType}, #{startOrder}, #{endOrder}, #{createUser}, NOW()
+        </trim>
+    </insert>
+</mapper>

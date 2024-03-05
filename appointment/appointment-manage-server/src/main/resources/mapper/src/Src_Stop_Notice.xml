@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcStopNotice">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="record_id" jdbcType="INTEGER" property="recordId"/>
+        <result column="order_no" jdbcType="INTEGER" property="orderNo"/>
+        <result column="idcard" jdbcType="VARCHAR" property="idcard"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_phone" jdbcType="VARCHAR" property="userPhone"/>
+        <result column="tip" jdbcType="VARCHAR" property="tip"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+    </resultMap>
+
+    <select id="selectById" parameterType="map" resultMap="BaseResultMap">
+        SELECT * 
+        FROM src_stop_notice
+        WHERE record_id = #{recordId}
+    </select>
+
+    <update id="update" parameterType="map">
+        UPDATE src_stop_notice
+        <set>
+            <if test="tip != null">tip = #{tip},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertBatch" parameterType="map">
+        INSERT INTO src_stop_notice
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="list != null">
+                record_id, order_no, idcard, user_id, user_name, user_phone, tip,
+            </if>
+        </trim>
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                <if test="item != null">
+                    #{item.recordId}, #{item.orderNo}, #{item.idcard}, #{item.userId}, #{item.userName}, #{item.userPhone}, #{item.tip},
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+</mapper>

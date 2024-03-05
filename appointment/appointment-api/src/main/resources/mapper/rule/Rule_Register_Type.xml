@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ruleRegisterType">
+
+    <select id="selectRegType" parameterType="map" resultType="java.lang.String">
+        SELECT regRule.register_type AS regType
+
+        FROM rule_register_type AS regRule
+
+        WHERE active = '1' AND hospital_id = 'H001'
+        AND (regRule.channel_id_list LIKE concat('%', #{custId}, '%') OR regRule.channel_id_list = '##')
+        AND (regRule.dept_id_list LIKE concat('%', #{deptCode}, '%') OR regRule.dept_id_list = '##')
+
+        ORDER BY regRule.register_type
+    </select>
+
+</mapper>

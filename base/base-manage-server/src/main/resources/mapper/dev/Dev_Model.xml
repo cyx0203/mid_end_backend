@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="devModel">
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT M.*,
+        F.name AS ftyName
+        FROM dev_model M
+        LEFT JOIN dev_factory F ON F.id = M.fac_id
+        WHERE 1 = 1
+        <if test="typeId != null">
+            AND M.type_id = #{typeId}
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="map">
+        INSERT INTO dev_model
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            type_id, model, mark, fac_id
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{typeId}, #{model}, #{mark}, #{facId}
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="map">
+        UPDATE dev_model
+        <set>
+            <if test="model != null">model = #{model,jdbcType=VARCHAR},</if>
+            <if test="mark != null">mark = #{mark,jdbcType=VARCHAR},</if>
+            <if test="facId != null">fac_id = #{facId,jdbcType=VARCHAR},</if>
+        </set>
+        WHERE model = #{omodel} AND type_id = #{typeId}
+    </update>
+
+    <delete id="deleteById" parameterType="map">
+        DELETE FROM dev_model
+        WHERE type_id = #{typeId} AND model = #{model}
+    </delete>
+
+</mapper>

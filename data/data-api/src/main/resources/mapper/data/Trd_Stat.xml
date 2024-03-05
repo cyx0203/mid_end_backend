@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="trdstat">
+
+  <insert id="insertSta" parameterType="map">
+    insert into trd_stat
+       (
+        STAT_DATE,
+        HOSPITAL_ID,
+        CHANNEL,
+        STAT_TAG,
+        DEV_ID,
+        APP,
+        SUM_FEE,
+        COUNT_OK,
+        COUNT_FAIL,
+        TYPE
+        )
+    values
+    <foreach collection="list" item="item" index="index" separator="," >
+    (
+        
+        #{item.trdDate},
+        #{item.hospitalId},
+        #{item.channel},
+        #{item.type},
+        #{item.devId},
+        #{item.app},
+        #{item.amt},
+        #{item.countOk},
+        #{item.countFail},
+        #{item.pad1}
+        )
+    
+    </foreach>
+  </insert>
+
+</mapper>

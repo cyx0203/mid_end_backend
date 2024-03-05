@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="platChannel">
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT A.*
+        FROM midend.plat_channel A
+        LEFT JOIN midend.plat_channel_hospital B ON A.id = B.channel_id
+        LEFT JOIN midend.com_hospital C ON B.hospital_id = C.id
+        WHERE 1 = 1
+        <if test="hospitalId != null">
+            AND (C.id = #{hospitalId} OR C.par_id = #{hospitalId})
+        </if>
+        <if test="keywords != null">
+            AND (
+            id LIKE concat("%",#{keywords},"%") OR
+            name LIKE concat("%",#{keywords},"%")
+            )
+        </if>
+        GROUP BY A.id
+    </select>
+
+
+</mapper>

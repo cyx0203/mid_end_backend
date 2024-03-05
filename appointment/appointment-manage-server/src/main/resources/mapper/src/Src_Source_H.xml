@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcSourceH">
+
+    <insert id="insertByTask" parameterType="map">
+        INSERT INTO src_source_h (
+        SELECT src.*
+        FROM src_source src
+        LEFT JOIN src_schedule sch ON src.src_sch_id = sch.id
+        LEFT JOIN src_date sd ON sch.src_date_id = sd.id
+        WHERE sd.date <![CDATA[ < ]]> DATE_FORMAT(NOW(),'%Y%m%d')
+        )
+    </insert>
+
+</mapper>

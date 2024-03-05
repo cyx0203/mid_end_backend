@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ruleSource">
+
+    <resultMap id="RuleSourceMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="dept_id_list" jdbcType="VARCHAR" property="deptIdList"/>
+        <result column="register_type" jdbcType="VARCHAR" property="registerType"/>
+        <result column="doctor_id_list" jdbcType="VARCHAR" property="doctorIdList"/>
+        <result column="registerTypeName" jdbcType="VARCHAR" property="registerTypeName"/>
+        <result column="active" jdbcType="VARCHAR" property="active"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+        <collection property="List" javaType="java.util.ArrayList" ofType="map">
+            <result column="stime" jdbcType="VARCHAR" property="stime" />
+            <result column="etime" jdbcType="VARCHAR" property="etime" />
+            <result column="source_num" jdbcType="VARCHAR" property="sourceNum" />
+        </collection>
+    </resultMap>
+    
+    <select id="selectById" parameterType="map" resultMap="RuleSourceMap">
+        SELECT  a.id, a.dept_id_list, a.register_type, a.doctor_id_list, a.create_user, CONCAT(SUBSTR(a.create_time,1,10), ' ',SUBSTR(a.create_time,12,8)) AS create_time, a.active,
+        b.name AS registerTypeName, advance.stime, advance.etime, advance.source_num
+        FROM rule_source a
+        LEFT OUTER JOIN midend.com_register_type b ON b.id = a.register_type 
+        LEFT OUTER JOIN rule_source_advance advance ON a.id = advance.rule_source_id 
+        AND advance.pid IN (SELECT rs.pid FROM rule_season rs WHERE rs.active = '1')
+        WHERE a.hospital_id = #{hospitalId}
+        <if test="deptId != null">
+            AND a.dept_id_list LIKE concat("%",#{deptId},"%") 
+        </if>
+        <if test="registerType != null">
+            AND a.register_type = #{registerType}
+        </if>
+        <if test="active != null">
+            AND a.active = #{active}
+        </if>
+        <if test="doctorId != null">
+            AND a.doctor_id_list LIKE concat("%",#{doctorId},"%")
+        </if>
+        ORDER BY a.dept_id_list, a.register_type, advance.stime
+    </select>
+    
+    <update id="updateById" parameterType="map">
+        UPDATE rule_source 
+        <set>
+            <if test="deptIdList != null">dept_id_list = #{deptIdList},</if>
+            <if test="registerType != null">register_type = #{registerType},</if>
+            <if test="doctorIdList != null">doctor_id_list = #{doctorIdList},</if>
+            <if test="active != null">active = #{active},</if>
+        </set>
+        WHERE id = #{oid}
+    </update>
+        
+    <insert id="insert" parameterType="map" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO rule_source
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            hospital_id, dept_id_list, register_type, doctor_id_list, active, create_user, create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{hospitalId}, #{deptIdList}, #{registerType}, #{doctorIdList}, #{active}, #{createUser}, NOW()
+        </trim>
+    </insert>
+    
+    <delete id="deleteById" parameterType="map">
+        DELETE  FROM rule_source 
+        WHERE id = #{oid}
+    </delete>
+</mapper>

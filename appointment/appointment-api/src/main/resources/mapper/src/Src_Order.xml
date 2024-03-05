@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcOrder">
+
+    <select id="countLockedOrder" parameterType="map" resultType="map">
+        SELECT COUNT(1) AS total
+
+        FROM src_order AS ord
+
+        WHERE ord.status = '1' AND ord.user_id = #{patientId}
+    </select>
+
+    <select id="countRepeatedOrder" parameterType="map" resultType="map">
+        SELECT COUNT(1) AS total
+
+        FROM src_order AS ord
+
+        WHERE (ord.status = '2' OR ord.status = '9') AND ord.user_id = #{patientId} AND ord.src_sch_id = #{scheduleId}
+    </select>
+
+    <insert id="insertNewSrcOrder" parameterType="map">
+        <selectKey keyProperty="orderNo,orderId,action" keyColumn="orderNo,orderId,action" resultType="map" order="AFTER">
+            SELECT ord.order_no AS orderNo, ord.id AS orderId, ord.status AS action
+            FROM src_order AS ord
+            WHERE ord.id = last_insert_id()
+        </selectKey>
+        INSERT INTO src_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            order_no, src_id, src_sch_id, cust_id, `date`, idcard, user_id, user_name, user_phone,
+            merchant_id, `status`, oper_id, update_time, create_source, create_time,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            uuid_format(uuid()), #{srcId}, #{scheduleId}, #{custId}, #{date}, #{idCard}, #{patientId}, #{patientName}, #{phoneNo},
+            '', '1', #{termId}, NOW(), '1', NOW(),
+        </trim>
+    </insert>
+
+    <insert id="insertNewSrcOrderForHIS" parameterType="map">
+        <selectKey keyProperty="orderNo,orderId,action" keyColumn="orderNo,orderId,action" resultType="map" order="AFTER">
+            SELECT ord.order_no AS orderNo, ord.id AS orderId, ord.status AS action
+            FROM src_order AS ord
+            WHERE ord.id = last_insert_id()
+        </selectKey>
+        INSERT INTO src_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            order_no, src_id, src_sch_id, cust_id, `date`, idcard, user_id, user_name, user_phone,
+            merchant_id, `status`, oper_id, update_time, create_source, create_time,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            uuid_format(uuid()), #{srcId}, #{scheduleId}, #{custId}, #{date}, #{idCard}, #{patientId}, #{patientName}, #{phoneNo},
+            '', '1', #{termId}, NOW(), '2', NOW(),
+        </trim>
+    </insert>
+
+    <select id="selectOrder" parameterType="map" resultType="map">
+        SELECT ord.order_no AS orderNo,
+               IFNULL(ord.bus_order_no, '') AS busOrderNo,
+               sch.dept_id AS deptCode,
+               dept.name AS deptName,
+               regType.id AS regType,
+               regType.`desc` AS regTypeName,
+               IFNULL(doc.name, '') AS docName,
+               IFNULL(title.name, '') AS docTitle,
+               DATE_FORMAT(ord.date, '%Y-%m-%d') AS regDate,
+               IF(src.stime IS NULL, '', CONCAT_WS('-', TIME_FORMAT(CONCAT(src.stime, '00'), '%H:%i'), TIME_FORMAT(CONCAT(src.etime, '00'), '%H:%i'))) AS regTime,
+               IFNULL(src.`order`, '') AS sequence,
+               DATE_FORMAT(ord.create_time, '%Y-%m-%d %H:%i:%s') AS opTime,
+               IFNULL(ord.pay_fee, '0.00') AS payFee,
+               ord.oper_id AS termId,
+               ord.cust_id AS source,
+               sch.active AS stopStatus,
+               ord.status AS orderStatus
+
+        FROM src_order AS ord
+        INNER JOIN src_schedule AS sch ON ord.src_sch_id = sch.id
+        LEFT JOIN src_source AS src ON ord.src_id = src.id
+        LEFT JOIN midend.com_doctor AS doc ON sch.doctor_id = doc.id
+        LEFT JOIN midend.com_doctor_title AS title ON doc.title_id = title.id
+        LEFT JOIN sch_dept AS dept ON dept.id = sch.dept_id
+        LEFT JOIN midend.com_register_type AS regType ON regType.id = sch.register_type
+        
+        WHERE ord.user_id = #{patientId} AND (ord.status = '2' OR ord.status = '3' OR ord.status = '9')
+        AND DATE_FORMAT(ord.create_time, '%Y%m%d') BETWEEN DATE_FORMAT(#{startDate}, '%Y%m%d') AND DATE_FORMAT(#{endDate}, '%Y%m%d')
+        ORDER BY ord.date DESC
+    </select>
+
+    <update id="updateOrder" parameterType="map">
+        <selectKey keyProperty="scheduleId,sourceId,sequence,regDate,regTime,idCard,patientId,patientName,phoneNo,termId,regType,regTypeName,deptCode,deptName,docCode,docName,docTitle,noon,orderId,action"
+                   keyColumn="scheduleId,sourceId,sequence,regDate,regTime,idCard,patientId,patientName,phoneNo,termId,regType,regTypeName,deptCode,deptName,docCode,docName,docTitle,noon,orderId,action"
+                   resultType="map" order="AFTER">
+            SELECT sch.id AS scheduleId,
+                   src.id AS sourceId,
+                   src.`order` AS sequence,
+                   DATE_FORMAT(ord.date, '%Y-%m-%d') AS regDate,
+                   CONCAT_WS('-', TIME_FORMAT(CONCAT(src.stime, '00'), '%H:%i'), TIME_FORMAT(CONCAT(src.etime, '00'), '%H:%i')) AS regTime,
+                   ord.idcard AS idCard,
+                   ord.user_id AS patientId,
+                   ord.user_name AS patientName,
+                   ord.user_phone AS phoneNo,
+                   ord.oper_id AS termId,
+                   regType.id AS regType,
+                   regType.`desc` AS regTypeName,
+                   dept.id AS deptCode,
+                   dept.name AS deptName,
+                   IFNULL(doc.id, '') AS docCode,
+                   IFNULL(doc.name, '') AS docName,
+                   IFNULL(docTitle.name, '') AS docTitle,
+                   sch.noon AS noon,
+                   ord.id AS orderId,
+                   ord.status AS action
+
+            FROM src_order AS ord
+            INNER JOIN src_source AS src ON ord.src_id = src.id
+            INNER JOIN src_schedule AS sch ON ord.src_sch_id = sch.id
+            INNER JOIN midend.com_register_type AS regType ON sch.register_type = regType.id
+            INNER JOIN sch_dept AS dept ON sch.dept_id = dept.id
+            LEFT JOIN midend.com_doctor AS doc ON sch.doctor_id = doc.id
+            LEFT JOIN midend.com_doctor_title AS docTitle ON doc.title_id = docTitle.id
+
+            WHERE ord.order_no = #{orderNo}
+        </selectKey>
+        UPDATE src_order AS ord,
+            src_source AS src
+
+        SET ord.pay_type = #{payType}, ord.pay_fee = #{payFee}, ord.merchant_id = #{merchantId},
+            ord.trans_order_no = #{transOrderNo}, ord.bus_order_no = #{busOrderNo}, ord.pay_account = #{payAccount},
+            ord.`status` = '2', ord.update_time = NOW(), src.`status` = '2'
+
+        WHERE ord.src_id = src.id AND ord.`status` = '1' AND ord.order_no = #{orderNo}
+    </update>
+
+    <update id="updateOrderForHIS" parameterType="map">
+        <selectKey keyProperty="orderId,action,termId" keyColumn="orderId,action,termId" resultType="map" order="AFTER">
+            SELECT ord.id AS orderId,
+                   ord.status AS action,
+                   ord.oper_id AS termId
+
+            FROM src_order AS ord
+
+            WHERE ord.order_no = #{orderNo}
+        </selectKey>
+        UPDATE src_order AS ord,
+            src_source AS src
+
+        SET ord.pay_type = #{payType}, ord.pay_fee = #{payFee}, ord.merchant_id = #{merchantId}, ord.trans_order_no = #{transOrderNo},
+            ord.pay_account = #{payAccount}, ord.`status` = '2', ord.update_time = NOW(),
+            src.`status` = '2'
+
+        WHERE ord.src_id = src.id AND ord.`status` = '1' AND ord.order_no = #{orderNo}
+    </update>
+
+</mapper>

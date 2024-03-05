@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="hosp_branch_id" jdbcType="VARCHAR" property="hospBranchId"/>
+        <result column="term" jdbcType="VARCHAR" property="term"/>
+        <result column="inst_addr" jdbcType="VARCHAR" property="instAddr"/>
+        <result column="use_stat" jdbcType="CHAR" property="useStat"/>
+        <result column="ip" jdbcType="VARCHAR" property="ip"/>
+        <result column="port" jdbcType="VARCHAR" property="port"/>
+        <result column="mac" jdbcType="VARCHAR" property="mac"/>
+        <result column="type_id" jdbcType="VARCHAR" property="typeId"/>
+        <result column="model" jdbcType="VARCHAR" property="model"/>
+        <result column="code" jdbcType="VARCHAR" property="code"/>
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="work1" jdbcType="CHAR" property="work1"/>
+        <result column="work2" jdbcType="CHAR" property="work2"/>
+    </resultMap>
+
+    <select id="selectDevListWithState" parameterType="map" resultMap="BaseResultMap">
+        SELECT A1.*
+        FROM(
+            SELECT A.*,
+            IFNULL(B.value,'9') stateValue,
+            C.name stateName,
+            C.color stateColor,
+            G.name devTypeName,
+            D.name branchLv3Name,
+            E.name branchLv2Name
+            FROM midend.dev_device A
+            LEFT JOIN  midend.com_hospital A1 ON A.hospital_id = A1.id
+            LEFT JOIN des_dev_state B ON A.id = B.dev_id AND B.cat_id = '2001' AND B.hospital_id = A.hospital_id
+            LEFT JOIN des_state C ON B.cat_id = C.cat_id AND B.value = C.value
+            LEFT JOIN midend.dev_type G ON A.type_id = G.id
+            LEFT JOIN midend.com_hosp_branch D ON A.hosp_branch_id = D.id
+            LEFT JOIN midend.com_hosp_branch E ON D.par_id = E.id
+            WHERE (A.hospital_id = #{hospitalId} OR A1.par_id = #{hospitalId})
+            AND A.use_stat = '0'
+            <if test="branchList != null">
+                AND D.list LIKE concat(#{branchList},'%')
+            </if>
+        ) A1
+        WHERE 1=1
+        <if test="stateList != null">
+            AND A1.stateValue IN
+            <foreach item="item" index="index" collection="stateList" separator="," open="(" close=")">
+                ${item}
+            </foreach>
+        </if>
+        ORDER BY A1.id
+        <!--<if test="stateList == null">-->
+            <!--AND B.value = 99-->
+        <!--</if>-->
+    </select>
+
+    <select id="selectDevListWithOutState" parameterType="map" resultMap="BaseResultMap">
+        SELECT A.*
+        FROM midend.dev_device A
+        LEFT JOIN  midend.com_hospital A1 ON A.hospital_id = A1.id
+        WHERE (A.hospital_id = #{hospitalId} OR A1.par_id = #{hospitalId})
+        AND A.use_stat = '0'
+        AND A.id NOT IN (SELECT dev_id FROM des_dev_state GROUP BY dev_id)
+    </select>
+
+
+    <select id="selectWorkDev" parameterType="map" resultMap="BaseResultMap">
+      select
+      ID,WORK1,WORK2,HOSPITAL_ID
+      from midend.dev_device
+      <where>
+        USE_STAT = '0'
+      </where>
+    </select>
+</mapper>

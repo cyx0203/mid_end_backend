@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="merInstitution">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="id" property="id" jdbcType="VARCHAR"/>
+    <result column="name" property="name" jdbcType="VARCHAR"/>
+    <result column="create_user" property="createUser" jdbcType="VARCHAR"/>
+    <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+     id,`name`, create_user,create_time
+  </sql>
+
+  <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+	SELECT
+    <include refid="Base_Column_List" />
+	FROM mer_institution
+  </select>
+
+  <insert id="add" parameterType="map">
+    INSERT INTO mer_institution
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      id, `name`, create_user, create_time
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      #{id}, #{name}, #{createUser},NOW()
+    </trim>
+  </insert>
+
+  <update id="updateById" parameterType="map">
+    UPDATE mer_institution
+    SET `name` = #{name},create_user = #{createUser},create_time=NOW()
+    WHERE id = #{id}
+  </update>
+
+  <delete id="deleteById" parameterType="map">
+    DELETE FROM mer_institution
+    WHERE id = #{id}
+  </delete>
+</mapper>

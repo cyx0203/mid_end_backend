@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ruleSourceSpecial">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="rule_source_id" jdbcType="VARCHAR" property="ruleSourceId"/>
+        <result column="stime" jdbcType="VARCHAR" property="stime"/>
+        <result column="etime" jdbcType="VARCHAR" property="etime"/>
+        <result column="source_num" jdbcType="VARCHAR" property="sourceNum"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+    </resultMap>
+
+    <select id="selectById" parameterType="map" resultMap="BaseResultMap">
+        SELECT *
+        FROM rule_source_special
+        WHERE rule_source_id = #{id}
+        ORDER BY stime
+    </select>
+    
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT *
+		FROM rule_source_special
+		ORDER BY rule_source_id,stime
+    </select>
+    
+    <update id="updateById" parameterType="map">
+        UPDATE rule_source_special 
+        <set>
+            <if test="sourceNum != null">source_num = #{sourceNum},</if>
+        </set>
+        WHERE id = #{oid}
+    </update>
+    
+    <insert id="insert" parameterType="map">
+        INSERT INTO rule_source_special
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="insertList != null">
+                rule_source_id, stime, etime, source_num, create_user, create_time,
+            </if>
+        </trim>
+        VALUES
+        <foreach collection="insertList" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                <if test="item != null">
+                    #{item.ruleSourceId}, #{item.stime}, #{item.etime}, #{item.sourceNum}, #{item.createUser}, NOW(),
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+    
+    <delete id="deleteById" parameterType="map">
+        DELETE  FROM rule_source_special 
+        WHERE rule_source_id = #{oid}
+    </delete>
+</mapper>

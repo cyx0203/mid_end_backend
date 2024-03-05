@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="idnpatientids">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="idn_id" jdbcType="INTEGER" property="idnId"/>
+        <id column="hospital" jdbcType="VARCHAR" property="hospital"/>
+        <id column="id_type" jdbcType="VARCHAR" property="idType"/>
+        <result column="patient_id" jdbcType="VARCHAR" property="patientId"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        idn_id, hospital, id_type, patient_id
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from idn_patientids
+        <where>
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="idnId != null">
+                and idn_id = #{idnId}
+            </if>
+            <if test="hospital != null and hospital != ''">
+                and hospital = #{hospital}
+            </if>
+            <if test="idType != null and idType != 'all'">
+                and id_type = #{idType}
+            </if>
+        </where>
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="map">
+        delete from idn_patientids
+        where idn_id = #{idnId,jdbcType=INTEGER}
+        and hospital = #{hospital,jdbcType=VARCHAR}
+        and id_type = #{idType,jdbcType=VARCHAR}
+    </delete>
+    <insert id="insert" parameterType="map">
+        insert into idn_patientids (idn_id, hospital, id_type,
+        patient_id, pad1)
+        values (#{idnId,jdbcType=INTEGER}, #{hospital,jdbcType=VARCHAR}, #{idType,jdbcType=VARCHAR},
+        #{patientId,jdbcType=VARCHAR}, #{pad1,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="map">
+        insert into idn_patientids
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="idnId != null">
+                idn_id,
+            </if>
+            <if test="hospital != null">
+                hospital,
+            </if>
+            <if test="idType != null">
+                id_type,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="pad1 != null">
+                pad1,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="idnId != null">
+                #{idnId,jdbcType=INTEGER},
+            </if>
+            <if test="hospital != null">
+                #{hospital,jdbcType=VARCHAR},
+            </if>
+            <if test="idType != null">
+                #{idType,jdbcType=VARCHAR},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=VARCHAR},
+            </if>
+            <if test="pad1 != null">
+                #{pad1,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="insertOrUpdate" parameterType="map">
+        insert into idn_patientids
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="idnId != null">
+                idn_id,
+            </if>
+            <if test="hospital != null">
+                hospital,
+            </if>
+            <if test="idType != null">
+                id_type,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="pad1 != null">
+                pad1,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="idnId != null">
+                #{idnId,jdbcType=INTEGER},
+            </if>
+            <if test="hospital != null">
+                #{hospital,jdbcType=VARCHAR},
+            </if>
+            <if test="idType != null">
+                #{idType,jdbcType=VARCHAR},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=VARCHAR},
+            </if>
+            <if test="pad1 != null">
+                #{pad1,jdbcType=VARCHAR},
+            </if>
+        </trim>
+        on duplicate key update
+        <if test="patientId != null">
+            patient_id = #{patientId,jdbcType=VARCHAR}
+        </if>
+    </insert>
+
+
+    <update id="updateByPrimaryKeySelective" parameterType="map">
+        update idn_patientids
+        <set>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=VARCHAR},
+            </if>
+            <if test="pad1 != null">
+                pad1 = #{pad1,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where idn_id = #{idnId,jdbcType=INTEGER}
+        and hospital = #{hospital,jdbcType=VARCHAR}
+        and id_type = #{idType,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="map">
+        update idn_patientids
+        set patient_id = #{patientId,jdbcType=VARCHAR},
+        pad1 = #{pad1,jdbcType=VARCHAR}
+        where idn_id = #{idnId,jdbcType=INTEGER}
+        and hospital = #{hospital,jdbcType=VARCHAR}
+        and id_type = #{idType,jdbcType=VARCHAR}
+    </update>
+
+</mapper>

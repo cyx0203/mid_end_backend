@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="merPlatChannelHospital">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="channel_id" property="channelId" jdbcType="VARCHAR"/>
+        <result column="hospital_id" property="hospitalId" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <result column="active" property="active" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="map">
+        INSERT INTO midend.plat_channel_hospital
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            channel_id,hospital_id,create_time,active
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{channelId}, #{hospitalId},#{createTime},#{active}
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="map">
+        UPDATE midend.plat_channel_hospital
+        <set>
+            <if test="channelId != null">channel_id = #{channelId},</if>
+            <if test="hospitalId != null">hospital_id = #{hospitalId},</if>
+            <if test="active != null">active = #{active},</if>
+            <if test="createTime != null">create_time = #{createTime}</if>
+        </set>
+        WHERE channel_id = #{channelId} AND hospital_id = #{hospitalId}
+    </update>
+
+    <insert id="insertBatch" parameterType="map">
+        INSERT INTO midend.plat_channel_hospital
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            channel_id,hospital_id,create_time,active
+        </trim>
+        values
+        <foreach collection="hospitals" item="item" separator=",">
+            (#{item.channelId}, #{item.hospitalId}, #{item.createTime}, #{item.active})
+        </foreach>
+    </insert>
+
+    <select id="select" parameterType="map" resultMap="BaseResultMap">
+        SELECT * FROM midend.plat_channel_hospital
+    </select>
+
+    <delete id="delete" parameterType="map">
+    DELETE FROM midend.plat_channel_hospital
+        WHERE channel_id = #{id}
+    </delete>
+
+</mapper>

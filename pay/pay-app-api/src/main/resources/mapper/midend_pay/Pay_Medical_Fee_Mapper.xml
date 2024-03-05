@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pay_medical_fee">
+	<resultMap id="BaseResultMap" type="map">
+		<id column="order_id" jdbcType="VARCHAR" property="order_id" />
+		<result column="medfee_sumamt" jdbcType="INTEGER"
+			property="medfee_sumamt" />
+		<result column="fulamt_ownpay_amt" jdbcType="INTEGER"
+			property="fulamt_ownpay_amt" />
+		<result column="overlmt_selfpay" jdbcType="INTEGER"
+			property="overlmt_selfpay" />
+		<result column="preselfpay_amt" jdbcType="INTEGER"
+			property="preselfpay_amt" />
+		<result column="inscp_scp_amt" jdbcType="INTEGER"
+			property="inscp_scp_amt" />
+		<result column="act_pay_dedc" jdbcType="INTEGER"
+			property="act_pay_dedc" />
+		<result column="hifp_pay" jdbcType="INTEGER"
+			property="hifp_pay" />
+		<result column="pool_prop_selfpay" jdbcType="INTEGER"
+			property="pool_prop_selfpay" />
+		<result column="cvlserv_pay" jdbcType="INTEGER"
+			property="cvlserv_pay" />
+		<result column="hifes_pay" jdbcType="INTEGER"
+			property="hifes_pay" />
+		<result column="hifmi_pay" jdbcType="INTEGER"
+			property="hifmi_pay" />
+		<result column="hifob_pay" jdbcType="INTEGER"
+			property="hifob_pay" />
+		<result column="maf_pay" jdbcType="INTEGER" property="maf_pay" />
+		<result column="oth_pay" jdbcType="INTEGER" property="oth_pay" />
+		<result column="fund_pay_sumamt" jdbcType="INTEGER"
+			property="fund_pay_sumamt" />
+		<result column="psn_part_amt" jdbcType="INTEGER"
+			property="psn_part_amt" />
+		<result column="acct_pay" jdbcType="INTEGER"
+			property="acct_pay" />
+		<result column="psn_cash_pay" jdbcType="INTEGER"
+			property="psn_cash_pay" />
+		<result column="hosp_part_amt" jdbcType="INTEGER"
+			property="hosp_part_amt" />
+		<result column="balc" jdbcType="INTEGER" property="balc" />
+		<result column="acct_mulaid_pay" jdbcType="INTEGER"
+			property="acct_mulaid_pay" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		order_id, medfee_sumamt, fulamt_ownpay_amt,
+		overlmt_selfpay,
+		preselfpay_amt, inscp_scp_amt,
+		act_pay_dedc,
+		hifp_pay,
+		pool_prop_selfpay, cvlserv_pay,
+		hifes_pay, hifmi_pay, hifob_pay,
+		maf_pay,
+		oth_pay,
+		fund_pay_sumamt,psn_part_amt,acct_pay,psn_cash_pay
+		hosp_part_amt,
+		balc,acct_mulaid_pay
+	</sql>
+
+	<insert id="insert" parameterType="map">
+		insert into pay_medical_fee
+		(order_id, medfee_sumamt, fulamt_ownpay_amt,
+		overlmt_selfpay,
+		preselfpay_amt,
+		inscp_scp_amt,
+		act_pay_dedc, hifp_pay,
+		pool_prop_selfpay,
+		cvlserv_pay, hifes_pay,
+		hifmi_pay,
+		hifob_pay, maf_pay,
+		oth_pay,
+		fund_pay_sumamt,psn_part_amt,acct_pay,
+		psn_cash_pay,hosp_part_amt,balc,
+		acct_mulaid_pay)
+		values
+		(#{order_id,jdbcType=VARCHAR}, #{medfee_sumamt,jdbcType=INTEGER},
+		#{fulamt_ownpay_amt,jdbcType=INTEGER},
+		#{overlmt_selfpay,jdbcType=INTEGER},
+		#{preselfpay_amt,jdbcType=INTEGER}, #{inscp_scp_amt,jdbcType=INTEGER},
+		#{act_pay_dedc,jdbcType=INTEGER}, #{hifp_pay,jdbcType=INTEGER},
+		#{pool_prop_selfpay,jdbcType=INTEGER},
+		#{cvlserv_pay,jdbcType=INTEGER},
+		#{hifes_pay,jdbcType=INTEGER},
+		#{hifmi_pay,jdbcType=INTEGER},
+		#{hifob_pay,jdbcType=INTEGER},
+		#{maf_pay,jdbcType=INTEGER},
+		#{oth_pay,jdbcType=INTEGER},
+		#{fund_pay_sumamt,jdbcType=INTEGER},#{psn_part_amt,jdbcType=INTEGER},
+		#{acct_pay,jdbcType=INTEGER},#{psn_cash_pay,jdbcType=INTEGER},
+		#{hosp_part_amt,jdbcType=INTEGER},#{balc,jdbcType=INTEGER},
+		#{acct_mulaid_pay,jdbcType=INTEGER})
+	</insert>
+
+</mapper>

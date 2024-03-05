@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="comBranch">
+
+
+    <select id="queryBranch" parameterType="map" resultType="map">
+        SELECT a.*  FROM com_hosp_branch a
+        <where>
+            1=1
+            <if test="hospitalId != null">
+                and a.hospital_id = #{hospitalId}
+            </if>
+            <if test="parId != null">
+                and a.par_id = #{parId}
+            </if>
+            <if test="level != null">
+                and a.level = #{level}
+            </if>
+        </where>
+        order by a.level,a.list
+        limit 0,1
+    </select>
+
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT a.* , a.id `value`, a.name title  FROM com_branch a
+    </select>
+
+
+    <select id="selectList" parameterType="map" resultType="map">
+        SELECT a.* , a.list `key`,a.id `value`, a.name title, a.par_id parId  FROM com_branch a
+    </select>
+
+
+
+    <!--以下为添加-->
+    <!--机构树功能-->
+
+
+    <insert id="insert" parameterType="map">
+        insert into com_branch
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            `name`,
+            par_id,
+            list,
+            level,
+            address,
+            <if test="tel != null">tel,</if>
+            <if test="recver != null">recver,</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            #{id},
+            #{name},
+            #{parId},
+            #{list},
+            #{level},
+            #{address},
+            <if test="tel != null">#{tel},</if>
+            <if test="recver != null">#{recver},</if>
+        </trim>
+    </insert>
+
+    <select id="delete" parameterType="map">
+        delete from com_branch where id = #{id}
+    </select>
+
+    <update id="update" parameterType="map">
+        UPDATE com_branch
+        <set>
+            <if test="name != null">`name` = #{name},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="tel != null">tel = #{tel},</if>
+            <if test="recver != null">recver = #{recver},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+
+
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hospCfg">
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT HC.*,
+        P.name AS projName,
+        H.name AS hospitalName
+        FROM com_hosp_cfg HC, com_project P, com_hospital H
+        WHERE HC.proj_id = P.id AND HC.hospital_id = H.id
+        <if test="keywords != null">
+            AND (
+            HC.proj_id LIKE concat("%",#{keywords},"%") OR
+            HC.hospital_id LIKE concat("%",#{keywords},"%") OR
+            P.name LIKE concat("%",#{keywords},"%") OR
+            H.name LIKE concat("%",#{keywords},"%")
+            )
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="map">
+        INSERT INTO com_hosp_cfg
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            proj_id, hospital_id, create_time,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{projId}, #{hospitalId}, NOW(),
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="map">
+        UPDATE com_hosp_cfg
+        <set>
+            <if test="serviceStatus != null">service_status = #{serviceStatus},</if>
+            <if test="registerPrompt != null">register_prompt = #{registerPrompt},</if>
+        </set>
+        WHERE proj_id = #{projId} AND hospital_id = #{hospitalId}
+    </update>
+
+    <select id="selectRegisterPrompt" parameterType="map" resultType="map">
+        SELECT register_prompt AS registerPrompt
+        FROM com_hosp_cfg
+        WHERE hospital_id = #{hospitalId}
+    </select>
+
+</mapper>

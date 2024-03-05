@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="accessRecords">
+
+    <resultMap id="BaseResultMap" type="map">
+        <id     jdbcType="INTEGER"  column="id"                    property="id"/>
+        <result jdbcType="INTEGER"  column="card_id"               property="cardId"/>
+        <result jdbcType="DATE"    column="out_time"              property="outTime"/>
+        <result jdbcType="DATE"    column="plan_in_time"          property="planInTime"/>
+        <result jdbcType="DATE"    column="actual_in_time"        property="actualInTime"/>
+        <result jdbcType="VARCHAR" column="reason"                property="reason"/>
+        <result jdbcType="INTEGER" column="access_status"        property="accessStatus"/>
+    </resultMap>
+
+    <insert id="intAccessRecord" parameterType="map">
+        INSERT INTO midend_healthcare.CARE_ACCESS_RECORDS
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            card_id, out_time, plan_in_time, actual_in_time, reason,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{cardId}, #{outTime}, #{planInTime}, #{actualInTime}, #{reason},
+        </trim>
+    </insert>
+
+    <select id="selAccessRecord" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        id,
+        card_id,
+        DATE_FORMAT(out_time,'%Y-%m-%d %H:%i:%s') out_time,
+        DATE_FORMAT(plan_in_time,'%Y-%m-%d %H:%i:%s') plan_in_time,
+        DATE_FORMAT(actual_in_time,'%Y-%m-%d %H:%i:%s') actual_in_time,
+        reason,
+        access_status
+        FROM midend_healthcare.CARE_ACCESS_RECORDS
+        WHERE
+        card_id = #{cardId}
+        <if test="accessStatus !=null">
+            AND access_status = #{accessStatus}
+        </if>
+    </select>
+
+    <update id="updRecordStatus" parameterType="map">
+        UPDATE midend_healthcare.CARE_ACCESS_RECORDS
+        SET access_status = 0
+        WHERE card_id = #{cardId}
+    </update>
+
+    <update id="updAccessRecord" parameterType="map">
+        UPDATE midend_healthcare.CARE_ACCESS_RECORDS
+        <set>
+            access_status = #{accessStatus,jdbcType=INTEGER},
+            <if test="actualInTime != null and actualInTime != '' ">actual_in_time = #{actualInTime,jdbcType=DATE},</if>
+            <if test="reason != null and reason != '' ">reason = #{reason,jdbcType=VARCHAR},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="payMedicalFee">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="medfee_sumamt" jdbcType="INTEGER" property="medfeeSumamt" />
+    <result column="fulamt_ownpay_amt" jdbcType="INTEGER" property="fulamtOwnpayAmt" />
+    <result column="overlmt_selfpay" jdbcType="INTEGER" property="overlmtSelfpay" />
+    <result column="preselfpay_amt" jdbcType="INTEGER" property="preselfpayAmt" />
+    <result column="inscp_scp_amt" jdbcType="INTEGER" property="inscpScpAmt" />
+    <result column="act_pay_dedc" jdbcType="INTEGER" property="actPayDedc" />
+    <result column="hifp_pay" jdbcType="INTEGER" property="hifpPay" />
+    <result column="pool_prop_selfpay" jdbcType="INTEGER" property="poolPropSelfpay" />
+    <result column="cvlserv_pay" jdbcType="INTEGER" property="cvlservPay" />
+    <result column="hifes_pay" jdbcType="INTEGER" property="hifesPay" />
+    <result column="hifmi_pay" jdbcType="INTEGER" property="hifmiPay" />
+    <result column="hifob_pay" jdbcType="INTEGER" property="hifobPay" />
+    <result column="maf_pay" jdbcType="INTEGER" property="mafPay" />
+    <result column="oth_pay" jdbcType="INTEGER" property="othPay" />
+    <result column="fund_pay_sumamt" jdbcType="INTEGER" property="fundPaySumamt" />
+    <result column="psn_part_amt" jdbcType="INTEGER" property="psnPartAmt" />
+    <result column="acct_pay" jdbcType="INTEGER" property="acctPay" />
+    <result column="psn_cash_pay" jdbcType="INTEGER" property="psnCashPay" />
+    <result column="hosp_part_amt" jdbcType="INTEGER" property="hospPartAmt" />
+    <result column="balc" jdbcType="INTEGER" property="balc" />
+    <result column="acct_mulaid_pay" jdbcType="INTEGER" property="acctMulaidPay" />
+    <result column="fee" jdbcType="INTEGER" property="fee" />
+    <result column="createTime" jdbcType="CHAR" property="createTime" />
+    <result column="finishTime" jdbcType="CHAR" property="finishTime" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="thirdOrderId" jdbcType="VARCHAR" property="thirdOrderId" />
+    <result column="refundOperid" jdbcType="VARCHAR" property="refundOperid" />
+    <result column="refundReason" jdbcType="VARCHAR" property="refundReason" />
+
+  </resultMap>
+
+  <select id="selectById" parameterType="map" resultMap="BaseResultMap">
+    SELECT *
+    FROM pay_medical_fee
+    <where>
+      <if test="orderId != null">
+        order_id = #{orderId}
+      </if>
+    </where>
+  </select>
+
+  <select id="selectBatchById" parameterType="map" resultMap="BaseResultMap">
+    SELECT PMF.*,POP.order_amt as fee,POP.trans_type as `type`,POP.status as status,IFNULL(POP.third_seq_no, '-') as thirdOrderId,
+    IFNULL(POP.oper_id, '-') as refundOperid,IFNULL(POP.refund_reason, '-') as refundReason,
+    CONVERT(CONCAT(SUBSTR(POP.create_date,1,4),'-',SUBSTR(POP.create_date,5,2),'-',SUBSTR(POP.create_date,7,2),' ',
+    SUBSTR(POP.create_time,1,2),':',SUBSTR(POP.create_time,3,2),':',SUBSTR(POP.create_time,5,2)),CHAR) AS
+    createTime,
+
+    CONVERT(CONCAT(SUBSTR(POP.third_date,1,4),'-',SUBSTR(POP.third_date,5,2),'-',SUBSTR(POP.third_date,7,2),' ',
+    SUBSTR(POP.third_time,1,2),':',SUBSTR(POP.third_time,3,2),':',SUBSTR(POP.third_time,5,2)),CHAR) AS
+    finishTime
+    FROM pay_medical_fee PMF
+    LEFT JOIN pay_order_pay POP ON POP.order_id = PMF.order_id
+    WHERE PMF.order_id in
+    <foreach collection="refundOrderId" item="orderId" open="(" close=")" separator=",">
+      #{orderId}
+    </foreach>
+  </select>
+
+
+</mapper>

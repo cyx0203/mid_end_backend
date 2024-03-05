@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcSyncRecord">
+
+    <insert id="insertSyncRecord" parameterType="map" useGeneratedKeys="true" keyColumn="id" keyProperty="syncId">
+        INSERT INTO src_sync_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            hospital_id, `date`, result, remark, create_time, update_time,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{hospitalId}, DATE_FORMAT(#{date}, '%Y%m%d'), #{result}, #{remark}, NOW(), NOW(),
+        </trim>
+    </insert>
+
+    <update id="updateSyncRecord" parameterType="map">
+        <selectKey keyProperty="sourceDate,result" keyColumn="sourceDate,result" resultType="map" order="AFTER">
+            SELECT DATE_FORMAT(record.date, '%Y-%m-%d') AS sourceDate,
+                   IF(record.result = '1', '成功', '失败') AS result
+            FROM src_sync_record as record
+            WHERE record.id = #{syncId}
+        </selectKey>
+        UPDATE src_sync_record
+        <set>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            <if test="result != null and result != ''">
+                result = #{result},
+            </if>
+            update_time = NOW(),
+        </set>
+        WHERE id = #{syncId}
+    </update>
+
+</mapper>

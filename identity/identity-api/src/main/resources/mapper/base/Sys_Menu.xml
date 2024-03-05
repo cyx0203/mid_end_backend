@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="menu">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="path" jdbcType="VARCHAR" property="path"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="icon" jdbcType="VARCHAR" property="icon"/>
+        <result column="component" jdbcType="VARCHAR" property="component"/>
+        <result column="redirect" jdbcType="VARCHAR" property="redirect"/>
+        <result column="parent_id" jdbcType="INTEGER" property="parentId"/>
+        <result column="isoper" jdbcType="BIT" property="isoper"/>
+        <result column="hideInMenu" jdbcType="BIT" property="hideinmenu"/>
+        <result column="hideChildrenInMenu" jdbcType="BIT" property="hidechildreninmenu"/>
+        <result column="hideInBreadcrumb" jdbcType="BIT" property="hideinbreadcrumb"/>
+        <result column="mode" jdbcType="CHAR" property="mode"/>
+    </resultMap>
+
+    <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+        select
+        <if test="total != null">
+            COUNT(*) total
+        </if>
+        <if test="total == null">
+            id,id as `key`, path, name, name title, icon, component, redirect, parent_id
+        </if>
+        from sys_menu
+        <where>
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER}
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+
+    <select id="selectByRoleid" parameterType="map" resultMap="BaseResultMap">
+        select * from
+        (SELECT m.*, m.id `key`
+        FROM sys_rolemenu rm
+        LEFT JOIN sys_menu m ON rm.menu_id = m.id
+        WHERE rm.role_id = #{role_id}
+        AND m.isoper = 0
+
+        union
+        (SELECT *, id `key` from sys_menu
+        WHERE id = 1)) g
+        order by g.id
+    </select>
+</mapper>

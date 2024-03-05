@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="payThird">
+
+  <select id="selectAll" parameterType="map" resultType="map">
+    SELECT * FROM pay_third
+  </select>
+
+  <insert id="add" parameterType="map">
+    INSERT INTO pay_third
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      id, `name`
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      #{id}, #{name}
+    </trim>
+  </insert>
+
+  <update id="updateById" parameterType="map">
+    UPDATE pay_third
+    SET `name` = #{name}
+    WHERE id = #{id}
+  </update>
+
+  <delete id="deleteById" parameterType="map">
+    DELETE FROM pay_third
+    WHERE id = #{id}
+  </delete>
+</mapper>

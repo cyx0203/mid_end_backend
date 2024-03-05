@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: test
+  config:
+    location: file:application.yml

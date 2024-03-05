@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ruleChannelSchedule">
+
+    <select id="selectOpenedRegType" parameterType="map" resultType="java.lang.String">
+        SELECT GROUP_CONCAT(rcs.register_type_list) AS regTypeList
+
+        FROM rule_channel_schedule AS rcs
+
+        WHERE rcs.channel_id_list LIKE CONCAT('%', #{custId}, '%')
+        AND (rcs.dept_id_list LIKE CONCAT('%', #{deptCode}, '%') OR rcs.dept_id_list = '##')
+        GROUP BY rcs.allow
+        ORDER BY rcs.allow
+    </select>
+
+</mapper>

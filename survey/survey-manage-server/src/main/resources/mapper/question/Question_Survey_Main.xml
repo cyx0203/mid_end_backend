@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="questionSurveyMain">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="question_id" jdbcType="VARCHAR" property="questionId"/>
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+        <result column="update_time" jdbcType="VARCHAR" property="updateTime"/>
+        <result column="active" jdbcType="VARCHAR" property="active"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT M.*,
+        CONVERT(CONCAT(SUBSTR(M.update_time,1,10), ' ',SUBSTR(M.update_time,12,8)),CHAR) AS updateTimeFormat,
+        CONVERT(CONCAT(SUBSTR(M.create_time,1,10), ' ',SUBSTR(M.create_time,12,8)),CHAR) AS createTimeFormat,
+        U.name AS createUserName
+        FROM question_survey_main M
+        LEFT JOIN midend.sys_user U ON U.account = M.create_user
+        WHERE M.hospital_id = #{hospitalId}
+        <if test="keywords != null">
+            AND M.title LIKE concat("%",#{keywords},"%")
+        </if>
+    </select>
+
+
+    <insert id="insert" parameterType="map">
+        INSERT INTO question_survey_main
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            question_id, hospital_id, title, create_user, create_time,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{questionId}, #{hospitalId}, #{title}, #{createUser}, NOW(),
+        </trim>
+    </insert>
+
+
+    <delete id="deleteById" parameterType="map">
+        DELETE FROM question_survey_main
+        WHERE question_id = #{questionId}
+    </delete>
+
+    <delete id="deleteAllById" parameterType="map">
+        DELETE S1, S2 FROM
+        question_survey_main S1
+            INNER JOIN
+                question_survey_item S2 ON S2.question_id = S1.question_id
+        WHERE S1.question_id = #{questionId}
+    </delete>
+
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dictRegion">
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT  a.code AS province_code, a.name AS province_name, b.code AS city_code, 
+        b.name AS city_name,c.code AS area_code,c.name AS area_name 
+		FROM midend.dict_region a
+		LEFT OUTER JOIN midend.dict_region b
+		ON a.id = b.parent_id
+		LEFT OUTER JOIN midend.dict_region c
+		ON b.id = c.parent_id
+		WHERE a.level_id = '1'
+		AND b.level_id = '2'
+		AND c.level_id = '3'
+    </select>
+	
+</mapper>

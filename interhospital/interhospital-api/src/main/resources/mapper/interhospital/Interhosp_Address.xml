@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="interhospAdd">
+
+  <resultMap id="BaseResultMap" type="map">
+    <id     column="id"             property="id"           jdbcType="VARCHAR"/>
+    <result column="open_id"        property="openId"       jdbcType="VARCHAR"/>
+    <result column="name"           property="name"         jdbcType="VARCHAR"/>
+    <result column="address"        property="address"      jdbcType="VARCHAR"/>
+    <result column="phone"          property="phone"        jdbcType="VARCHAR"/>
+    <result column="use_flag"       property="useFlag"      jdbcType="VARCHAR"/>
+    <result column="is_default"     property="isDefault"    jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <sql id="selectColumnAll">
+    select id, open_id, address, phone, is_default, use_flag
+    from interhospital.INTERHOSPITAL_ADDRESS
+  </sql>
+
+  <!-- 查询条件 -->
+  <sql id="selWhereSearch">
+    <where>
+      <if test="id !=null">
+        and id = #{id}
+      </if>
+      <if test="openId !=null">
+        and open_id = #{openId}
+      </if>
+      <if test="useFlag !=null">
+        and use_flag = #{useFlag}
+      </if>
+    </where>
+  </sql>
+
+  <select id="selectAddList" parameterType="map" resultMap="BaseResultMap">
+    <include refid="selectColumnAll"/>
+    <include refid="selWhereSearch"/>
+  </select>
+
+  <!-- 插入患者地址信息 -->
+  <insert id="insertPatAdd" useGeneratedKeys="true" keyProperty="id" parameterType="map">
+    INSERT INTO interhospital.INTERHOSPITAL_ADDRESS(
+      <if test="openId != null and openId != '' ">open_id,</if>
+      <if test="name != null and name != '' ">name,</if>
+      <if test="address != null and address != '' ">address,</if>
+      <if test="phone != null and phone != '' ">phone,</if>
+      <if test="isDefault != null and isDefault != '' ">is_default</if>
+    )VALUES(
+      <if test="openId != null and openId != '' ">#{openId,jdbcType=VARCHAR},</if>
+      <if test="name != null and name != '' ">#{name,jdbcType=VARCHAR},</if>
+      <if test="address != null and address != '' ">#{address,jdbcType=VARCHAR},</if>
+      <if test="phone != null and phone != '' ">#{phone,jdbcType=VARCHAR},</if>
+      <if test="isDefault != null and isDefault != '' ">#{isDefault,jdbcType=VARCHAR}</if>
+    )
+  </insert>
+
+  <!-- 修改患者地址信息 -->
+  <update id="updatePatAdd" parameterType="map">
+    UPDATE interhospital.INTERHOSPITAL_ADDRESS
+    <set>
+      <if test="openId != null and openId != '' ">open_id = #{openId,jdbcType=VARCHAR},</if>
+      <if test="name != null and name != '' ">name = #{name,jdbcType=VARCHAR},</if>
+      <if test="address != null and address != '' ">address = #{address,jdbcType=VARCHAR},</if>
+      <if test="phone != null and phone != '' ">phone = #{phone,jdbcType=VARCHAR},</if>
+      <if test="isDefault != null and isDefault != '' ">is_default = #{isDefault,jdbcType=VARCHAR},</if>
+      <if test="useFlag != null and useFlag != '' ">use_flag = #{useFlag,jdbcType=VARCHAR}</if>
+    </set>
+    where
+        id = #{id}
+  </update>
+
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mer_merchant">
+	<resultMap id="BaseResultMap" type="map">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="inst_id" jdbcType="VARCHAR" property="inst_id" />
+		<result column="active" jdbcType="CHAR" property="active" />
+		<result column="create_user" jdbcType="VARCHAR"
+			property="create_user" />
+		<result column="create_time" jdbcType="TIMESTAMP"
+			property="create_time" />
+	</resultMap>
+
+	<select id="selectActive" resultMap="BaseResultMap">
+		select a.id,a.inst_id from
+		mer_merchant a
+		where active = '1'
+	</select>
+</mapper>

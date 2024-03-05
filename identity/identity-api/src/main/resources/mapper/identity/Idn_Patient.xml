@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="idnpatient">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="patient_name" jdbcType="VARCHAR" property="patientName"/>
+        <result column="patient_sex" jdbcType="VARCHAR" property="patientSex"/>
+        <result column="real_flag" jdbcType="VARCHAR" property="realFlag"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="idno" jdbcType="VARCHAR" property="idno"/>
+        <result column="health_card_no" jdbcType="VARCHAR" property="healthCardNo"/>
+        <result column="social_card_no" jdbcType="VARCHAR" property="socialCardNo"/>
+        <result column="card_no" jdbcType="VARCHAR" property="cardNo"/>
+        <result column="birth" jdbcType="DATE" property="birth"/>
+        <result column="marriage" jdbcType="VARCHAR" property="marriage"/>
+        <result column="country" jdbcType="VARCHAR" property="country"/>
+        <result column="nation" jdbcType="VARCHAR" property="nation"/>
+        <result column="occ" jdbcType="VARCHAR" property="occ"/>
+        <result column="work_company" jdbcType="VARCHAR" property="workCompany"/>
+        <result column="work_phone" jdbcType="VARCHAR" property="workPhone"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="wechat_id" jdbcType="VARCHAR" property="wechatId"/>
+        <result column="blood" jdbcType="VARCHAR" property="blood"/>
+        <result column="medical" jdbcType="VARCHAR" property="medical"/>
+        <result column="infectious" jdbcType="VARCHAR" property="infectious"/>
+        <result column="vaccination" jdbcType="VARCHAR" property="vaccination"/>
+        <result column="operation" jdbcType="VARCHAR" property="operation"/>
+        <result column="transfusion" jdbcType="VARCHAR" property="transfusion"/>
+        <result column="marriage_childbirth" jdbcType="VARCHAR" property="marriageChildbirth"/>
+        <result column="menstruation" jdbcType="VARCHAR" property="menstruation"/>
+        <result column="family" jdbcType="VARCHAR" property="family"/>
+        <result column="allergy" jdbcType="CHAR" property="allergy"/>
+        <result column="allergys" jdbcType="VARCHAR" property="allergys"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="up_time" jdbcType="TIMESTAMP" property="upTime"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="up_user" jdbcType="VARCHAR" property="upUser"/>
+        <result column="create_channel" jdbcType="VARCHAR" property="createChannel"/>
+        <result column="up_channel" jdbcType="VARCHAR" property="upChannel"/>
+        <result column="real_cert" jdbcType="VARCHAR" property="realCert"/>
+        <result column="real_no" jdbcType="VARCHAR" property="realNo"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+        <result column="pad2" jdbcType="VARCHAR" property="pad2"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, patient_name, patient_sex, real_flag, status, idno, health_card_no, social_card_no,
+        card_no, birth, marriage, country, nation, occ, work_company, work_phone, phone,
+        wechat_id, blood, medical, infectious, vaccination, operation, transfusion, marriage_childbirth,
+        menstruation, family, allergy, allergys, create_time, up_time, create_user, up_user,
+        create_channel, up_channel, real_cert, real_no, pad1, pad2
+    </sql>
+    <sql id="Simp_Column_List">
+        id,patient_name, patient_sex,idno, health_card_no, social_card_no,
+        card_no,birth, phone, wechat_id
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from idn_patient
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectBySimpKey" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Simp_Column_List"/>
+        from idn_patient
+        <where>
+            <if test="idno != null">
+                idno = #{idno}
+            </if>
+            <if test="cardCode != null">
+                and (idno = #{cardCode} or health_card_no = #{cardCode} or social_card_no = #{cardCode} or card_no =
+                #{cardCode})
+            </if>
+            <if test="id != null">
+                and id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="map">
+        delete from idn_patient
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="map">
+        insert into idn_patient (id, patient_name, patient_sex,
+        real_flag, status, idno,
+        health_card_no, social_card_no, card_no,
+        birth, marriage, country,
+        nation, occ, work_company,
+        work_phone, phone, wechat_id,
+        blood, medical, infectious,
+        vaccination, operation, transfusion,
+        marriage_childbirth, menstruation, family,
+        allergy, allergys, create_time,
+        up_time, create_user, up_user,
+        create_channel, up_channel, real_cert,
+        real_no, pad1, pad2)
+        values (#{id,jdbcType=INTEGER}, #{patientName,jdbcType=VARCHAR}, #{patientSex,jdbcType=VARCHAR},
+        #{realFlag,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{idno,jdbcType=VARCHAR},
+        #{healthCardNo,jdbcType=VARCHAR}, #{socialCardNo,jdbcType=VARCHAR}, #{cardNo,jdbcType=VARCHAR},
+        #{birth,jdbcType=DATE}, #{marriage,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR},
+        #{nation,jdbcType=VARCHAR}, #{occ,jdbcType=VARCHAR}, #{workCompany,jdbcType=VARCHAR},
+        #{workPhone,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{wechatId,jdbcType=VARCHAR},
+        #{blood,jdbcType=VARCHAR}, #{medical,jdbcType=VARCHAR}, #{infectious,jdbcType=VARCHAR},
+        #{vaccination,jdbcType=VARCHAR}, #{operation,jdbcType=VARCHAR}, #{transfusion,jdbcType=VARCHAR},
+        #{marriageChildbirth,jdbcType=VARCHAR}, #{menstruation,jdbcType=VARCHAR}, #{family,jdbcType=VARCHAR},
+        #{allergy,jdbcType=CHAR}, #{allergys,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+        #{upTime,jdbcType=TIMESTAMP}, #{createUser,jdbcType=VARCHAR}, #{upUser,jdbcType=VARCHAR},
+        #{createChannel,jdbcType=VARCHAR}, #{upChannel,jdbcType=VARCHAR}, #{realCert,jdbcType=VARCHAR},
+        #{realNo,jdbcType=VARCHAR}, #{pad1,jdbcType=VARCHAR}, #{pad2,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="map" useGeneratedKeys="true" keyColumn="id"
+            keyProperty="id">
+        insert into idn_patient
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="patientName != null">
+                patient_name,
+            </if>
+            <if test="patientSex != null">
+                patient_sex,
+            </if>
+            <if test="realFlag != null">
+                real_flag,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="idno != null">
+                idno,
+            </if>
+            <if test="healthCardNo != null and healthCardNo != ''">
+                health_card_no,
+            </if>
+            <if test="socialCardNo != null and socialCardNo != ''">
+                social_card_no,
+            </if>
+            <if test="cardNo != null and cardNo != ''">
+                card_no,
+            </if>
+            <if test="birth != null">
+                birth,
+            </if>
+            <if test="marriage != null">
+                marriage,
+            </if>
+            <if test="country != null">
+                country,
+            </if>
+            <if test="nation != null">
+                nation,
+            </if>
+            <if test="occ != null">
+                occ,
+            </if>
+            <if test="workCompany != null">
+                work_company,
+            </if>
+            <if test="workPhone != null">
+                work_phone,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="wechatId != null">
+                wechat_id,
+            </if>
+            <if test="blood != null">
+                blood,
+            </if>
+            <if test="medical != null">
+                medical,
+            </if>
+            <if test="infectious != null">
+                infectious,
+            </if>
+            <if test="vaccination != null">
+                vaccination,
+            </if>
+            <if test="operation != null">
+                operation,
+            </if>
+            <if test="transfusion != null">
+                transfusion,
+            </if>
+            <if test="marriageChildbirth != null">
+                marriage_childbirth,
+            </if>
+            <if test="menstruation != null">
+                menstruation,
+            </if>
+            <if test="family != null">
+                family,
+            </if>
+            <if test="allergy != null">
+                allergy,
+            </if>
+            <if test="allergys != null">
+                allergys,
+            </if>
+
+            create_time,
+
+            <if test="userId != null">
+                create_user,
+            </if>
+
+            <if test="channel != null">
+                create_channel,
+            </if>
+
+            <if test="realCert != null">
+                real_cert,
+            </if>
+            <if test="realNo != null">
+                real_no,
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="patientName != null">
+                #{patientName,jdbcType=VARCHAR},
+            </if>
+            <if test="patientSex != null">
+                #{patientSex,jdbcType=VARCHAR},
+            </if>
+            <if test="realFlag != null">
+                #{realFlag,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="idno != null">
+                #{idno,jdbcType=VARCHAR},
+            </if>
+            <if test="healthCardNo != null and healthCardNo != ''">
+                #{healthCardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="socialCardNo != null and socialCardNo != ''">
+                #{socialCardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="cardNo != null and cardNo != ''">
+                #{cardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="birth != null">
+                #{birth,jdbcType=DATE},
+            </if>
+            <if test="marriage != null">
+                #{marriage,jdbcType=VARCHAR},
+            </if>
+            <if test="country != null">
+                #{country,jdbcType=VARCHAR},
+            </if>
+            <if test="nation != null">
+                #{nation,jdbcType=VARCHAR},
+            </if>
+            <if test="occ != null">
+                #{occ,jdbcType=VARCHAR},
+            </if>
+            <if test="workCompany != null">
+                #{workCompany,jdbcType=VARCHAR},
+            </if>
+            <if test="workPhone != null">
+                #{workPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="wechatId != null">
+                #{wechatId,jdbcType=VARCHAR},
+            </if>
+            <if test="blood != null">
+                #{blood,jdbcType=VARCHAR},
+            </if>
+            <if test="medical != null">
+                #{medical,jdbcType=VARCHAR},
+            </if>
+            <if test="infectious != null">
+                #{infectious,jdbcType=VARCHAR},
+            </if>
+            <if test="vaccination != null">
+                #{vaccination,jdbcType=VARCHAR},
+            </if>
+            <if test="operation != null">
+                #{operation,jdbcType=VARCHAR},
+            </if>
+            <if test="transfusion != null">
+                #{transfusion,jdbcType=VARCHAR},
+            </if>
+            <if test="marriageChildbirth != null">
+                #{marriageChildbirth,jdbcType=VARCHAR},
+            </if>
+            <if test="menstruation != null">
+                #{menstruation,jdbcType=VARCHAR},
+            </if>
+            <if test="family != null">
+                #{family,jdbcType=VARCHAR},
+            </if>
+            <if test="allergy != null">
+                #{allergy,jdbcType=CHAR},
+            </if>
+            <if test="allergys != null">
+                #{allergys,jdbcType=VARCHAR},
+            </if>
+            now(),
+
+            <if test="userId != null">
+                #{userId,jdbcType=VARCHAR},
+            </if>
+
+            <if test="channel != null">
+                #{channel,jdbcType=VARCHAR},
+            </if>
+
+            <if test="realCert != null">
+                #{realCert,jdbcType=VARCHAR},
+            </if>
+            <if test="realNo != null">
+                #{realNo,jdbcType=VARCHAR},
+            </if>
+
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="map">
+        update idn_patient
+        <set>
+            <if test="patientName != null">
+                patient_name = #{patientName,jdbcType=VARCHAR},
+            </if>
+            <if test="patientSex != null">
+                patient_sex = #{patientSex,jdbcType=VARCHAR},
+            </if>
+            <if test="realFlag != null">
+                real_flag = #{realFlag,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="idno != null">
+                idno = #{idno,jdbcType=VARCHAR},
+            </if>
+            <if test="healthCardNo != null">
+                health_card_no = #{healthCardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="socialCardNo != null">
+                social_card_no = #{socialCardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="cardNo != null">
+                card_no = #{cardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="birth != null">
+                birth = #{birth,jdbcType=DATE},
+            </if>
+            <if test="marriage != null">
+                marriage = #{marriage,jdbcType=VARCHAR},
+            </if>
+            <if test="country != null">
+                country = #{country,jdbcType=VARCHAR},
+            </if>
+            <if test="nation != null">
+                nation = #{nation,jdbcType=VARCHAR},
+            </if>
+            <if test="occ != null">
+                occ = #{occ,jdbcType=VARCHAR},
+            </if>
+            <if test="workCompany != null">
+                work_company = #{workCompany,jdbcType=VARCHAR},
+            </if>
+            <if test="workPhone != null">
+                work_phone = #{workPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="wechatId != null">
+                wechat_id = #{wechatId,jdbcType=VARCHAR},
+            </if>
+            <if test="blood != null">
+                blood = #{blood,jdbcType=VARCHAR},
+            </if>
+            <if test="medical != null">
+                medical = #{medical,jdbcType=VARCHAR},
+            </if>
+            <if test="infectious != null">
+                infectious = #{infectious,jdbcType=VARCHAR},
+            </if>
+            <if test="vaccination != null">
+                vaccination = #{vaccination,jdbcType=VARCHAR},
+            </if>
+            <if test="operation != null">
+                operation = #{operation,jdbcType=VARCHAR},
+            </if>
+            <if test="transfusion != null">
+                transfusion = #{transfusion,jdbcType=VARCHAR},
+            </if>
+            <if test="marriageChildbirth != null">
+                marriage_childbirth = #{marriageChildbirth,jdbcType=VARCHAR},
+            </if>
+            <if test="menstruation != null">
+                menstruation = #{menstruation,jdbcType=VARCHAR},
+            </if>
+            <if test="family != null">
+                family = #{family,jdbcType=VARCHAR},
+            </if>
+            <if test="allergy != null">
+                allergy = #{allergy,jdbcType=CHAR},
+            </if>
+            <if test="allergys != null">
+                allergys = #{allergys,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="upTime != null">
+                up_time = #{upTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUser != null">
+                create_user = #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="upUser != null">
+                up_user = #{upUser,jdbcType=VARCHAR},
+            </if>
+            <if test="createChannel != null">
+                create_channel = #{createChannel,jdbcType=VARCHAR},
+            </if>
+            <if test="upChannel != null">
+                up_channel = #{upChannel,jdbcType=VARCHAR},
+            </if>
+            <if test="realCert != null">
+                real_cert = #{realCert,jdbcType=VARCHAR},
+            </if>
+            <if test="realNo != null">
+                real_no = #{realNo,jdbcType=VARCHAR},
+            </if>
+            <if test="pad1 != null">
+                pad1 = #{pad1,jdbcType=VARCHAR},
+            </if>
+            <if test="pad2 != null">
+                pad2 = #{pad2,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateInfos" parameterType="map">
+        update idn_patient
+        <set>
+            <if test="patientName != null and patientName != ''">
+                patient_name = #{patientName,jdbcType=VARCHAR},
+            </if>
+            <if test="realFlag != null">
+                real_flag = #{realFlag,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="healthCardNo != null and healthCardNo != ''">
+                health_card_no = #{healthCardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="socialCardNo != null and socialCardNo != ''">
+                social_card_no = #{socialCardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="cardNo != null and cardNo != ''">
+                card_no = #{cardNo,jdbcType=VARCHAR},
+            </if>
+            <if test="birth != null">
+                birth = #{birth,jdbcType=DATE},
+            </if>
+            <if test="marriage != null">
+                marriage = #{marriage,jdbcType=VARCHAR},
+            </if>
+            <if test="country != null">
+                country = #{country,jdbcType=VARCHAR},
+            </if>
+            <if test="nation != null">
+                nation = #{nation,jdbcType=VARCHAR},
+            </if>
+            <if test="occ != null">
+                occ = #{occ,jdbcType=VARCHAR},
+            </if>
+            <if test="workCompany != null">
+                work_company = #{workCompany,jdbcType=VARCHAR},
+            </if>
+            <if test="workPhone != null">
+                work_phone = #{workPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="wechatId != null">
+                wechat_id = #{wechatId,jdbcType=VARCHAR},
+            </if>
+            <if test="blood != null">
+                blood = #{blood,jdbcType=VARCHAR},
+            </if>
+            <if test="medical != null">
+                medical = #{medical,jdbcType=VARCHAR},
+            </if>
+            <if test="infectious != null">
+                infectious = #{infectious,jdbcType=VARCHAR},
+            </if>
+            <if test="vaccination != null">
+                vaccination = #{vaccination,jdbcType=VARCHAR},
+            </if>
+            <if test="operation != null">
+                operation = #{operation,jdbcType=VARCHAR},
+            </if>
+            <if test="transfusion != null">
+                transfusion = #{transfusion,jdbcType=VARCHAR},
+            </if>
+            <if test="marriageChildbirth != null">
+                marriage_childbirth = #{marriageChildbirth,jdbcType=VARCHAR},
+            </if>
+            <if test="menstruation != null">
+                menstruation = #{menstruation,jdbcType=VARCHAR},
+            </if>
+            <if test="family != null">
+                family = #{family,jdbcType=VARCHAR},
+            </if>
+            <if test="allergy != null">
+                allergy = #{allergy,jdbcType=CHAR},
+            </if>
+            <if test="allergys != null">
+                allergys = #{allergys,jdbcType=VARCHAR},
+            </if>
+
+            up_time = now(),
+
+            <if test="userId != null">
+                up_user = #{userId,jdbcType=VARCHAR},
+            </if>
+            <if test="channel != null">
+                up_channel = #{channel,jdbcType=VARCHAR},
+            </if>
+            <if test="realCert != null">
+                real_cert = #{realCert,jdbcType=VARCHAR},
+            </if>
+            <if test="realNo != null">
+                real_no = #{realNo,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <where>
+            <if test="idno != null">
+                idno = #{idno}
+            </if>
+            <if test="id != null">
+                and id = #{id,jdbcType=INTEGER}
+            </if>
+        </where>
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="map">
+        update idn_patient
+        set patient_name = #{patientName,jdbcType=VARCHAR},
+        patient_sex = #{patientSex,jdbcType=VARCHAR},
+        real_flag = #{realFlag,jdbcType=VARCHAR},
+        status = #{status,jdbcType=VARCHAR},
+        idno = #{idno,jdbcType=VARCHAR},
+        health_card_no = #{healthCardNo,jdbcType=VARCHAR},
+        social_card_no = #{socialCardNo,jdbcType=VARCHAR},
+        card_no = #{cardNo,jdbcType=VARCHAR},
+        birth = #{birth,jdbcType=DATE},
+        marriage = #{marriage,jdbcType=VARCHAR},
+        country = #{country,jdbcType=VARCHAR},
+        nation = #{nation,jdbcType=VARCHAR},
+        occ = #{occ,jdbcType=VARCHAR},
+        work_company = #{workCompany,jdbcType=VARCHAR},
+        work_phone = #{workPhone,jdbcType=VARCHAR},
+        phone = #{phone,jdbcType=VARCHAR},
+        wechat_id = #{wechatId,jdbcType=VARCHAR},
+        blood = #{blood,jdbcType=VARCHAR},
+        medical = #{medical,jdbcType=VARCHAR},
+        infectious = #{infectious,jdbcType=VARCHAR},
+        vaccination = #{vaccination,jdbcType=VARCHAR},
+        operation = #{operation,jdbcType=VARCHAR},
+        transfusion = #{transfusion,jdbcType=VARCHAR},
+        marriage_childbirth = #{marriageChildbirth,jdbcType=VARCHAR},
+        menstruation = #{menstruation,jdbcType=VARCHAR},
+        family = #{family,jdbcType=VARCHAR},
+        allergy = #{allergy,jdbcType=CHAR},
+        allergys = #{allergys,jdbcType=VARCHAR},
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+        up_time = #{upTime,jdbcType=TIMESTAMP},
+        create_user = #{createUser,jdbcType=VARCHAR},
+        up_user = #{upUser,jdbcType=VARCHAR},
+        create_channel = #{createChannel,jdbcType=VARCHAR},
+        up_channel = #{upChannel,jdbcType=VARCHAR},
+        real_cert = #{realCert,jdbcType=VARCHAR},
+        real_no = #{realNo,jdbcType=VARCHAR},
+        pad1 = #{pad1,jdbcType=VARCHAR},
+        pad2 = #{pad2,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+</mapper>

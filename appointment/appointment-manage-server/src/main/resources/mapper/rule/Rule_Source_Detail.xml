@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ruleSourceDetail">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="rule_source_id" jdbcType="VARCHAR" property="ruleSourceId"/>
+        <result column="is_given_time" jdbcType="VARCHAR" property="isGivenTime"/>
+        <result column="stime" jdbcType="VARCHAR" property="stime"/>
+        <result column="etime" jdbcType="VARCHAR" property="etime"/>
+        <result column="noon" jdbcType="VARCHAR" property="noon"/>
+        <result column="time_type" jdbcType="VARCHAR" property="timeType"/>
+        <result column="source_num" jdbcType="VARCHAR" property="sourceNum"/>
+        <result column="retain_num" jdbcType="VARCHAR" property="retainNum"/>
+        <result column="add_num" jdbcType="VARCHAR" property="addNum"/>
+    </resultMap>
+
+    <select id="selectById" parameterType="map" resultMap="BaseResultMap">
+        SELECT  a.*
+        FROM rule_source_detail a
+        WHERE a.rule_source_id = #{ruleSourceId}
+        ORDER BY a.stime,a.noon
+    </select>
+    
+    <update id="updateById" parameterType="map">
+        UPDATE rule_source_detail 
+        <set>
+            <if test="isGivenTime != null">is_given_time = #{isGivenTime},</if>
+            <if test="stime != null">stime = #{stime},</if>
+            <if test="etime != null">etime = #{etime},</if>
+            <if test="noon != null">noon = #{noon},</if>
+            <if test="timeType != null">time_type = #{timeType},</if>
+            <if test="sourceNum != null">source_num = #{sourceNum},</if>
+        </set>
+        WHERE id = #{oid}
+    </update>
+        
+    <insert id="insert" parameterType="map" keyProperty="id" useGeneratedKeys="true">
+        <selectKey keyProperty="id" order="AFTER" resultType="string">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO rule_source_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            rule_source_id, is_given_time, stime, etime, noon, time_type, source_num
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{ruleSourceId}, #{isGivenTime}, #{stime}, #{etime}, #{noon}, #{timeType}, #{sourceNum}
+        </trim>
+    </insert>
+    
+    <delete id="deleteById" parameterType="map">
+        DELETE rule_source_detail,rule_source_advance FROM rule_source_detail 
+        LEFT JOIN rule_source_advance ON rule_source_detail.id = rule_source_advance.rule_detail_id
+        WHERE rule_source_detail.id = #{oid}
+    </delete>
+</mapper>

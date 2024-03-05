@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="careCard">
+
+    <resultMap id="BaseResultMap" type="map">
+        <id     jdbcType="INTEGER" column="card_id"               property="cardId"/>
+        <result jdbcType="VARCHAR" column="hospital_id"           property="hospitalId"/>
+        <result jdbcType="VARCHAR" column="ward_id"               property="wardId"/>
+        <result jdbcType="INTEGER" column="bed_no"                property="bedNo"/>
+        <result jdbcType="VARCHAR" column="patient_id"            property="patientId"/>
+        <result jdbcType="VARCHAR" column="inpatient_id"          property="inPatientId"/>
+        <result jdbcType="VARCHAR" column="patient_name"          property="patientName"/>
+        <result jdbcType="VARCHAR" column="user_id"               property="userId"/>
+        <result jdbcType="VARCHAR" column="id_no"                 property="idNo"/>
+        <result jdbcType="VARCHAR" column="name"                  property="name"/>
+        <result jdbcType="VARCHAR" column="phone_no"              property="phoneNo"/>
+        <result jdbcType="VARCHAR" column="photo_path"            property="photoPath"/>
+        <result jdbcType="VARCHAR" column="id_photo_path"         property="idPhotoPath"/>
+        <result jdbcType="VARCHAR" column="check_photo_path"      property="checkPhotoPath"/>
+        <result jdbcType="DATE"    column="active_start_time"     property="activeStartTime"/>
+        <result jdbcType="DATE"    column="active_end_time"       property="activeEndTime"/>
+        <result jdbcType="DATE"    column="in_time"               property="inTime"/>
+        <result jdbcType="INTEGER" column="status"                property="status"/>
+        <result jdbcType="VARCHAR" column="check_account"         property="checkAccount"/>
+        <result jdbcType="DATE"    column="create_time"           property="createTime"/>
+        <result jdbcType="DATE"    column="check_time"            property="checkTime"/>
+        <result jdbcType="DATE"    column="cancel_time"           property="cancelTime"/>
+        <result jdbcType="VARCHAR" column="reason"                property="reason"/>
+    </resultMap>
+
+    <insert id="intCareCard" useGeneratedKeys="true" keyProperty="cardId" parameterType="map">
+        INSERT INTO midend_healthcare.CARE_CARD
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            hospital_id, ward_id, bed_no, patient_id, inpatient_id, patient_name, user_id, id_no, `name`, phone_no, photo_path,
+            id_photo_path, check_photo_path, active_start_time, active_end_time,
+            in_time, check_account, create_time,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{hospitalId}, #{wardId}, #{bedNo},#{patientId}, #{inPatientId}, #{patientName}, #{userId}, #{idNo}, #{name}, #{phoneNo}, #{photoPath},
+            #{idPhotoPath}, #{checkPhotoPath}, #{activeStartTime}, #{activeEndTime},
+            #{inTime}, #{checkAccount}, now(),
+        </trim>
+    </insert>
+
+    <select id="selCareCard" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        CC.card_id,
+        CC.hospital_id,
+        CC.ward_id,
+        CC.bed_no,
+        CC.patient_id,
+        CC.inpatient_id,
+        CC.patient_name,
+        CC.user_id,
+        CC.id_no,
+        CC.`name`,
+        CC.phone_no,
+        CP1.img_base AS photo_path,
+        DATE_FORMAT(CC.active_start_time,'%Y-%m-%d %H:%i:%s') AS active_start_time,
+        DATE_FORMAT(CC.active_end_time,'%Y-%m-%d %H:%i:%s') AS active_end_time,
+        DATE_FORMAT(CC.in_time,'%Y-%m-%d %H:%i:%s') AS in_time,
+        CC.`status`,
+        CC.check_account,
+        CC.reason,
+        DATE_FORMAT(CC.create_time,'%Y-%m-%d %H:%i:%s') AS create_time,
+        DATE_FORMAT(CC.check_time,'%Y-%m-%d %H:%i:%s') AS check_time,
+        DATE_FORMAT(CC.cancel_time,'%Y-%m-%d %H:%i:%s') AS cancel_time
+        FROM midend_healthcare.CARE_CARD CC
+        LEFT JOIN midend_healthcare.care_photo CP1 ON CC.photo_path = CP1.id
+        WHERE
+        CC.hospital_id = #{hospitalId}
+        AND CC.user_id = #{userId}
+        <if test="cardId !=null">
+            AND CC.card_id = #{cardId}
+        </if>
+    </select>
+
+    <select id="selCardIdByUserId" parameterType="map" resultMap="BaseResultMap">
+        SELECT card_id
+        FROM midend_healthcare.CARE_CARD
+        where user_id = #{userId}
+          AND status IN ('0','1');
+    </select>
+
+    <update id="updCaseBook" parameterType="map">
+        UPDATE midend_healthcare.CARE_PRINT_BOOK
+        <set>
+            `status` = '3'
+            <if test="payFlag != null and payFlag != '' ">pay_flag = #{payFlag,jdbcType=VARCHAR},</if>
+        </set>
+        WHERE card_id = #{cardId}
+    </update>
+
+</mapper>

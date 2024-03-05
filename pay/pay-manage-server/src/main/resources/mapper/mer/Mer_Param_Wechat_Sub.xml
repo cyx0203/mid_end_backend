@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="merParamWechatSub">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="sub_merchant_id" property="subMerchantId" jdbcType="VARCHAR"/>
+    <result column="sub_app_id" property="subAppId" jdbcType="VARCHAR"/>
+    <result column="service_merchant_id" property="serviceMerchantId" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+     sub_merchant_id,sub_app_id,service_merchant_id
+  </sql>
+
+  <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+	SELECT
+    <include refid="Base_Column_List"/>
+	FROM mer_param_wechat_sub
+  </select>
+
+  <select id="selectById" parameterType="map" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM mer_param_wechat_sub
+    where service_merchant_id = #{serviceMerchantId}
+  </select>
+
+  <insert id="insert" parameterType="map">
+    INSERT INTO mer_param_wechat_sub
+      (sub_merchant_id,sub_app_id,service_merchant_id)
+    values
+    <foreach collection="wechatSub" item="item" separator=",">
+        (#{item.subMerchantId},#{item.subAppId},#{item.serviceMerchantId})
+    </foreach>
+  </insert>
+
+
+  <delete id="delete" parameterType="map">
+    DELETE FROM mer_param_wechat_sub
+        WHERE service_merchant_id = #{merchantId}
+  </delete>
+
+
+
+
+</mapper>

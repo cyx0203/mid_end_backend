@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="schDept">
+
+    <select id="selectKV" parameterType="map" resultType="map">
+        SELECT id AS `value`,
+        `name` AS txt
+        FROM sch_dept
+        WHERE hospital_id = #{hospitalId} AND `level` = '2'
+        ORDER BY par_id, id
+    </select>
+
+
+</mapper>

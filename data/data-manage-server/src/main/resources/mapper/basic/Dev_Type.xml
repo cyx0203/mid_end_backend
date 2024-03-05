@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="devType">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="parts" jdbcType="VARCHAR" property="parts"/>
+        <result column="menus" jdbcType="VARCHAR" property="menus"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+    </resultMap>
+
+    <select id="selectDevType" parameterType="map" resultMap="BaseResultMap">
+      select *
+      from midend.dev_type
+      where id = #{id}
+    </select>
+</mapper>

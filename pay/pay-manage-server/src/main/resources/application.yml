@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: pay-manage
+  config:
+    location: file:config/application.yml

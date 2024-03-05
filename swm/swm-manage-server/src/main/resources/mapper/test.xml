@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cyx_test">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="id" />
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospital_id" />
+        <result column="job_id" jdbcType="VARCHAR" property="job_id" />
+        <result column="level" jdbcType="VARCHAR" property="level" />
+        <result column="sign_date" jdbcType="CHAR" property="sign_date" />
+        <result column="status" jdbcType="CHAR" property="status" />
+    </resultMap>
+    <select id="getId" parameterType="map" resultType="BaseResultMap">
+        SELECT * FROM room_status;
+    </select>
+
+</mapper>

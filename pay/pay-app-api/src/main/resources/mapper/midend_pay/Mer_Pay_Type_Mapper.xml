@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mer_pay_type">
+	<resultMap id="BaseResultMap" type="map">
+		<id column="merchant_id" jdbcType="VARCHAR" property="merchant_id" />
+		<id column="pay_type_id" jdbcType="CHAR" property="pay_type_id" />
+		<result column="active" jdbcType="CHAR" property="active" />
+	</resultMap>
+
+	<select id="selectActive" resultMap="BaseResultMap">
+		select
+		a.merchant_id,a.pay_type_id from
+		mer_pay_type a
+		where active = '1'
+	</select>
+</mapper>

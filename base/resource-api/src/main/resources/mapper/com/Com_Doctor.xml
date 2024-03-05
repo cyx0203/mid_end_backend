@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="doc">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="dept_id" jdbcType="VARCHAR" property="deptCode"/>
+        <result column="dept_name" jdbcType="VARCHAR" property="deptName"/>
+        <result column="id" jdbcType="VARCHAR" property="docCode"/>
+        <result column="name" jdbcType="VARCHAR" property="docName"/>
+        <result column="title" jdbcType="VARCHAR" property="docTitle"/>
+        <result column="expert" jdbcType="VARCHAR" property="docExpert"/>
+        <result column="intro" jdbcType="VARCHAR" property="docIntro"/>
+        <result column="image_path" jdbcType="VARCHAR" property="imageUrl"/>
+    </resultMap>
+
+    <select id="selectByHosId" parameterType="map" resultMap="BaseResultMap">
+        SELECT doctor.dept_id, dept.name as dept_name, doctor.id, doctor.name, ifnull(doctor.desc,'') as intro, doctor.image_path, title.name as title, ifnull(doctor.expert,'') as expert
+		FROM com_doctor doctor
+		LEFT OUTER JOIN com_doctor_title title ON doctor.title_id = title.id 
+		LEFT OUTER JOIN com_dept dept ON doctor.dept_id = dept.id 
+		WHERE doctor.active = '1'
+        <if test="hospitalId != null">
+            AND doctor.hospital_id = #{hospitalId}
+        </if>
+        <if test="deptCode != null">
+            AND doctor.dept_id = #{deptCode}
+        </if>
+        <if test="docCode != null">
+            AND doctor.id = #{docCode}
+        </if>
+        <if test="docName != null">
+            AND doctor.name Like  concat("%", #{docName}, "%")
+        </if>
+        <if test="docLevel == 1">
+            AND doctor.title_id IN (SELECT id FROM com_doctor_title WHERE NAME LIKE '%主任%' OR NAME LIKE '%教授%')
+            AND doctor.desc IS NOT NULL
+        </if>
+    </select>
+
+</mapper>

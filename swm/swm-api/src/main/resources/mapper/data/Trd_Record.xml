@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="trdrecord">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="TRD_DATE" jdbcType="VARCHAR" property="trdDate" />
+    <result column="TRD_TIME" jdbcType="VARCHAR" property="trdTime" />
+    <result column="CLEAR_DATE" jdbcType="VARCHAR" property="clearDate" />
+    <result column="HOSPITAL_ID" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="CHANNEL" jdbcType="VARCHAR" property="channel" />
+    <result column="TRD_TYPE" jdbcType="VARCHAR" property="trdType" />
+    <result column="PAY_TYPE" jdbcType="VARCHAR" property="payType" />
+    <result column="DEV_ID" jdbcType="VARCHAR" property="devId" />
+    <result column="HIS_TRADEID" jdbcType="VARCHAR" property="hisNo" />
+    <result column="CARD_NO" jdbcType="VARCHAR" property="cardNo" />
+    <result column="SOC_NO" jdbcType="VARCHAR" property="socNo" />
+    <result column="PAT_ID" jdbcType="VARCHAR" property="patId" />
+    <result column="PAT_NAME" jdbcType="VARCHAR" property="patName" />
+    <result column="PAT_IDNO" jdbcType="VARCHAR" property="patIdno" />
+    <result column="PAT_TYPE" jdbcType="VARCHAR" property="patType" />
+    <result column="BANKCARD_NO" jdbcType="VARCHAR" property="bankcardNo" />
+    <result column="PAY_CLIENT_NO" jdbcType="VARCHAR" property="payClientNo" />
+    <result column="PAY_ORDER_NO" jdbcType="VARCHAR" property="payOrderNo" />
+    <result column="PAY_SEQ_NO" jdbcType="VARCHAR" property="paySeqNo" />
+    <result column="REFUND_SEQ_NO" jdbcType="VARCHAR" property="refundSeqNo" />
+    <result column="AMT" jdbcType="VARCHAR" property="amt" />
+    <result column="SOC_AMT" jdbcType="VARCHAR" property="socAmt" />
+    <result column="POOL_AMT" jdbcType="VARCHAR" property="poolAmt" />
+    <result column="STATUS" jdbcType="VARCHAR" property="status" />
+    <result column="PAD1" jdbcType="VARCHAR" property="pad1" />
+    <result column="PAD2" jdbcType="VARCHAR" property="pad2" />
+    <result column="PAD3" jdbcType="VARCHAR" property="pad3" />
+    <result column="HIS_MSG" jdbcType="VARCHAR" property="hisMsg" />
+    <result column="MERCHANT_ID" jdbcType="VARCHAR" property="merchantId" />
+    <result column="SENDER" jdbcType="VARCHAR" property="sender" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    TRD_DATE, TRD_TIME, CLEAR_DATE, HOSPITAL_ID, CHANNEL, TRD_TYPE, PAY_TYPE, DEV_ID, 
+    HIS_TRADEID, CARD_NO, PAT_ID, PAT_NAME, PAT_IDNO, PAT_TYPE, BANKCARD_NO, PAY_ORDER_NO, 
+    PAY_SEQ_NO, REFUND_SEQ_NO, AMT, SOC_AMT, STATUS, PAD1, PAD2, PAD3, HIS_MSG,MERCHANT_ID,
+    POOL_AMT,DOCTOR_CODE,DOCTOR_NAME,SOC_NO,SENDER
+  </sql>
+  
+
+  
+  <insert id="save" parameterType="map">
+    insert into trd_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="hospitalId != null">
+        HOSPITAL_ID,
+      </if>
+      <if test="app != null">
+        APP,
+      </if>
+      <if test="payClientNo != null">
+        PAY_CLIENT_NO,
+      </if>
+      <if test="payOrderNo != null">
+        PAY_ORDER_NO,
+      </if>
+      <if test="paySeqNo != null">
+        PAY_SEQ_NO,
+      </if>
+      <if test="trdDate != null">
+        TRD_DATE,
+      </if>
+      <if test="trdTime != null">
+        TRD_TIME,
+      </if>
+      <if test="devId != null">
+        DEV_ID,
+      </if>
+      <if test="clearDate != null">
+        CLEAR_DATE,
+      </if>
+      <if test="channel != null">
+        CHANNEL,
+      </if>
+      <if test="trdType != null">
+        TRD_TYPE,
+      </if>
+      <if test="payType != null">
+        PAY_TYPE,
+      </if>
+      <if test="hisNo != null">
+        HIS_TRADEID,
+      </if>
+      <if test="cardNo != null">
+        CARD_NO,
+      </if>
+      <if test="socNo != null">
+        SOC_NO,
+      </if>
+      <if test="patId != null">
+        PAT_ID,
+      </if>
+      <if test="patName != null">
+        PAT_NAME,
+      </if>
+      <if test="patIdno != null">
+        PAT_IDNO,
+      </if>
+      <if test="patType != null">
+        PAT_TYPE,
+      </if>
+      <if test="bankcardNo != null">
+        BANKCARD_NO,
+      </if>
+      <if test="refundSeqNo != null">
+        REFUND_SEQ_NO,
+      </if>
+      <if test="totalAmt != null">
+        TOTAL_AMT,
+      </if>
+      <if test="amt != null">
+        AMT,
+      </if>
+      <if test="socAmt != null">
+        SOC_AMT,
+      </if>
+      <if test="poolAmt != null">
+        POOL_AMT,
+      </if>
+      <if test="socBalance != null">
+        SOC_BALANCE,
+      </if>
+      <if test="status != null">
+        STATUS,
+      </if>
+      <if test="hisMsg != null">
+        HIS_MSG,
+      </if>
+      <if test="sender != null">
+        SENDER,
+      </if>
+      <if test="pad1 != null">
+        PAD1,
+      </if>
+      <if test="pad2 != null">
+        PAD2,
+      </if>
+      <if test="pad3 != null">
+        PAD3,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="hospitalId != null">
+        #{hospitalId,jdbcType=VARCHAR},
+      </if>
+      <if test="app != null">
+        #{app,jdbcType=VARCHAR},
+      </if>
+      <if test="payClientNo != null">
+        #{payClientNo,jdbcType=VARCHAR},
+      </if>
+      <if test="payOrderNo != null">
+        #{payOrderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="paySeqNo != null">
+        #{paySeqNo,jdbcType=VARCHAR},
+      </if>
+      <if test="trdDate != null">
+        #{trdDate,jdbcType=VARCHAR},
+      </if>
+      <if test="trdTime != null">
+        #{trdTime,jdbcType=VARCHAR},
+      </if>
+      <if test="devId != null">
+        #{devId,jdbcType=VARCHAR},
+      </if>
+      <if test="clearDate != null">
+        #{clearDate,jdbcType=VARCHAR},
+      </if>
+      <if test="channel != null">
+        #{channel,jdbcType=VARCHAR},
+      </if>
+      <if test="trdType != null">
+        #{trdType,jdbcType=VARCHAR},
+      </if>
+      <if test="payType != null">
+        #{payType,jdbcType=VARCHAR},
+      </if>
+      <if test="hisNo != null">
+        #{hisNo,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNo != null">
+        #{cardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="socNo != null">
+        #{socNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patId != null">
+        #{patId,jdbcType=VARCHAR},
+      </if>
+      <if test="patName != null">
+        #{patName,jdbcType=VARCHAR},
+      </if>
+      <if test="patIdno != null">
+        #{patIdno,jdbcType=VARCHAR},
+      </if>
+      <if test="patType != null">
+        #{patType,jdbcType=VARCHAR},
+      </if>
+      <if test="bankcardNo != null">
+        #{bankcardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="refundSeqNo != null">
+        #{refundSeqNo,jdbcType=VARCHAR},
+      </if>
+      <if test="totalAmt != null">
+        #{totalAmt,jdbcType=VARCHAR},
+      </if>
+      <if test="amt != null">
+        #{amt,jdbcType=VARCHAR},
+      </if>
+      <if test="socAmt != null">
+        #{socAmt,jdbcType=VARCHAR},
+      </if>
+      <if test="poolAmt != null">
+        #{poolAmt,jdbcType=VARCHAR},
+      </if>
+      <if test="socBalance != null">
+        #{socBalance,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="hisMsg != null">
+        #{hisMsg,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="sender != null">
+        #{sender,jdbcType=VARCHAR},
+      </if>
+      <if test="pad1 != null">
+        #{pad1,jdbcType=VARCHAR},
+      </if>
+      <if test="pad2 != null">
+        #{pad2,jdbcType=VARCHAR},
+      </if>
+      <if test="pad3 != null">
+        #{pad3,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="update" parameterType="map">
+    update trd_record
+    <set>
+      <if test="trdDate != null">
+        TRD_DATE = #{trdDate,jdbcType=VARCHAR},
+      </if>
+      <if test="trdTime != null">
+        TRD_TIME = #{trdTime,jdbcType=VARCHAR},
+      </if>
+      <if test="refundSeqNo != null">
+        REFUND_SEQ_NO = #{refundSeqNo,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        STATUS = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="pad1 != null">
+        PAD1 = #{pad1,jdbcType=VARCHAR},
+      </if>
+      <if test="pad2 != null">
+        PAD2 = #{pad2,jdbcType=VARCHAR},
+      </if>
+      <if test="pad3 != null">
+        PAD3 = #{pad3,jdbcType=VARCHAR},
+      </if>
+      <if test="hisMsg != null">
+        HIS_MSG = #{hisMsg},
+      </if>
+    </set>
+    <where>
+    	PAY_CLIENT_NO = #{payClientNo,jdbcType=VARCHAR} AND HOSPITAL_ID = #{hospitalId,jdbcType=VARCHAR}
+    </where>
+  </update>
+
+
+
+  <select id="selectDate" parameterType="map" resultMap="BaseResultMap">
+    SELECT TRD_DATE FROM trd_record WHERE TRD_DATE &lt;= #{lastdate}
+   	GROUP BY TRD_DATE
+  </select>
+
+
+
+  <select id="statisticsByKeys" parameterType="map" resultMap="BaseResultMap">
+
+    SELECT CONVERT(SUM(amt),DECIMAL (10,2)) amt ,SUM(if(status = 'SUCCESS', 1, 0)) count_ok ,SUM(if(status != 'SUCCESS', 1, 0)) count_fail, pay_type `type` ,'all' AS app, channel, hospital_id ,trd_date, '1' AS pad1 ,dev_id
+	FROM trd_record
+	WHERE trd_record BETWEEN #{startdate} AND #{enddate}
+	GROUP BY pay_type , hospital_id, channel,dev_id
+
+	UNION
+
+    SELECT CONVERT(SUM(amt),DECIMAL(10,2)) amt ,SUM(if(status = 'SUCCESS', 1, 0)) count_ok ,SUM(if(status != 'SUCCESS', 1, 0)) count_fail,pay_type `type` , app, 'all' AS channel,hospital_id ,trd_date, '1' AS pad1 ,dev_id
+	FROM trd_record
+	WHERE trd_record BETWEEN #{startdate} AND #{enddate}
+	GROUP BY pay_type , hospital_id, app,dev_id
+
+	UNION
+
+	SELECT CONVERT(SUM(amt),DECIMAL(10,2)) amt ,SUM(if(status = 'SUCCESS', 1, 0)) count_ok ,SUM(if(status != 'SUCCESS', 1, 0)) count_fail,pay_type `type` ,app,channel,hospital_id ,trd_date, '1' AS pad1 ,dev_id
+	FROM trd_record
+	WHERE trd_record BETWEEN #{startdate} AND #{enddate}
+	GROUP BY pay_type , hospital_id, app,dev_id, channel
+
+	UNION
+
+    SELECT CONVERT(SUM(amt),DECIMAL(10,2)) amt ,SUM(if(status = 'SUCCESS', 1, 0)) count_ok ,SUM(if(status != 'SUCCESS', 1, 0)) count_fail,pay_type `type` ,'all' AS app,'all' as channel,hospital_id ,trd_date, '1' AS pad1 ,dev_id
+	FROM trd_record
+	WHERE trd_record BETWEEN #{startdate} AND #{enddate}
+	GROUP BY pay_type , hospital_id,dev_id
+
+	UNION
+
+	SELECT CONVERT(SUM(amt),DECIMAL(10,2)) amt ,SUM(if(status = 'SUCCESS', 1, 0)) count_ok ,SUM(if(status != 'SUCCESS', 1, 0)) count_fail,trd_type `type` ,'all' AS app,channel,hospital_id ,trd_date, '2' AS pad1 ,dev_id
+	FROM trd_record
+	WHERE trd_record BETWEEN #{startdate} AND #{enddate}
+	GROUP BY trd_type , hospital_id, channel,dev_id
+
+    UNION
+
+    SELECT CONVERT(SUM(amt),DECIMAL(10,2)) amt ,SUM(if(status = 'SUCCESS', 1, 0)) count_ok ,SUM(if(status != 'SUCCESS', 1, 0)) count_fail,trd_type `type` ,app,'all' AS channel,hospital_id ,trd_date, '2' AS pad1 ,dev_id
+	FROM trd_record
+	WHERE trd_record BETWEEN #{startdate} AND #{enddate}
+	GROUP BY trd_type , hospital_id, app,dev_id
+
+	UNION
+
+    SELECT CONVERT(SUM(amt),DECIMAL(10,2)) amt ,SUM(if(status = 'SUCCESS', 1, 0)) count_ok ,SUM(if(status != 'SUCCESS', 1, 0)) count_fail,trd_type `type` ,app,channel,hospital_id ,trd_date, '2' AS pad1 ,dev_id
+	FROM trd_record
+	WHERE trd_record BETWEEN #{startdate} AND #{enddate}
+	GROUP BY trd_type , hospital_id, app,dev_id, channel
+
+	UNION
+
+	SELECT CONVERT(SUM(amt),DECIMAL(10,2)) amt ,SUM(if(status = 'SUCCESS', 1, 0)) count_ok ,SUM(if(status != 'SUCCESS', 1, 0)) count_fail,trd_type `type` ,'all' AS app,'all' AS channel,hospital_id ,trd_date, '2' AS pad1 ,dev_id
+	FROM trd_record
+	WHERE trd_record BETWEEN #{startdate} AND #{enddate}
+	GROUP BY trd_type , hospital_id,dev_id
+
+  </select>
+
+
+  <insert id="createTransTable" parameterType="map">
+    CREATE TABLE IF NOT EXISTS ${tableName} like trd_record
+  </insert>
+
+
+  <insert id="insertBakHisTrans" parameterType="map">
+--       CREATE TABLE IF NOT EXISTS ${tableName} like trd_record;
+      insert into ${tableName} SELECT * FROM trd_record WHERE TRD_DATE &gt;= #{startdate} AND TRD_DATE &lt;= #{enddate};
+      delete from trd_record WHERE TRD_DATE &gt;= #{startdate} AND TRD_DATE &lt;= #{enddate}
+  </insert>
+
+</mapper>

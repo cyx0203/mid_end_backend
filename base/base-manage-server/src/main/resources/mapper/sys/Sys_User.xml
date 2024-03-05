@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="user">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="account" jdbcType="VARCHAR" property="account"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="role_id" jdbcType="INTEGER" property="roleId"/>
+        <result column="password" jdbcType="CHAR" property="password"/>
+        <result column="state" jdbcType="CHAR" property="state"/>
+        <result column="phone" jdbcType="CHAR" property="phone"/>
+        <result column="branch_id" jdbcType="VARCHAR" property="branchId"/>
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="avatar" jdbcType="VARCHAR" property="avatar"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, account, name, role_id, password, state, phone, branch_id, hospital_id, avatar
+  </sql>
+
+    <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+        select
+        concat('',a.id) `key`,a.id, a.account, a.name, a.role_id, a.state, a.phone, a.avatar,
+        a.hospital_id,
+        a.branch_id,
+        h.name AS hospitalName
+        from sys_user a
+        left join sys_role b on a.role_id = b.id
+        left join com_hospital h on h.id = a.hospital_id
+        <where>
+            <if test="id != null">
+                a.id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="accountRef != null">
+                and account = #{accountRef}
+            </if>
+            <if test="password != null">
+                and password = #{password}
+            </if>
+            <if test="roleId != null">
+                and role_id in (${roleId})
+            </if>
+            <if test="projectId != null">
+                AND b.project_id = #{projectId}
+            </if>
+        </where>
+        <if test="sort_key != null and sort_way != null">
+            order by ${sort_key} ${sort_way}
+        </if>
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from sys_user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="map">
+        insert into sys_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="acountRef != null">
+                account,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="roleId != null">
+                role_id,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="avatar != null">
+                avatar,
+            </if>
+            <if test="hospitalId != null">
+                hospital_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="acountRef != null">
+                #{acountRef,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="roleId != null">
+                #{roleId,jdbcType=INTEGER},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                #{phone},
+            </if>
+            <if test="avatar != null">
+                #{avatar},
+            </if>
+            <if test="hospitalId != null">
+                #{hospitalId},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="map">
+        update sys_user
+        <set>
+            <if test="acountRef != null">
+                account = #{acountRef},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="roleId != null">
+                role_id = #{roleId,jdbcType=INTEGER},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=INTEGER},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="avatar != null">
+                avatar = #{avatar},
+            </if>
+            <if test="hospitalId != null">
+                hospital_id = #{hospitalId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="map">
+    update user
+    set account = #{acountRef,jdbcType=VARCHAR},
+      roleid = #{roleid,jdbcType=INTEGER},
+      password = #{password,jdbcType=VARCHAR},
+      state = #{state,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+    <update id="resetPassword" parameterType="map">
+    update user set password = default
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+    <update id="changePassword" parameterType="map">
+    update sys_user set password = #{password}
+    where account = #{account} and password = #{oldPassword}
+  </update>
+
+
+    <select id="login" parameterType="map" resultType="map">
+    select U.*,
+    H.level AS hospital_level
+    from sys_user U
+    left join com_hospital H on H.id = U.hospital_id
+    where (U.account = #{account} or U.phone = #{account}) and U.password = #{password}
+  </select>
+</mapper>

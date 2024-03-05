@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: survey-manage
+  config:
+    location: file:config/application-survey-manage.yml

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gg.midend.mapper.AppMapper">
+
+    <!-- 插入预约问诊表信息 -->
+    <insert id="intAppInfo" parameterType="com.gg.midend.domain.DTO.AppReq">
+        INSERT INTO interhospital.INTERHOSP_APP(theme_id, pat_name, pat_age, pat_sex, purpose, `history`, allergy,
+        family, now, habits,
+        <if test="state != null and state != '' ">state,</if>
+        pic_path, remark1)
+        VALUES (#{themeId},
+        #{patName},
+        #{patAge},
+        #{patSex},
+        #{purpose},
+        #{history},
+        #{allergy},
+        #{family},
+        #{now},
+        #{habits},
+        <if test="state != null and state != '' ">#{state},</if>
+        #{picPath},
+        #{remark1})
+    </insert>
+
+</mapper>

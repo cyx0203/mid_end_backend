@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="comDoctor">
+
+    <select id="selectDoctor" parameterType="map" resultType="map">
+        SELECT DISTINCT(IFNULL(sch.doctor_id, '')) AS docCode,
+               IFNULL(doc.name, '') AS docName,
+               IFNULL(title.name, '') AS docTitle,
+               IFNULL(doc.expert, '') AS docSpec,
+               IFNULL(doc.`desc`, '') AS docDesc,
+               IFNULL(doc.image_path, '') AS docImgPath
+
+        FROM src_schedule AS sch
+        INNER JOIN src_date AS d ON sch.src_date_id = d.id
+        LEFT JOIN midend.com_doctor AS doc ON sch.doctor_id = doc.id
+        LEFT JOIN midend.com_doctor_title AS title ON doc.title_id = title.id
+        LEFT JOIN midend.com_register_type AS regType ON regType.id = sch.register_type
+
+        WHERE d.valid = '1' AND sch.valid = '1' AND sch.active = '1' AND d.date >= DATE_FORMAT(NOW(), '%Y%m%d')
+        AND (regType.id = '10' OR regType.id = '11' OR regType.id = '12'
+            OR regType.id = '13' OR regType.id = '14' OR regType.id = '15')
+        AND d.hospital_id = #{hospitalId} AND sch.dept_id = #{deptCode}
+    </select>
+
+</mapper>

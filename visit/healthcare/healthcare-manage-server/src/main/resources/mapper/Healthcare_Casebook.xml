@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="caseBook">
+
+    <resultMap id="BaseResultMap" type="map">
+        <id     jdbcType="INTEGER"  column="id"                   property="id"/>
+        <result jdbcType="VARCHAR" column="hospital_id"           property="hospitalId"/>
+        <result jdbcType="VARCHAR" column="inpatient_id"          property="inPatientId"/>
+        <result jdbcType="VARCHAR" column="patient_id"            property="patientId"/>
+        <result jdbcType="VARCHAR" column="patient_name"          property="patientName"/>
+        <result jdbcType="VARCHAR" column="patient_no"            property="patientNo"/>
+        <result jdbcType="DATE"    column="in_time"               property="inTime"/>
+        <result jdbcType="DATE"    column="out_time"              property="outTime"/>
+        <result jdbcType="VARCHAR" column="dept_id"               property="deptId"/>
+        <result jdbcType="VARCHAR" column="ward_id"               property="wardId"/>
+        <result jdbcType="VARCHAR" column="bed_no"                property="bedNo"/>
+        <result jdbcType="VARCHAR" column="apply_name"            property="applyName"/>
+        <result jdbcType="VARCHAR" column="apply_id"              property="applyId"/>
+        <result jdbcType="VARCHAR" column="apply_phone_no"        property="applyPhoneNo"/>
+        <result jdbcType="VARCHAR" column="apply_photo_path"      property="applyPhotoPath"/>
+        <result jdbcType="VARCHAR" column="id_front_path"         property="idFrontPath"/>
+        <result jdbcType="VARCHAR" column="id_back_path"          property="idBackPath"/>
+        <result jdbcType="VARCHAR" column="recipient_name"        property="recipientName"/>
+        <result jdbcType="VARCHAR" column="recipient_phone_no"    property="recipientPhoneNo"/>
+        <result jdbcType="VARCHAR" column="recipient_city"        property="recipientCity"/>
+        <result jdbcType="VARCHAR" column="recipient_address"     property="recipientAddress"/>
+        <result jdbcType="VARCHAR" column="recipient_postal_code" property="recipientPostalCode"/>
+        <result jdbcType="INTEGER" column="status"                property="status"/>
+        <result jdbcType="VARCHAR" column="pay_flag"              property="payFlag"/>
+        <result jdbcType="INTEGER" column="print_num"             property="printNum"/>
+        <result jdbcType="VARCHAR" column="original_pid"          property="originalPid"/>
+        <result jdbcType="VARCHAR" column="original_no"           property="originalNo"/>
+        <result jdbcType="VARCHAR" column="check_account"         property="checkAccount"/>
+        <result jdbcType="DATE"    column="check_time"            property="checkTime"/>
+        <result jdbcType="DATE"    column="create_time"           property="createTime"/>
+        <result jdbcType="INTEGER" column="num"                   property="num"/>
+        <result jdbcType="VARCHAR" column="reason"                property="reason"/>
+        <result jdbcType="VARCHAR" column="case_type"             property="caseType"/>
+    </resultMap>
+
+    <select id="selCaseBook" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        CPB.id,
+        CPB.hospital_id,
+        CPB.inpatient_id,
+        CPB.patient_id,
+        CPB.patient_name,
+        CPB.patient_no,
+        DATE_FORMAT(CPB.in_time,'%Y-%m-%d %H:%i:%s') AS in_time,
+        DATE_FORMAT(CPB.out_time,'%Y-%m-%d %H:%i:%s') AS out_time,
+        CPB.dept_id,
+        CPB.ward_id,
+        CPB.bed_no,
+        CPB.apply_name,
+        CPB.apply_id,
+        CPB.apply_phone_no,
+        CP1.img_base AS apply_photo_path,
+        CP2.img_base AS id_front_path,
+        CP3.img_base AS id_back_path,
+        CPB.recipient_name,
+        CPB.recipient_phone_no,
+        CPB.recipient_city,
+        CPB.recipient_address,
+        CPB.recipient_postal_code,
+        CPB.`status`,
+        CPB.pay_flag,
+        CPB.print_num,
+        CPB.original_pid,
+        CPB.original_no,
+        CPB.check_account,
+        CPB.reason,
+        CPB.case_type,
+        DATE_FORMAT(CPB.check_time,'%Y-%m-%d %H:%i:%s') AS check_time,
+        DATE_FORMAT(CPB.create_time,'%Y-%m-%d %H:%i:%s') AS create_time
+        FROM midend_healthcare.CARE_PRINT_BOOK CPB
+        LEFT JOIN midend_healthcare.CARE_PHOTO CP1 ON CPB.apply_photo_path = CP1.id
+        LEFT JOIN midend_healthcare.CARE_PHOTO CP2 ON CPB.id_front_path = CP2.id
+        LEFT JOIN midend_healthcare.CARE_PHOTO CP3 ON CPB.id_back_path = CP3.id
+        WHERE 1 = 1
+        <if test="id != null">
+            AND CPB.id = #{id}
+        </if>
+        <if test="inPatientId != null">
+            AND CPB.inpatient_id = #{inPatientId}
+        </if>
+        <if test="patientId != null">
+            AND CPB.patient_id = #{patientId}
+        </if>
+        <if test="status != null">
+            AND CPB.`status` = #{status}
+        </if>
+        <if test="startTime != null and endTime != null">
+            AND CPB.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+        ORDER BY CPB.create_time DESC
+    </select>
+
+    <update id="updCaseBookStatus" parameterType="map">
+        UPDATE midend_healthcare.CARE_PRINT_BOOK
+        SET `status`      = #{status},
+            reason        = #{reason},
+            print_num     = #{printNum},
+            original_pid  = #{originalPid},
+            original_no   = #{originalNo},
+            check_account = #{checkAccount},
+            check_time    = now()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

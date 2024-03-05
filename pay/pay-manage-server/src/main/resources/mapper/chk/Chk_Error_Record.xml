@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="chkErrorRecord">
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT A.merchant_id AS merchantId,
+        CONVERT(CONCAT(SUBSTR(A.account_date,1,4),'-',SUBSTR(A.account_date,5,2),'-',SUBSTR(A.account_date,7,2)),CHAR) AS
+        accountDateFormat,
+        A.trans_type AS payOrRefund,
+        A.check_id AS checkId,
+        A.check_origin_id AS checkOriginId,
+        A.error_type AS errorType,
+        A.trans_amt AS transAmt,
+        A.create_time AS createTime,
+        M.name AS merchantName,
+        PO.order_trace AS orderTrace,
+
+        CASE A.trans_type WHEN -1 THEN (SELECT order_id FROM pay_order_pay WHERE order_trace =
+        (SELECT order_trace FROM pay_order_pay WHERE order_id = POP.order_id) AND trans_type ='1')
+        ELSE POP.order_id END as orderId,
+        CASE A.trans_type WHEN -1 THEN POP.order_id ELSE NULL END as refundId,
+        CASE A.trans_type WHEN -1 THEN POP.order_id ELSE POP.order_id END as orderIdOrRefundId,
+
+        PO.pay_status AS payStatus,
+        PO.refund_status AS refundStatus,
+        A.adjust_reason AS adjustReason,
+        CASE WHEN A.trans_type = -1 THEN ( CASE WHEN SUBSTR(A.trans_time,1,8) = SUBSTR(CTD.trans_time,1,8) THEN '1' ELSE '0' END) ELSE NULL END AS isCurrentDayRefund,
+
+        CONVERT(CONCAT(SUBSTR(A.trans_time,1,4),'-',SUBSTR(A.trans_time,5,2),'-',SUBSTR(A.trans_time,7,2),' ',
+        SUBSTR(A.trans_time,9,2),':',SUBSTR(A.trans_time,11,2),':',SUBSTR(A.trans_time,13,2)),CHAR) AS transTimeFormat,
+
+        CASE WHEN REF.order_trace IS NULL THEN NULL ELSE
+        CONVERT(CONCAT(SUBSTR(REF.third_date,1,4),'-',SUBSTR(REF.third_date,5,2),'-',SUBSTR(REF.third_date,7,2),' ',
+        SUBSTR(REF.third_time,1,2),':',SUBSTR(REF.third_time,3,2),':',SUBSTR(REF.third_time,5,2)),CHAR) END AS refundTimeFormat,
+
+        CASE WHEN REF.order_trace IS NULL THEN NULL ELSE REF.order_id END AS refundOrderIdForAdjust,
+
+        CASE WHEN PAY.order_trace IS NULL THEN NULL ELSE
+        CONVERT(CONCAT(SUBSTR(PAY.third_date,1,4),'-',SUBSTR(PAY.third_date,5,2),'-',SUBSTR(PAY.third_date,7,2),' ',
+        SUBSTR(PAY.third_time,1,2),':',SUBSTR(PAY.third_time,3,2),':',SUBSTR(PAY.third_time,5,2)),CHAR) END AS payTimeFormat
+
+        FROM chk_error_record A
+        LEFT JOIN mer_merchant M ON M.id = A.merchant_id
+        <!-- 查询chk_error_record该条记录 对应的pay_order_pay和pay_order的记录 -->
+        LEFT JOIN pay_order_pay POP ON (POP.order_id = A.check_id OR POP.third_seq_no = A.check_id)
+        LEFT JOIN pay_order PO ON PO.order_trace = POP.order_trace
+        <!-- 通过pay_order_pay表中收费记录 查看pay_order_pay中有退费记录 -->
+        LEFT JOIN pay_order_pay REF ON A.trans_type = '1' AND REF.order_trace = POP.order_trace AND REF.trans_type = -1 AND POP.status = '1'
+        <!-- 通过chk_error_record表中退费记录 查看pay_order_pay的原收费记录 -->
+        LEFT JOIN pay_order_pay PAY ON A.trans_type = '-1' AND A.check_origin_id = PAY.order_id AND PAY.status = '1'
+        LEFT JOIN chk_trans_detail CTD ON A.check_origin_id = CTD.check_id
+
+        WHERE A.account_date = #{queryDate} AND A.merchant_id = #{merchantId} AND A.account_source = #{accountSource}
+        ORDER BY PO.order_trace,A.check_id, A.trans_type,A.create_time DESC
+    </select>
+
+    <update id="updateErrorType" parameterType="map">
+        UPDATE chk_error_record
+        SET error_type = '0',adjust_flag=#{adjustFlag},adjust_reason=#{adjustReason},adjust_time=#{adjustTime}
+        WHERE merchant_id = #{merchantId} AND check_id = #{checkId} AND account_date= #{accountDate}
+    </update>
+
+    <select id="selectCount" parameterType="map" resultType="Integer">
+        SELECT COUNT(*) FROM chk_error_record
+        WHERE account_date=#{accountDate} AND merchant_id = #{merchantId} AND error_type != 0
+    </select>
+
+    <update id="updateAdjust" parameterType="map">
+        UPDATE chk_error_record
+        SET adjust_flag=#{adjustFlag},adjust_reason=#{adjustReason},adjust_time=#{adjustTime}
+        WHERE merchant_id = #{merchantId} AND check_id = #{checkId} AND account_date= #{accountDate}
+    </update>
+
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>midend-service-center</artifactId>
+        <groupId>com.gg.midend</groupId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>meal-manage-server</artifactId>
+    <version>1.0.0</version>
+
+    <description>
+        (1)本系统实现了点餐系统管理后端服务接口
+        (2)版本更新记录：
+        v1.0.0 2022.11.28 lufm
+        创建版本
+    </description>
+
+    <properties>
+        <httpclient.version>4.5.5</httpclient.version>
+        <easyexcel.version>2.2.10</easyexcel.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
+            <version>${easyexcel.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

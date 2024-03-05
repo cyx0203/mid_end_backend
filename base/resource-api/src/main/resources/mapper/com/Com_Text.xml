@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="text">
+	<resultMap id="TextResultMap" type="map">
+		<result column="id" jdbcType="VARCHAR" property="id" />
+		<result column="type_id" jdbcType="VARCHAR" property="typeId" />
+		<result column="type_name" jdbcType="VARCHAR" property="typeName" />
+		<result column="title" jdbcType="VARCHAR" property="title" />
+		<result column="active" jdbcType="VARCHAR" property="active" />
+	</resultMap>
+
+	<select id="selectTextList" parameterType="map" resultMap="TextResultMap">
+		SELECT a.id, a.type_id, b.name as type_name, a.title, a.active,
+		CONVERT(CONCAT(SUBSTR(a.create_time,1,10), ' ',SUBSTR(a.create_time,12,8)),CHAR) AS createTime
+		FROM com_text a
+		LEFT OUTER JOIN com_text_type b
+		ON a.type_id = b.id
+		WHERE 1 = 1
+		<if test="typeId != null">
+			AND a.type_id = #{typeId}
+		</if>
+	</select>
+
+
+	<select id="selectTextInfo" parameterType="map" resultType="map">
+		SELECT title, content
+		FROM com_text
+		WHERE id = #{id}
+	</select>
+
+</mapper>

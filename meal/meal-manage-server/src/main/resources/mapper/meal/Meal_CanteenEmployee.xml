@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mealcanteenemployee">
+
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="canteen_id" jdbcType="INTEGER" property="canteenId" />
+        <result column="password" jdbcType="VARCHAR" property="password" />
+    </resultMap>
+
+    <!--<select id="query-canteenemployee" parameterType="map" resultType="map">-->
+        <!--SELECT a.id,a.account, a.name,a.phone,a.hospital_id as hospitalId,b.canteen_id as canteenId-->
+        <!--FROM midend.sys_user a-->
+        <!--left join meal_admin b on a.id = b.id-->
+        <!--left join midend.com_hospital c on a.hospital_id = c.id-->
+        <!--<where>-->
+            <!--<if test="id != null and id != ''">-->
+                <!--a.id =#{id}-->
+            <!--</if>-->
+            <!--<if test="hospitalId  != null and hospitalId != ''">-->
+                <!--AND (c.id =#{hospitalId} or c.par_id = #{hospitalId})-->
+            <!--</if>-->
+            <!--<if test="hospitalid  != null and hospitalid != ''">-->
+                <!--AND c.id = #{hospitalid}-->
+            <!--</if>-->
+        <!--</where>-->
+    <!--</select>-->
+
+
+    <select id="query-canteenemployee" parameterType="map" resultType="map">
+        select a.canteen_id as canteenId, b.id, b.account, b.name, b.phone, b.hospital_id as hospitalId
+        from meal_admin a
+        left join th_midend.sys_user b on a.id = b.id
+        left join th_midend.com_hospital c on b.hospital_id = c.id
+        <where>
+          a.canteen_id is not null
+          <if test="hospitalId  != null and hospitalId != ''">
+            AND (c.id =#{hospitalId} or c.par_id = #{hospitalId})
+          </if>
+          <if test="hospitalid  != null and hospitalid != ''">
+            AND c.id = #{hospitalid}
+          </if>
+          <if test="account  != null and account != ''">
+            AND b.account = #{account}
+          </if>
+          <if test="canteenId  != null and canteenId != ''">
+            AND a.canteen_id = #{canteenId}
+          </if>
+        </where>
+    </select>
+
+    <select id="query-opuser" parameterType="map" resultType="map">
+        select b.id, b.account, b.name, b.phone, b.hospital_id as hospitalId,a.password
+        from meal_admin a
+        left join th_midend.sys_user b on a.id = b.id
+        left join th_midend.com_hospital c on b.hospital_id = c.id
+        <where>
+            a.password is not null
+            <if test="hospitalId  != null and hospitalId != ''">
+                AND (c.id =#{hospitalId} or c.par_id = #{hospitalId})
+            </if>
+            <if test="hospitalid  != null and hospitalid != ''">
+                AND c.id = #{hospitalid}
+            </if>
+        </where>
+    </select>
+
+    <select id="check-opuser" parameterType="map" resultType="map">
+        select a.*
+        from meal_admin a
+        left join th_midend.sys_user b on a.id = b.id
+        <where>
+            a.password = #{password}
+            <if test="id  != null and id != ''">
+                AND a.id = #{hospitalid}
+            </if>
+            <if test="account  != null and account != ''">
+                AND b.account = #{account}
+            </if>
+        </where>
+    </select>
+
+    <insert id="update-canteenemployee" parameterType="map">
+        insert into meal_admin
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="canteenId != null">
+                canteen_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="canteenId != null">
+                #{canteenId,jdbcType=INTEGER},
+            </if>
+        </trim>
+        on duplicate key update
+        <if test="canteenId != null">
+            canteen_id = #{canteenId,jdbcType=INTEGER}
+        </if>
+
+    </insert>
+
+
+    <insert id="save-userop" parameterType="map">
+        insert into meal_admin
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+        </trim>
+        on duplicate key update
+        <if test="password != null">
+            password = #{password,jdbcType=VARCHAR}
+        </if>
+
+    </insert>
+
+    <insert id="update-userop" parameterType="map">
+        update meal_admin set password = #{password}
+        where id = #{id}
+    </insert>
+
+    <insert id="delete-userop" parameterType="map">
+        update meal_admin set password = null
+        where id = #{id}
+    </insert>
+
+</mapper>

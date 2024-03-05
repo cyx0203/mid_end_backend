@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ruleSourceAdvance">
+    
+    <insert id="insert" parameterType="map">
+        INSERT INTO rule_source_advance
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="list != null">
+                rule_detail_id, rule_source_id, pid, stime, etime, source_num
+            </if>
+        </trim>
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                <if test="item != null">
+                    #{item.ruleDetailId}, #{item.ruleSourceId}, #{item.pid}, #{item.stime}, #{item.etime}, #{item.sourceNum},
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+    
+    <delete id="deleteById" parameterType="map">
+        DELETE  FROM rule_source_advance 
+        WHERE rule_detail_id = #{oid}
+    </delete>
+</mapper>

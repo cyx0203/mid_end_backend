@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="desdevuse">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="dev_id" jdbcType="VARCHAR" property="devId"/>
+        <result column="time" jdbcType="VARCHAR" property="time"/>
+        <result column="cpu_use" jdbcType="VARCHAR" property="cpuUse"/>
+        <result column="memory_use" jdbcType="VARCHAR" property="memoryUse"/>
+        <result column="memory" jdbcType="VARCHAR" property="memory"/>
+        <result column="disk_use" jdbcType="LONGVARCHAR" property="diskUse"/>
+        <result column="open_time" jdbcType="VARCHAR" property="openTime"/>
+        <result column="close_time" jdbcType="VARCHAR" property="closeTime"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+        <result column="pad2" jdbcType="VARCHAR" property="pad2"/>
+    </resultMap>
+
+    <insert id="insertSelective" parameterType="map">
+        insert into des_dev_use
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="devid != null">dev_id,</if>
+            time,
+            <if test="cpuUse != null">cpu_use,</if>
+            <if test="memoryUse != null">memory_use,</if>
+            <if test="memory != null">memory,</if>
+            <if test="diskUse != null">disk_use,</if>
+            <if test="openTime != null">open_time,</if>
+            <if test="closeTime != null">close_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="devid != null">#{devid, jdbcType=VARCHAR},</if>
+            DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
+            <if test="cpuUse != null">#{cpuUse, jdbcType=VARCHAR},</if>
+            <if test="memoryUse != null">#{memoryUse, jdbcType=VARCHAR},</if>
+            <if test="memory != null">#{memory, jdbcType=VARCHAR},</if>
+            <if test="diskUse != null">#{diskUse, jdbcType=VARCHAR},</if>
+            <if test="openTime != null">#{openTime, jdbcType=VARCHAR},</if>
+            <if test="closeTime != null">#{closeTime, jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+</mapper>

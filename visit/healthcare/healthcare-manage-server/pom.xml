@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>midend-service-center</artifactId>
+        <groupId>com.gg.midend</groupId>
+        <version>1.0.0</version>
+        <relativePath>../../../pom.xml</relativePath>
+    </parent>
+
+    <!-- 微服务名称【不同的微服务对应不同的值，该值影响打包后的jar文件名称】 -->
+    <artifactId>healthcare-manage-server</artifactId>
+    <version>1.0.0</version>
+    <!-- 开发者信息 -->
+    <developers>
+    </developers>
+
+    <properties>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.9.3</version>
+        </dependency>
+    </dependencies>
+
+    <!-- 系统描述【注意，开发人员每次变更，务必记得填写变更内容】 -->
+    <description>
+        两部分内容：
+        （1）系统说明：就诊服务管理端服务
+        v1.0.0 2023.03.21 fun-mean
+        首次创建版本
+    </description>
+
+</project>

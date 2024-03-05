@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="idnAdress">
+
+    <select id="selectById" parameterType="map" resultType="map">
+        SELECT idn_id         
+		FROM idn_address
+        WHERE idn_id = #{id}
+    </select>
+	
+	<update id="updateById" parameterType="map">
+        UPDATE idn_address 
+        <set>
+            <if test="province != null">province = #{province},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="area != null">area = #{area},</if>
+            <if test="fullAddr != null">full_addr = #{fullAddr},</if>
+        </set>
+        WHERE idn_id = #{id}
+    </update>
+    
+    <insert id="insert" parameterType="map">
+        INSERT INTO idn_address 
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            idn_id, address_type, province, city, area, street, full_addr, zip_code, pad1 
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id}, #{addressType}, #{province}, #{city}, #{area},'', #{fullAddr},
+            '', ''
+        </trim>
+    </insert>
+</mapper>

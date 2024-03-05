@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hospital">
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT * , id `value`, `name` title  FROM th_midend.com_hospital
+        <where>
+            <if test="hospitalId != null">
+                and (id = #{hospitalId} or par_id =  #{hospitalId})
+            </if>
+            <if test="parId != null">
+                and par_id = #{parId}
+            </if>
+            <if test="level != null">
+                and `level` = #{level}
+            </if>
+        </where>
+    </select>
+
+</mapper>

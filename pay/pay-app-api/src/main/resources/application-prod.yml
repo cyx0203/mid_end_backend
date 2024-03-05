@@ -1,0 +1,68 @@
+server:
+  port: 18010
+  
+file:
+    # 服务器资源文件存放路径 根据实际情况修改
+    uploadDir: upload
+#    # 服务器资源访问路径
+#    url: http://localhost:8080/antdlib/
+
+app:
+    version: 1.0.0
+    
+spring:
+  mvc:
+    async:
+      request-timeout: 60000
+
+  http:
+    encoding.charset: UTF-8
+    encoding.enable: true
+    encoding.force: true
+    multipart:
+      maxFileSize: 1024MB
+      maxRequestSize: 1024MB
+
+  datasource:
+    url: jdbc:mysql://192.168.101.93:6609/midend_pay?useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&connectTimeout=60000&socketTimeout=60000&autoReconnect=true&autoReconnectForPools=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC&allowMultiQueries=true
+    username: admin
+    password: Abc_123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+    initial-size: 1
+    min-idle: 1
+    max-active: 20
+    max-wait: 60000
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    validation-query: SELECT 1 FROM DUAL
+    test-While-Idle: true
+    test-on-borrow: false
+    test-on-return: false
+    pool-prepared-statements: false
+    filters: stat,wall,log4j,config
+
+mybatis:
+  mapper-locations: classpath:mapper/*/*.xml
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+logging:
+  config: classpath:log4j2.xml
+  
+SysConstants:
+  #支付宝网关URL
+  AliPayGate_URL: https://mz.dzyywlyy.com/ctalipay
+  #支付宝签名密钥
+  AliPayGate_KEY: HtczW2pVi22aibK1HVfoTSz8KGEyCdiT
+  #微信网关URL
+  WechatPayGate_URL: https://mz.dzyywlyy.com/ctwxpaydz
+  #微信签名密钥
+  WechatPayGate_KEY: YDB6o7suJundefinedSzSkU1dabaTxBxoWKtty3C
+  #支付平台URL
+  PayAppApi_URL: http://127.0.0.1
+  #支付宝支付、退费状态检测控制,1打开检测,0关闭检测
+  AliPayAutoCheck : 1
+  #微信支付、退费状态检测控制,1打开检测,0关闭检测
+  WxPayAutoCheck : 1
+

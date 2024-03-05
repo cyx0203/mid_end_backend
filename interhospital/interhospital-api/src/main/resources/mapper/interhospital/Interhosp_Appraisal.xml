@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gg.midend.mapper.AppraisalMapper">
+
+    <!-- 插入预约问诊表信息 -->
+    <insert id="intAppraisalInfo" parameterType="com.gg.midend.domain.DTO.AppraisalReq">
+        INSERT INTO interhospital.INTERHOSP_APPRAISAL(
+        <if test="flowNo != null and flowNo != '' ">        flow_no,    </if>
+        <if test="flowType != null and flowType != '' ">    flow_type,  </if>
+        <if test="hospitalId != null and hospitalId != '' ">hospital_id,</if>
+        <if test="doctId != null and doctId != '' ">        doct_id,    </if>
+        <if test="patId != null and patId != '' ">          pat_id,     </if>
+        <if test="userId != null and userId != '' ">        user_id,    </if>
+        <if test="patName != null and patName != '' ">      pat_name,   </if>
+        <if test="score != null and score != '' ">          score,      </if>
+        <if test="content != null and content != '' ">      content,    </if>
+        <if test="status != null and status != '' ">        status,     </if>
+        <if test="flag != null and flag != '' ">            flag,       </if>
+        <if test="remark1 != null and remark1 != '' ">      remark1,    </if>
+        <if test="remark2 != null and remark2 != '' ">      remark2,    </if>
+                                                            create_time,
+                                                            update_time
+        )VALUES(
+        <if test="flowNo != null and flowNo != '' ">        #{flowNo},    </if>
+        <if test="flowType != null and flowType != '' ">    #{flowType},  </if>
+        <if test="hospitalId != null and hospitalId != '' ">#{hospitalId},</if>
+        <if test="doctId != null and doctId != '' ">        #{doctId},    </if>
+        <if test="patId != null and patId != '' ">          #{patId},     </if>
+        <if test="userId != null and userId != '' ">        #{userId},    </if>
+        <if test="patName != null and patName != '' ">      #{patName},   </if>
+        <if test="score != null and score != '' ">          #{score},      </if>
+        <if test="content != null and content != '' ">      #{content},    </if>
+        <if test="status != null and status != '' ">        #{status},     </if>
+        <if test="flag != null and flag != '' ">            #{flag},       </if>
+        <if test="remark1 != null and remark1 != '' ">      #{remark1},    </if>
+        <if test="remark2 != null and remark2 != '' ">      #{remark2},    </if>
+                                                            sysdate(),
+                                                            sysdate()
+        )
+    </insert>
+
+    <delete id="delByFlowNo" parameterType="Long">
+        delete
+        from interhospital.INTERHOSP_APPRAISAL
+        where flow_no = #{flowNo}
+    </delete>
+
+</mapper>

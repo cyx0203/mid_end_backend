@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcSource">
+
+    <resultMap id="SourceMap" type="map">
+        <id column="schedule_id" jdbcType="CHAR" property="scheduleId" />
+        <result column="dept_id" jdbcType="VARCHAR" property="deptCode" />
+        <result column="register_type" jdbcType="CHAR" property="regType" />
+        <result column="doctor_id" jdbcType="VARCHAR" property="docCode" />
+        <result column="noon" jdbcType="CHAR" property="noon" />
+        <result column="active" jdbcType="CHAR" property="active" />
+        <collection property="sourceList" javaType="java.util.ArrayList" ofType="com.gg.midend.entity.SourceDetail">
+            <id column="source_id" jdbcType="INTEGER" property="sourceId" />
+            <result column="stime" jdbcType="CHAR" property="start" />
+            <result column="etime" jdbcType="CHAR" property="end" />
+            <result column="order" jdbcType="INTEGER" property="order" />
+            <result column="status" jdbcType="CHAR" property="status" />
+        </collection>
+    </resultMap>
+
+    <select id="selectTime" parameterType="map" resultType="map">
+        SELECT TIME_FORMAT(CONCAT(src.stime, '00'), '%H:%i') AS stime,
+               TIME_FORMAT(CONCAT(src.etime, '00'), '%H:%i') AS etime,
+               (SELECT COUNT(1) FROM src_source WHERE src_sch_id = #{scheduleId} AND status = '0' AND num_type != '3' AND stime = src.stime AND etime = src.etime) AS remainder
+
+        FROM src_source AS src
+        INNER JOIN src_schedule AS sch ON src.src_sch_id = sch.id
+        INNER JOIN src_date AS date ON sch.src_date_id = date.id
+
+        WHERE sch.id = #{scheduleId} AND IF((date.date = DATE_FORMAT(NOW(), '%Y%m%d')), src.etime > DATE_FORMAT(NOW(), '%H%i'), TRUE)
+        GROUP BY src.stime, src.etime
+        ORDER BY src.stime, src.etime
+    </select>
+
+    <update id="updateSourceFromSpareToLock" parameterType="map">
+        <selectKey keyProperty="srcId,date" keyColumn="srcId,date" resultType="map" order="BEFORE">
+            SELECT src.id AS srcId,
+                   date.date
+
+            FROM src_source AS src,
+                 src_schedule AS sch,
+                 src_date AS date
+
+            WHERE src.src_sch_id = sch.id AND sch.src_date_id = date.id AND src.status = '0' AND src.num_type != '3'
+            AND date.hospital_id = #{hospitalId} AND sch.id = #{scheduleId}
+            AND src.stime = TIME_FORMAT(CONCAT(#{stime}, ':00'), '%H%i')
+            AND src.etime = TIME_FORMAT(CONCAT(#{etime}, ':00'), '%H%i')
+            ORDER BY src.stime, src.etime, src.`order`
+            LIMIT 1
+            FOR UPDATE
+        </selectKey>
+        UPDATE src_source AS src
+
+        SET src.status = '1'
+
+        WHERE src.id = #{srcId} AND src.status != '1'
+    </update>
+
+    <update id="updateSourceFromLockToSpare" parameterType="map">
+        <selectKey keyProperty="orderId,action,termId" keyColumn="orderId,action,termId" resultType="map" order="AFTER">
+            SELECT ord.id AS orderId,
+                   ord.status AS action,
+                   ord.oper_id AS termId
+
+            FROM src_order AS ord
+
+            WHERE ord.order_no = #{orderNo}
+        </selectKey>
+        UPDATE src_source AS src,
+            src_order AS ord
+
+        SET src.status = '0', ord.status = '0', ord.update_time = NOW()
+
+        WHERE ord.src_id = src.id AND ord.status = '1' AND ord.order_no = #{orderNo}
+    </update>
+
+    <select id="selectSource" parameterType="map" resultMap="SourceMap">
+        SELECT sch.id AS schedule_id,
+               sch.dept_id,
+               sch.register_type,
+               IFNULL(sch.doctor_id, '') AS doctor_id,
+               sch.noon,
+               sch.active,
+               src.id AS source_id,
+               TIME_FORMAT(CONCAT(src.stime, '00'), '%H:%i') AS stime,
+               TIME_FORMAT(CONCAT(src.etime, '00'), '%H:%i') AS etime,
+               src.order,
+               src.status
+
+        FROM src_source AS src
+        INNER JOIN src_schedule AS sch ON sch.id = src.src_sch_id
+        INNER JOIN src_date AS date ON date.id = sch.src_date_id
+
+        WHERE date.valid = '1' AND sch.valid = '1' AND src.num_type != '3'
+        AND date.hospital_id = #{hospitalId} AND date.date = #{date}
+    </select>
+
+    <update id="updateSourceFromSpareToLockForHIS" parameterType="map">
+        <selectKey keyProperty="srcId,date" keyColumn="srcId,date" resultType="map" order="BEFORE">
+            SELECT src.id AS srcId,
+                   date.date
+
+            FROM src_source AS src,
+                 src_schedule AS sch,
+                 src_date AS date
+
+            WHERE src.src_sch_id = sch.id AND sch.src_date_id = date.id AND src.status = '0' AND src.num_type != '3'
+            AND src.etime > DATE_FORMAT(NOW(), '%H%i')
+            AND sch.id = #{scheduleId}
+            ORDER BY src.stime, src.etime, src.`order`
+            LIMIT 1
+            FOR UPDATE
+        </selectKey>
+        UPDATE src_source AS src
+
+        SET src.status = '1'
+
+        WHERE src.id = #{srcId} AND src.status != '1'
+    </update>
+
+    <update id="updateSourceFromLockToSpareForHIS" parameterType="map">
+        <selectKey keyProperty="orderId,action,termId" keyColumn="orderId,action,termId" resultType="map" order="AFTER">
+            SELECT ord.id AS orderId,
+                   ord.status AS action,
+                   ord.oper_id AS termId
+
+            FROM src_order AS ord
+
+            WHERE ord.order_no = #{orderNo}
+        </selectKey>
+        UPDATE src_source AS src,
+            src_order AS ord
+
+        SET src.status = '0', ord.status = '0', ord.update_time = NOW()
+
+        WHERE ord.src_id = src.id AND ord.status = '1' AND ord.order_no = #{orderNo}
+    </update>
+
+    <update id="updateSourceFromAppointedToSpareForHIS" parameterType="map">
+        <selectKey keyProperty="orderId,action" keyColumn="orderId,action" resultType="map" order="AFTER">
+            SELECT ord.id AS orderId,
+                   ord.status AS action
+
+            FROM src_order AS ord
+
+            WHERE ord.order_no = #{orderNo}
+        </selectKey>
+        UPDATE src_order AS ord
+        LEFT JOIN src_source AS src ON src.id = ord.src_id
+
+        SET ord.status = '3', ord.oper_id = #{termId}, ord.update_time = NOW(), src.status = IF(src.status IS NULL, NULL, '0')
+
+        WHERE ord.order_no = #{orderNo}
+    </update>
+
+    <update id="updateSourceFromAppointedToSpare" parameterType="map">
+        <selectKey keyProperty="sourceId,orderId,action" keyColumn="sourceId,orderId,action" resultType="map" order="AFTER">
+            SELECT ord.src_id AS sourceId,
+                   ord.id AS orderId,
+                   ord.status AS action
+
+            FROM src_order AS ord
+
+            WHERE ord.order_no = #{orderNo}
+        </selectKey>
+        UPDATE src_order AS ord
+        LEFT JOIN src_source AS src ON src.id = ord.src_id
+
+        SET ord.status = '3', ord.oper_id = #{termId}, ord.update_time = NOW(), src.status = IF(src.status IS NULL, NULL, '0')
+
+        WHERE ord.order_no = #{orderNo}
+    </update>
+
+    <update id="updateSourceFromAppointedToDiagnosedForHIS" parameterType="map">
+        <selectKey keyProperty="orderId,action" keyColumn="orderId,action" resultType="map" order="AFTER">
+            SELECT ord.id AS orderId,
+                   ord.status AS action
+
+            FROM src_order AS ord
+
+            WHERE ord.order_no = #{orderNo}
+        </selectKey>
+        UPDATE src_source AS src,
+            src_order AS ord
+
+        SET src.status = '9', ord.status = '9', ord.oper_id = #{termId}, ord.update_time = NOW()
+
+        WHERE ord.src_id = src.id AND (ord.status = '2' OR ord.status = '9') AND ord.order_no = #{orderNo}
+    </update>
+
+    <update id="testReturnValue" parameterType="map">
+        <selectKey keyProperty="status,stime" resultType="map" order="BEFORE">
+            select src.status, src.stime from src_source src where src.id = 1
+        </selectKey>
+        UPDATE src_source src
+        SET src.status = '1'
+        WHERE src.id = #{sourceId}
+    </update>
+
+    <insert id="testInsertReturnValue" parameterType="map">
+        INSERT INTO src_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            order_no, src_id, src_sch_id, cust_id, `date`,
+            merchant_id, `status`, create_source,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            uuid_format(uuid()), #{sourceId}, #{scheduleId}, #{custId}, #{date},
+            NULL, '1', '1',
+        </trim>
+    </insert>
+
+    <update id="testReturnList" parameterType="map">
+        <selectKey keyProperty="sourceIdListStr" keyColumn="sourceIdListStr" resultType="string" order="BEFORE">
+            select GROUP_CONCAT(src.id) as sourceIdListStr from src_source as src where src.src_sch_id = 'bd9cc8d47618bf5b'
+        </selectKey>
+        UPDATE src_source src
+        SET src.status = '0'
+        WHERE
+        <if test="sourceIdListStr == null">
+            src.id IN (0)
+        </if>
+        <if test="sourceIdListStr != null and sourceIdListStr != ''">
+            src.id IN (${sourceIdListStr})
+        </if>
+    </update>
+
+    <insert id="testInsertList" parameterType="map">
+        INSERT INTO src_order_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            order_id, `action`, cust_id, oper_id, result, create_time, remark,
+        </trim>
+        VALUES
+        <foreach collection="sourceIdList" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="item != null">
+                    #{item}, '0', '008', 'ggtest', '1', NOW(), '',
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+
+</mapper>

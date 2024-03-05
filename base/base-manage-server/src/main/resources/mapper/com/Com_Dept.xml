@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="comDept">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="desc" jdbcType="VARCHAR" property="desc"/>
+        <result column="position" jdbcType="VARCHAR" property="position"/>
+        <result column="par_id" jdbcType="VARCHAR" property="parId"/>
+        <result column="level" jdbcType="CHAR" property="level"/>
+        <result column="update_time" jdbcType="CHAR" property="updateTime"/>
+        <result column="active" jdbcType="CHAR" property="active"/>
+        <result column="order" jdbcType="INTEGER" property="order"/>
+        <result column="prompt" jdbcType="VARCHAR" property="prompt"/>
+    </resultMap>
+
+    <select id="selectByHosId" parameterType="map" resultMap="BaseResultMap">
+        SELECT D1.*,
+        D2.name AS deptName1st,
+        D2.order AS deptOrder1st,
+        D2.active AS deptActive1st,
+        D2.prompt AS deptPrompt1st
+        FROM com_dept D1
+        LEFT JOIN com_dept D2 ON D2.id = D1.par_id
+        WHERE D1.hospital_id = #{hospitalId}
+        <if test="keywords != null">
+            AND (
+            D1.id LIKE concat("%",#{keywords},"%") OR
+            D1.name LIKE concat("%",#{keywords},"%") OR
+            D2.id LIKE concat("%",#{keywords},"%") OR
+            D2.name LIKE concat("%",#{keywords},"%")
+            )
+        </if>
+        <if test="level != null">
+            AND D1.level = #{level}
+        </if>
+        ORDER BY D1.par_id, D2.order
+    </select>
+
+    <update id="update" parameterType="map">
+        UPDATE com_dept
+        <set>
+            <if test="id != null">id = #{id},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="desc != null">`desc` = #{desc},</if>
+            <if test="position != null">`position` = #{position},</if>
+            update_time = NOW(),
+            <if test="active != null">active = #{active},</if>
+            <if test="order != null">`order` = #{order},</if>
+            <if test="prompt != null">prompt = #{prompt},</if>
+            <if test="pad != null">pad = #{pad},</if>
+        </set>
+        WHERE id = #{oid} AND hospital_id = #{hospitalId}
+    </update>
+
+    <delete id="deleteById" parameterType="map">
+        DELETE FROM com_dept
+        WHERE id = #{id} AND hospital_id = #{hospitalId}
+    </delete>
+
+    <delete id="delete1stById" parameterType="map">
+        DELETE FROM com_dept
+        WHERE (id = #{id} OR par_id = #{id}) AND hospital_id = #{hospitalId}
+    </delete>
+
+    <insert id="insert" parameterType="map">
+        INSERT INTO com_dept
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            hospital_id, id, name,
+            <if test="desc != null">`desc`,</if>
+            <if test="parId != null">par_id,</if>
+            <if test="level != null">`level`,</if>
+            <if test="position != null">`position`,</if>
+            update_time, active,
+            <if test="order != null">`order`</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{hospitalId}, #{id}, #{name},
+            <if test="desc != null">#{desc},</if>
+            <if test="parId != null">#{parId},</if>
+            <if test="level != null">#{level},</if>
+            <if test="position != null">#{position},</if>
+            NOW(), '1',
+            <if test="order != null">#{order}</if>
+        </trim>
+    </insert>
+
+    <update id="setPromptNull" parameterType="map">
+        UPDATE com_dept
+        SET prompt = null 
+        WHERE id = #{oid} AND hospital_id = #{hospitalId}
+    </update>
+
+</mapper>

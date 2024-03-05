@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="merhospcfg">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="HOSPITAL_ID" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="PROJ_ID" jdbcType="VARCHAR" property="projId" />
+    <result column="BG_IMG_URL" jdbcType="VARCHAR" property="bgImgUrl" />
+    <result column="LOGO_IMG_URL" jdbcType="VARCHAR" property="logoImgUrl" />
+    <result column="MD5_KEY" jdbcType="VARCHAR" property="md5Key" />
+    <result column="FUNC_INFO" jdbcType="LONGVARCHAR" property="funcInfo" />
+    <result column="NAVIGATE_INFO" jdbcType="LONGVARCHAR" property="navigateInfo" />
+    <result column="SERVICE_STATUS" jdbcType="VARCHAR" property="serviceStatus" />
+    <result column="SERVICE_STOP_DATE" jdbcType="VARCHAR" property="serviceStopDate" />
+    <result column="SERVICE_START_TIME" jdbcType="VARCHAR" property="serviceStartTime" />
+    <result column="GH_TIPS" jdbcType="LONGVARCHAR" property="ghTips" />
+    <result column="SERVICE_END_TIME" jdbcType="VARCHAR" property="serviceEndTime" />
+    <result column="REFUND_START_TIME" jdbcType="VARCHAR" property="refundStartTime" />
+    <result column="REFUND_END_TIME" jdbcType="VARCHAR" property="refundEndTime" />
+    <result column="IS_OPEN_LOCK_REG" jdbcType="VARCHAR" property="isOpenLockReg" />
+    <result column="IS_SOURCECODE" jdbcType="VARCHAR" property="isSourcecode" />
+    <result column="ORDER_DATE_NUM" jdbcType="VARCHAR" property="orderDateNum" />
+    <result column="INHOS_LIMIT_AMT" jdbcType="VARCHAR" property="inhosLimitAmt" />
+    <result column="IS_CHOOSE_PAY" jdbcType="VARCHAR" property="isChoosePay" />
+    <result column="PAY_RULE" jdbcType="VARCHAR" property="payRule" />
+    <result column="BIND_WX_MODE" jdbcType="VARCHAR" property="bindWxMode" />
+    <result column="HIS_NAME" jdbcType="VARCHAR" property="hisName" />
+    <result column="HIS_SERVER_URL" jdbcType="VARCHAR" property="hisServerUrl" />
+    <result column="HIS_CONNECT_TIMEOUT" jdbcType="VARCHAR" property="hisConnectTimeout" />
+    <result column="HIS_SERVER_PARAM" jdbcType="VARCHAR" property="hisServerParam" />
+    <result column="HIS_SOCKET_TIMEOUT" jdbcType="VARCHAR" property="hisSocketTimeout" />
+    <result column="HIS_NAME_SPACE" jdbcType="VARCHAR" property="hisNameSpace" />
+    <result column="HIS_OPT_ID" jdbcType="VARCHAR" property="hisOptId" />
+    <result column="IS_SPECIAL_GATEWAY" jdbcType="VARCHAR" property="isSpecialGateway" />
+    <result column="GATEWAY_URL" jdbcType="VARCHAR" property="gatewayUrl" />
+    <result column="HIS_SIGN_KEY" jdbcType="VARCHAR" property="hisSignKey" />
+    <result column="HIS_HOS_ID" jdbcType="VARCHAR" property="hisHosId" />
+    <result column="NO_LOG_METHOD_LIST" jdbcType="VARCHAR" property="noLogMethodList" />
+    <result column="HIS_PROMPTS" jdbcType="LONGVARCHAR" property="hisPrompts" />
+    <result column="DEV_STATUS_CTR" jdbcType="VARCHAR" property="devStatusCtr" />
+    <result column="MERCHANT_ID" jdbcType="VARCHAR" property="merchantId" />
+    <result column="HIS_TOKEN" jdbcType="VARCHAR" property="hisToken" />
+    <result column="PAD1" jdbcType="VARCHAR" property="pad1" />
+    <result column="PAD2" jdbcType="VARCHAR" property="pad2" />
+    <result column="PAD3" jdbcType="VARCHAR" property="pad3" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List">
+    HOSPITAL_ID, PROJ_ID, BG_IMG_URL, LOGO_IMG_URL, NAVIGATE_INFO, MD5_KEY, FUNC_INFO, SERVICE_STATUS, SERVICE_STOP_DATE, 
+    SERVICE_START_TIME, GH_TIPS, SERVICE_END_TIME, REFUND_START_TIME, REFUND_END_TIME, IS_OPEN_LOCK_REG, 
+    ORDER_DATE_NUM, INHOS_LIMIT_AMT, IS_CHOOSE_PAY, PAY_RULE, BIND_WX_MODE, HIS_NAME, 
+    HIS_SERVER_URL, HIS_CONNECT_TIMEOUT, HIS_SERVER_PARAM, HIS_SOCKET_TIMEOUT, HIS_NAME_SPACE, HIS_OPT_ID, 
+    IS_SPECIAL_GATEWAY, GATEWAY_URL, HIS_SIGN_KEY, HIS_HOS_ID, NO_LOG_METHOD_LIST, HIS_PROMPTS, DEV_STATUS_CTR, MERCHANT_ID
+    PAD1, PAD2, PAD3,IS_SOURCECODE,HIS_TOKEN
+  </sql>
+
+
+  <select id="selectInfo" parameterType="map" resultMap="BaseResultMap">
+    select
+    a.*
+    from midend.com_hosp_cfg a
+    <where>
+      a.HOSPITAL_ID = #{hospitalId,jdbcType=VARCHAR}
+      <if test="projId != null">
+        AND a.PROJ_ID = #{projId,jdbcType=VARCHAR}
+      </if>
+
+    </where>
+  </select>
+
+
+
+</mapper>

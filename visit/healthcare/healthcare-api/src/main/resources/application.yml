@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: healthcare-api
+  config:
+    location: file:config/application.yml

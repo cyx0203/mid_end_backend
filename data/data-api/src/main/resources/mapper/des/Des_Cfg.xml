@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="descfg">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="section" jdbcType="VARCHAR" property="section"/>
+        <result column="kkey" jdbcType="VARCHAR" property="kkey"/>
+        <result column="value" jdbcType="LONGVARCHAR" property="value"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+    </resultMap>
+
+
+    <select id="selectSys" resultMap="BaseResultMap">
+        select
+            A.VALUE baseFilePath,
+            B.VALUE httpFilePath,
+            C.VALUE timeS,
+            D.VALUE timeC,
+            'Y' status,
+            'N' control
+        from des_cfg A,des_cfg B,des_cfg C,des_cfg D
+        where A.SECTION = 'Agent' AND A.KKEY = 'baseFilePath'
+        AND B.SECTION = 'Agent' AND B.KKEY = 'httpFilePath'
+        AND C.SECTION = 'Agent' AND C.KKEY = 'timeS'
+        AND D.SECTION = 'Agent' AND D.KKEY = 'timeC'
+    </select>
+
+</mapper>

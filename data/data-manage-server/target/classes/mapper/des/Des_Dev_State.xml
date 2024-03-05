@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="devState">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="dev_id" jdbcType="VARCHAR" property="devId"/>
+        <result column="cat_id" jdbcType="VARCHAR" property="catId"/>
+        <result column="value" jdbcType="VARCHAR" property="value"/>
+        <result column="wtype" jdbcType="VARCHAR" property="wtype"/>
+        <result column="err" jdbcType="VARCHAR" property="err"/>
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="dtime" jdbcType="VARCHAR" property="dtime"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+    </resultMap>
+
+    <delete id="deleteByDevId" parameterType="map">
+        DELETE FROM des_dev_state
+        WHERE dev_id = #{devId} AND hospital_id = #{hospitalId}
+    </delete>
+
+    <insert id="insertBatch" parameterType="map">
+        INSERT INTO des_dev_state
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="insertList != null">
+                hospital_id, dev_id, cat_id, value, dtime,
+            </if>
+        </trim>
+        values
+        <foreach collection="insertList" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                <if test="item != null">
+                    #{item.hospitalId}, #{item.devId}, #{item.catId}, #{item.value}, NOW(),
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+
+    <select id="selectDevStateDetail" parameterType="map" resultType="map">
+        SELECT
+        B.cat_name stateName,
+        C.name stateValue,
+        C.color stateColor,
+        A.cat_id,
+        A.value,
+        A.dtime
+        FROM des_dev_state A
+        LEFT JOIN midend.dev_statecat B ON A.cat_id = B.cat_id
+        LEFT JOIN des_state C ON A.cat_id = C.cat_id AND A.value = C.value
+        WHERE A.dev_id = #{devId} AND hospital_id = #{hospitalId}
+        ORDER BY A.cat_id
+    </select>
+
+    <update id="updateDevState" parameterType="map">
+        UPDATE des_dev_state SET
+        value = #{value},
+        dtime = NOW()
+        WHERE dev_id = #{devId} AND hospital_id = #{hospitalId} AND cat_id = '2001'
+    </update>
+
+    <update id="updateStopDevStates" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE des_dev_state SET
+            VALUE = #{item.value},
+            DTIME = DATE_FORMAT(NOW(),'%Y%m%d%H%i%s')
+            WHERE DEV_ID = #{item.id} AND CAT_ID = '2001' AND VALUE !='2' AND HOSPITAL_ID = #{item.hospitalId}
+        </foreach>
+    </update>
+
+    <select id="selectWorkDevs" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        DEV_ID,DATE_FORMAT(`DTIME`,'%Y%m%d%H%i%s') AS DTIME,HOSPITAL_ID
+        FROM des_dev_state
+        WHERE CAT_ID = '2001' AND VALUE != '6'
+    </select>
+
+    <update id="updateFailurePostDevStates" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE des_dev_state SET
+            VALUE = #{item.value},
+            DTIME = DATE_FORMAT(NOW(),'%Y%m%d%H%i%s')
+            WHERE DEV_ID = #{item.id} AND CAT_ID = '2001' AND VALUE !='6' AND HOSPITAL_ID = #{item.hospitalId}
+        </foreach>
+    </update>
+
+
+    <delete id="deleteById" parameterType="map">
+       DELETE FROM des_dev_state
+       WHERE dev_id = #{devId}
+    </delete>
+
+    <update id="initDevState" parameterType="java.util.List">
+        INSERT des_dev_state VALUES
+        <foreach collection="list" item="item" separator="," >
+            (#{item.hospitalId,jdbcType=VARCHAR}, #{item.devId,jdbcType=VARCHAR},
+             #{item.catId,jdbcType=VARCHAR}, #{item.value,jdbcType=VARCHAR},
+             #{item.wType,jdbcType=VARCHAR}, #{item.err,jdbcType=VARCHAR},
+             #{item.dTime,jdbcType=VARCHAR}, #{item.pad1,jdbcType=VARCHAR})
+        </foreach>
+    </update>
+
+</mapper>

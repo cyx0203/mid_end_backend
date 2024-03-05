@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="payType">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="id" jdbcType="CHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="third_id" jdbcType="CHAR" property="thirdId" />
+  </resultMap>
+
+  <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+    SELECT a.* , b.name AS thirdName
+    FROM pay_type a
+    LEFT JOIN pay_third b on a.third_id = b.id
+    <where>
+      1=1
+      <if test="id != null">
+        and id = #{id}
+      </if>
+    </where>
+    ORDER BY a.id
+  </select>
+
+  <insert id="add" parameterType="map">
+    INSERT INTO pay_type
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      id, `name`, third_id
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      #{id}, #{name}, #{thirdId}
+    </trim>
+  </insert>
+
+  <update id="updateById" parameterType="map">
+    UPDATE pay_type
+    SET `name` = #{name},third_id = #{thirdId}
+    WHERE id = #{id}
+  </update>
+
+  <delete id="deleteById" parameterType="map">
+    DELETE FROM pay_type
+    WHERE id = #{id}
+  </delete>
+</mapper>

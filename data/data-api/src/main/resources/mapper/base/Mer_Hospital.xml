@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="merhospital">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="ID" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="NAME" jdbcType="VARCHAR" property="hospitalName"/>
+        <result column="TYPE" jdbcType="VARCHAR" property="merType"/>
+        <result column="LEVEL" jdbcType="VARCHAR" property="level"/>
+        <result column="GRADE" jdbcType="VARCHAR" property="grade"/>
+        <result column="PHONE" jdbcType="VARCHAR" property="phone"/>
+        <result column="ADDRESS" jdbcType="VARCHAR" property="merAddr"/>
+        <result column="BRANCH_ID" jdbcType="VARCHAR" property="dept"/>
+        <result column="CREATE_TIME" jdbcType="VARCHAR" property="createTime"/>
+        <result column="UPDATE_TIME" jdbcType="VARCHAR" property="updateTime"/>
+        <result column="IS_OPEN" jdbcType="VARCHAR" property="isOpen"/>
+        <result column="DEV_STATUS_CTR" jdbcType="VARCHAR" property="devStatusCtr"/>
+        <result column="CONTROL" jdbcType="VARCHAR" property="control"/>
+        <result column="OPEN_ALL_DATA_MONITOR" jdbcType="VARCHAR" property="openAllDataMonitor"/>
+        <result column="MAIL" jdbcType="VARCHAR" property="mail"/>
+        <result column="PAD1" jdbcType="VARCHAR" property="pad1"/>
+        <result column="PAD2" jdbcType="VARCHAR" property="pad2"/>
+        <result column="PAD3" jdbcType="VARCHAR" property="pad3"/>
+    </resultMap>
+
+    <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+        select
+        A.*,
+        CASE
+        WHEN A.IS_OPEN ='N' THEN '停用'
+        ELSE '正常'
+        end openFalg,
+        CONVERT(CONCAT(SUBSTR(A.UPDATE_TIME,1,4),'-',SUBSTR(A.UPDATE_TIME,5,2),'-',SUBSTR(A.UPDATE_TIME,7,2),'
+        ',SUBSTR(A.UPDATE_TIME,9,2),':',SUBSTR(A.UPDATE_TIME,11,2),':',SUBSTR(A.UPDATE_TIME,13,2)),CHAR) fUpdateTime,
+        B.NAME name1,
+        C.NAME name2,
+        S.NAME typeName
+        from midend.com_hospital A
+        LEFT JOIN midend.com_branch B ON A.BRANCH_ID=B.ID
+        LEFT JOIN midend.com_branch C ON B.PAR_ID=C.ID
+        LEFT JOIN midend.plat_code S ON S.PAR_ID = 'MT' AND S.ID = A.TYPE
+        <where>
+            <if test="hospitalName != null">
+                AND NAME LIKE concat('%',#{hospitalName},'%')
+            </if>
+
+            <if test="fDeptid != null">
+                AND B.LIST LIKE concat(#{fDeptid},'%')
+            </if>
+            <if test="dept != null">
+                AND BRANCH_ID = #{dept}
+            </if>
+            <choose>
+                <when test="isOpen != null">
+                    AND IS_OPEN = #{isOpen}
+                </when>
+                <otherwise>
+                    AND IS_OPEN = 'Y'
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY A.CREATE_TIME DESC
+    </select>
+
+    <select id="selectHospitalName" parameterType="java.lang.String" resultType="java.lang.String">
+        select
+        A.MER_NAME
+        from com_hospital A
+        <where>
+            HOSPITAL_ID = #{hospitalId,jdbcType=VARCHAR}
+        </where>
+    </select>
+
+    <select id="getMail" parameterType="java.lang.String" resultType="java.lang.String">
+        select
+        A.MAIL
+        from com_hospital A
+        <where>
+            A.HOSPITAL_ID = #{hospitalId,jdbcType=CHAR}
+        </where>
+    </select>
+
+    <select id="selectAllHospital" parameterType="map" resultMap="BaseResultMap">
+        select
+        A.*,
+        CASE
+        WHEN A.IS_OPEN ='N' THEN '停用'
+        ELSE '正常'
+        end openFlag,
+        CONVERT(CONCAT(SUBSTR(A.UPDATE_TIME,1,4),'-',SUBSTR(A.UPDATE_TIME,5,2),'-',SUBSTR(A.UPDATE_TIME,7,2),'
+        ',SUBSTR(A.UPDATE_TIME,9,2),':',SUBSTR(A.UPDATE_TIME,11,2),':',SUBSTR(A.UPDATE_TIME,13,2)),CHAR) fUpdateTime,
+        B.DEPT_NAME name1,
+        C.DEPT_NAME name2,
+        S.CODE_NAME typeName
+        from com_hospital A
+        LEFT JOIN com_branch B ON A.DEPT=B.DEPT_ID
+        LEFT JOIN com_branch C ON B.PAR_DEPT=C.DEPT_ID
+        LEFT JOIN sys_code S ON S.PAR_ID = 'MT' AND S.CODE_ID = A.MER_TYPE
+        <where>
+            <if test="merId != null">
+                MER_ID = #{merId,jdbcType=VARCHAR}
+            </if>
+            <if test="merName != null">
+                AND MER_NAME LIKE concat('%',#{merName},'%')
+            </if>
+            <if test="hospitalName != null">
+                AND HOSPITAL_NAME LIKE concat('%',#{hospitalName},'%')
+            </if>
+            <if test="merType != null">
+                AND MER_TYPE = #{merType}
+            </if>
+            <if test="fDeptid != null">
+                AND B.DEPT_LIST LIKE concat(#{fDeptid},'%')
+            </if>
+            <if test="isOpen != null">
+                AND IS_OPEN = #{isOpen}
+            </if>
+
+        </where>
+        ORDER BY A.CREATE_TIME DESC
+    </select>
+
+    <insert id="insert" parameterType="map">
+        insert into com_hospital (MER_ID, MER_NAME, MER_TYPE,
+        MER_ADDR, DEPT, MER_PAY_KEY,
+        REFUND_CERT_URL, HOSPITAL_ID, HOSPITAL_NAME,
+        PAD1, PAD2, PAD3)
+        values (#{merId,jdbcType=VARCHAR}, #{merName,jdbcType=VARCHAR}, #{merType,jdbcType=VARCHAR},
+        #{merAddr,jdbcType=VARCHAR}, #{dept,jdbcType=VARCHAR}, #{merPayKey,jdbcType=VARCHAR},
+        #{refundCertUrl,jdbcType=VARCHAR}, #{hospitalId,jdbcType=VARCHAR}, #{hospitalName,jdbcType=VARCHAR},
+        #{pad1,jdbcType=VARCHAR}, #{pad2,jdbcType=VARCHAR}, #{pad3,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="map">
+        insert into com_hospital
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="merId != null">
+                MER_ID,
+            </if>
+            <if test="merName != null">
+                MER_NAME,
+            </if>
+            <if test="merType != null">
+                MER_TYPE,
+            </if>
+            <if test="merAddr != null">
+                MER_ADDR,
+            </if>
+            <if test="dept != null">
+                DEPT,
+            </if>
+            <if test="merPayKey != null">
+                MER_PAY_KEY,
+            </if>
+            <if test="refundCertUrl != null">
+                REFUND_CERT_URL,
+            </if>
+            <if test="hospitalId != null">
+                HOSPITAL_ID,
+            </if>
+            <if test="hospitalName != null">
+                HOSPITAL_NAME,
+            </if>
+            CREATE_TIME,
+            UPDATE_TIME,
+            <if test="devStatusCtr != null">
+                DEV_STATUS_CTR,
+            </if>
+            <if test="control != null">
+                CONTROL,
+            </if>
+            <if test="openAllDataMonitor != null">
+                OPEN_ALL_DATA_MONITOR,
+            </if>
+            <if test="level != null">
+                LEVEL,
+            </if>
+            <if test="grade != null">
+                GRADE,
+            </if>
+            <if test="phone != null">
+                PHONE,
+            </if>
+            <if test="mail != null">
+                MAIL,
+            </if>
+            <if test="pad1 != null">
+                PAD1,
+            </if>
+            <if test="pad2 != null">
+                PAD2,
+            </if>
+            <if test="pad3 != null">
+                PAD3,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="merId != null">
+                #{merId,jdbcType=VARCHAR},
+            </if>
+            <if test="merName != null">
+                #{merName,jdbcType=VARCHAR},
+            </if>
+            <if test="merType != null">
+                #{merType,jdbcType=VARCHAR},
+            </if>
+            <if test="merAddr != null">
+                #{merAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="dept != null">
+                #{dept,jdbcType=VARCHAR},
+            </if>
+            <if test="merPayKey != null">
+                #{merPayKey,jdbcType=VARCHAR},
+            </if>
+            <if test="refundCertUrl != null">
+                #{refundCertUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="hospitalId != null">
+                #{hospitalId,jdbcType=VARCHAR},
+            </if>
+            <if test="hospitalName != null">
+                #{hospitalName,jdbcType=VARCHAR},
+            </if>
+            DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
+            DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
+            <if test="devStatusCtr != null">
+                #{devStatusCtr,jdbcType=VARCHAR},
+            </if>
+            <if test="control != null">
+                #{control,jdbcType=VARCHAR},
+            </if>
+            <if test="openAllDataMonitor != null">
+                #{openAllDataMonitor,jdbcType=VARCHAR},
+            </if>
+            <if test="level != null">
+                #{level,jdbcType=VARCHAR},
+            </if>
+            <if test="grade != null">
+                #{grade,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="mail != null">
+                #{mail,jdbcType=VARCHAR},
+            </if>
+            <if test="pad1 != null">
+                #{pad1,jdbcType=VARCHAR},
+            </if>
+            <if test="pad2 != null">
+                #{pad2,jdbcType=VARCHAR},
+            </if>
+            <if test="pad3 != null">
+                #{pad3,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="map">
+        update com_hospital
+        <set>
+            <if test="merId != null">
+                MER_ID = #{merId,jdbcType=CHAR},
+            </if>
+            <if test="merName != null">
+                MER_NAME = #{merName,jdbcType=CHAR},
+            </if>
+            <if test="merType != null">
+                MER_TYPE = #{merType,jdbcType=CHAR},
+            </if>
+            <if test="merAddr != null">
+                MER_ADDR = #{merAddr,jdbcType=CHAR},
+            </if>
+            <if test="dept != null">
+                DEPT = #{dept,jdbcType=CHAR},
+            </if>
+            <if test="merPayKey != null">
+                MER_PAY_KEY = #{merPayKey,jdbcType=CHAR},
+            </if>
+            <if test="refundCertUrl != null">
+                REFUND_CERT_URL = #{refundCertUrl,jdbcType=CHAR},
+            </if>
+            <if test="hospitalName != null">
+                HOSPITAL_NAME = #{hospitalName,jdbcType=CHAR},
+            </if>
+            <if test="isOpen != null">
+                IS_OPEN = #{isOpen,jdbcType=CHAR},
+            </if>
+            <if test="devStatusCtr != null">
+                DEV_STATUS_CTR = #{devStatusCtr,jdbcType=CHAR},
+            </if>
+            <if test="control != null">
+                CONTROL = #{control,jdbcType=CHAR},
+            </if>
+            <if test="openAllDataMonitor != null">
+                OPEN_ALL_DATA_MONITOR = #{openAllDataMonitor,jdbcType=CHAR},
+            </if>
+            <if test="level != null">
+                LEVEL = #{level,jdbcType=CHAR},
+            </if>
+            <if test="grade != null">
+                GRADE = #{grade,jdbcType=CHAR},
+            </if>
+            <if test="phone != null">
+                PHONE = #{phone,jdbcType=CHAR},
+            </if>
+            <if test="mail != null">
+                MAIL = #{mail,jdbcType=CHAR},
+            </if>
+            <if test="pad1 != null">
+                PAD1 = #{pad1,jdbcType=CHAR},
+            </if>
+            <if test="pad2 != null">
+                PAD2 = #{pad2,jdbcType=CHAR},
+            </if>
+            <if test="pad3 != null">
+                PAD3 = #{pad3,jdbcType=CHAR},
+            </if>
+            UPDATE_TIME = DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
+        </set>
+        where HOSPITAL_ID = #{hospitalId,jdbcType=CHAR}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="map">
+        delete from com_hospital
+        where HOSPITAL_ID = #{hospitalId,jdbcType=CHAR}
+    </delete>
+
+    <select id="getLoginHospital" parameterType="map" resultMap="BaseResultMap">
+        select
+        A.HOSPITAL_NAME,
+        A.HOSPITAL_ID,
+        B.DEPT_ID deptId2,
+        B.DEPT_NAME deptName2,
+        C.DEPT_ID deptId1,
+        C.DEPT_NAME deptName1
+        from com_hospital A
+        LEFT JOIN com_branch B ON B.DEPT_ID = A.DEPT
+        LEFT JOIN com_branch C ON B.PAR_DEPT = C.DEPT_ID
+        <where>
+            <if test="isOpen != null">
+                AND A.IS_OPEN = #{isOpen}
+            </if>
+        </where>
+        ORDER BY A.DEPT
+    </select>
+
+    <select id="getDevStatusCtr" parameterType="map" resultMap="BaseResultMap">
+        select hospital_id as id
+        from des_cfg
+        <where>
+            section = 'DevStatus' and kkey = 'ctr' and `value` = 'Y'
+        </where>
+    </select>
+
+</mapper>

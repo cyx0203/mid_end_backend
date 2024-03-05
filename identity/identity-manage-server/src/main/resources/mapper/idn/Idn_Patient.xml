@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="idnPatient">
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT a.*,CONVERT(CONCAT(SUBSTR(a.create_time,1,10), ' ', SUBSTR(a.create_time,12,8)), CHAR) AS createTimeFormat, DATE_FORMAT(a.birth,'%Y-%m-%d') AS birthDay,
+        d.name as patient_sexname, e.name as bloodname, f.name as marriagename, g.name as countryname, 
+        h.name as nationname, i.name as occname, b.patient_id, c.province, c.city, c.area, c.street, j.name as provincename, 
+        k.name as cityname, l.name as areaname, c.full_addr
+        FROM idn_patient a 
+        LEFT OUTER JOIN idn_patientids b
+        on a.id = b.idn_id
+		LEFT OUTER JOIN idn_address c
+		ON a.id = c.idn_id 
+		LEFT OUTER JOIN midend.plat_code d
+		ON a.patient_sex = d.id 
+		AND d.par_id = 'XB'
+		LEFT OUTER JOIN midend.plat_code e
+		ON a.blood = e.id 
+		AND e.par_id = 'XX'
+		LEFT OUTER JOIN midend.plat_code f
+		ON a.marriage = f.id 
+		AND f.par_id = 'HY'
+		LEFT OUTER JOIN midend.plat_code i
+		ON a.occ = i.id 
+		AND i.par_id = 'ZY'
+		LEFT OUTER JOIN midend.dict_country g
+		ON a.country = g.code
+		LEFT OUTER JOIN midend.dict_nation h
+		ON a.nation = h.code
+		LEFT OUTER JOIN midend.dict_region j
+		ON c.province = j.code
+		LEFT OUTER JOIN midend.dict_region k
+		ON c.city = k.code
+		LEFT OUTER JOIN midend.dict_region l
+		ON c.area = l.code
+        WHERE 1 = 1 
+        <if test="keywords != null">
+            AND (
+	            a.patient_name LIKE concat("%",#{keywords},"%") OR
+	            a.idno LIKE concat("%",#{keywords},"%") OR
+	            a.phone LIKE concat("%",#{keywords},"%") OR
+	            b.patient_id LIKE concat("%",#{keywords},"%")
+            )
+        </if>
+        order by a.create_time desc
+        limit 0,50
+    </select>
+	
+	<update id="stopById" parameterType="map">
+        UPDATE idn_patient 
+        set status = '1'
+        WHERE id = #{id}
+    </update>
+    
+    <update id="startById" parameterType="map">
+        UPDATE idn_patient 
+        set status = '0'
+        WHERE id = #{id}
+    </update>
+    
+     <delete id="deleteById" parameterType="map">
+        DELETE FROM idn_patient
+        WHERE id = #{id}
+    </delete>
+    
+    <update id="updateById" parameterType="map">
+        UPDATE idn_patient 
+        <set>
+        	up_time = NOW(),
+            <if test="idno != null">idno = #{idno},</if>
+            <if test="patient_name != null">patient_name = #{patient_name},</if>
+            <if test="birth != null">birth = #{birth},</if>
+            <if test="marriage != null">marriage = #{marriage},</if>
+            <if test="blood != null">blood = #{blood},</if>
+            <if test="patient_sex != null">patient_sex = #{patient_sex},</if>
+            <if test="phone != null">phone = #{phone},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+</mapper>

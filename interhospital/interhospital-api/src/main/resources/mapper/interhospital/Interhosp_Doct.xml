@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gg.midend.mapper.DoctorMapper">
+
+  <select id="selDoctPwd" resultType="com.gg.midend.domain.VO.DoctPwdInfo">
+    SELECT hospital_id hospitalId,
+           doct_id     doctId,
+           doct_psd    doctPsd,
+           doct_active doctActive
+    FROM interhospital.INTERHOSP_DOCT
+    WHERE hospital_id = #{hospitalId}
+      AND doct_id = #{doctId}
+  </select>
+
+  <!-- 医生登录并返回医生信息 -->
+  <select id="selDoctInfo" resultType="com.gg.midend.domain.VO.DoctInfo">
+    SELECT
+      HD.hospital_id hospitalId,
+      HD.doct_id doctorCode,
+      CD2.id deptId,
+      CD2.name deptName,
+      CD.name doctorName,
+      CD.image_path imagePath,
+      CD.`desc` doctorDesc,
+      CDT.name doctorLevel,
+      HD.doct_follow doctorFollow,
+      HD.doct_ask doctorAsk,
+      HD.doct_score doctorScore,
+      HD.doct_psd doctPsd,
+      HD.doct_active doctActive
+    FROM interhospital.INTERHOSP_DOCT HD
+    LEFT JOIN midend.COM_DOCTOR CD ON CD.id = HD.doct_id
+    LEFT JOIN midend.COM_DOCTOR_TITLE CDT ON CDT.hospital_id = HD.hospital_id AND CDT.id = CD.title_id
+    LEFT JOIN midend.COM_DEPT CD2 ON CD.hospital_id = HD.hospital_id AND CD.dept_id = CD2.id
+    WHERE HD.hospital_id = #{hospitalId} AND HD.doct_id = #{doctId}
+    ORDER BY HD.doct_id
+  </select>
+
+  <update id="updDoctPwd" parameterType="com.gg.midend.domain.DTO.ModifyPwdReq">
+    UPDATE interhospital.INTERHOSP_DOCT
+    SET doct_psd    = #{inquiryPsd},
+        update_time = sysdate()
+    WHERE hospital_id = #{hospitalId}
+      and doct_id = #{doctId}
+  </update>
+
+  <update id="updDoctStat" parameterType="com.gg.midend.domain.DTO.ModifyStatReq">
+    UPDATE interhospital.INTERHOSP_DOCT
+    SET doct_status = #{inquiryStatus}
+    WHERE hospital_id = #{hospitalId}
+      and doct_id = #{doctorCode}
+  </update>
+</mapper>

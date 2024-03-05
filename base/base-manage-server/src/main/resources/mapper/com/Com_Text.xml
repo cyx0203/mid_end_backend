@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="comText">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="type_id" jdbcType="VARCHAR" property="typeId"/>
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="content" jdbcType="CLOB" property="content"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+        <result column="update_time" jdbcType="VARCHAR" property="updateTime"/>
+        <result column="active" jdbcType="VARCHAR" property="active"/>
+    </resultMap>
+
+    <select id="selectWithoutContent" parameterType="map" resultMap="BaseResultMap">
+        SELECT T.id, T.type_id, T.title, T.active,
+        TT.name AS typeName,
+        CONVERT(CONCAT(SUBSTR(T.update_time,1,10), ' ',SUBSTR(T.update_time,12,8)),CHAR) AS updateTimeFormat,
+        CONVERT(CONCAT(SUBSTR(T.create_time,1,10), ' ',SUBSTR(T.create_time,12,8)),CHAR) AS createTimeFormat,
+        U1.name AS createUserName,
+        U2.name AS updateUserName
+        FROM com_text T
+        LEFT JOIN com_text_type TT ON TT.id = T.type_id
+        LEFT JOIN sys_user U1 ON U1.account = T.create_user
+        LEFT JOIN sys_user U2 ON U2.account = T.update_user
+        WHERE T.hospital_id = #{hospitalId}
+        <if test="keywords != null">
+            AND (TT.name LIKE concat("%",#{keywords},"%")
+            OR T.title LIKE concat("%",#{keywords},"%")
+            )
+        </if>
+    </select>
+
+    <select id="selectContent" parameterType="map" resultMap="BaseResultMap">
+        SELECT content
+        FROM com_text
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="map">
+        INSERT INTO com_text
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id, type_id, hospital_id, title, content, create_user, create_time,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            UUID(), #{typeId}, #{hospitalId}, #{title}, #{content}, #{createUser}, NOW(),
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="map">
+        UPDATE com_text
+        <set>
+            <if test="typeId != null">type_id = #{typeId},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="updateUser != null">update_user = #{updateUser},</if>
+            update_time = NOW(),
+            <if test="active != null">active = #{active},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="map">
+        DELETE FROM com_text
+        WHERE id = #{id}
+    </delete>
+
+</mapper>

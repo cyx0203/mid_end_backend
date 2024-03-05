@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pay_order">
+	<resultMap id="BaseResultMap" type="map">
+		<id column="order_trace" jdbcType="VARCHAR" property="order_trace" />
+		<result column="merchant_id" jdbcType="VARCHAR"
+			property="merchant_id" />
+		<result column="hospital_id" jdbcType="VARCHAR"
+			property="hospital_id" />
+		<result column="channel_id" jdbcType="VARCHAR"
+			property="channel_id" />
+		<result column="goods_id" jdbcType="VARCHAR"
+			property="goods_id" />
+		<result column="order_amt" jdbcType="INTEGER"
+			property="order_amt" />
+		<result column="refund_amt" jdbcType="INTEGER"
+			property="refund_amt" />
+		<result column="pay_status" jdbcType="CHAR"
+			property="pay_status" />
+		<result column="refund_status" jdbcType="CHAR"
+			property="refund_status" />
+		<result column="biz_status" jdbcType="CHAR"
+			property="biz_status" />
+		<result column="buyer_id" jdbcType="VARCHAR"
+			property="buyer_id" />
+		<result column="buyer_name" jdbcType="VARCHAR"
+			property="buyer_name" />
+		<result column="buyer_phone" jdbcType="CHAR"
+			property="buyer_phone" />
+		<result column="fac_id" jdbcType="VARCHAR" property="fac_id" />
+		<result column="create_date" jdbcType="CHAR"
+			property="create_date" />
+		<result column="create_time" jdbcType="CHAR"
+			property="create_time" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		order_trace, merchant_id, hospital_id, channel_id,
+		goods_id, order_amt,
+		refund_amt,
+		pay_status, refund_status, biz_status,
+		buyer_id, buyer_name, buyer_phone, fac_id,
+		create_date,
+		create_time
+	</sql>
+
+	<insert id="insert" parameterType="map">
+		insert into pay_order
+		(order_trace, merchant_id, hospital_id,
+		channel_id, goods_id,
+		order_amt,
+		refund_amt, pay_status, refund_status,
+		biz_status, buyer_id,
+		buyer_name,
+		buyer_phone, fac_id, create_date,
+		create_time)
+		values
+		(#{order_trace,jdbcType=VARCHAR}, #{merchant_id,jdbcType=VARCHAR},
+		#{hospital_id,jdbcType=VARCHAR},
+		#{channel_id,jdbcType=VARCHAR},
+		#{goods_id,jdbcType=CHAR}, #{order_amt,jdbcType=INTEGER},
+		#{refund_amt,jdbcType=INTEGER}, #{pay_status,jdbcType=CHAR},
+		#{refund_status,jdbcType=CHAR},
+		#{biz_status,jdbcType=CHAR},
+		#{buyer_id,jdbcType=VARCHAR}, #{buyer_name,jdbcType=VARCHAR},
+		#{buyer_phone,jdbcType=CHAR}, #{fac_id,jdbcType=VARCHAR},
+		#{create_date,jdbcType=CHAR},
+		#{create_time,jdbcType=CHAR})
+	</insert>
+
+	<update id="updatePayOrderStatus" parameterType="map">
+		update pay_order
+		<set>
+			<if test="pay_status != null">
+				pay_status = #{pay_status,jdbcType=CHAR},
+			</if>
+			<if test="refund_status != null">
+				refund_status = #{refund_status,jdbcType=CHAR},
+			</if>
+			<if test="refund_amt != null">
+				refund_amt = #{refund_amt,jdbcType=INTEGER},
+			</if>
+		</set>
+		where order_trace = #{orderTrace,jdbcType=VARCHAR}
+	</update>
+
+	<select id="selectOrderPay" resultMap="BaseResultMap">
+		select
+		a.order_amt,a.refund_amt,a.pay_status,a.refund_status from
+		pay_order a
+		where order_trace = #{orderTrace,jdbcType=VARCHAR}
+	</select>
+
+</mapper>

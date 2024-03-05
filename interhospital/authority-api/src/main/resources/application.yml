@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: authority-api
+  config:
+    location: file:config/application.yml
+    import: classpath:ca_config.yml

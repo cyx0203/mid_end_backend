@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gg.midend.mapper.ThemeMapper">
+
+  <sql id="selectThemeAll">
+    SELECT theme_id     themeId,
+           theme_name   themeName,
+           hospital_id  hospitalId,
+           user_id      userId,
+           doct_id      doctId,
+           theme_status themeStatus,
+           theme_type   themeType,
+           pay_no       payNo,
+           pay_flag     payFlag,
+           pay_amt      payAmt,
+           available,
+           new_reply    newReply,
+           new_msgid    newMsgId,
+           countdown,
+           last_themeid lastThemeId,
+           create_time  createTime,
+           update_time  updateTime,
+           remark1,
+           remark2,
+           remark3
+    FROM interhospital.INTERHOSP_THEME
+  </sql>
+
+  <select id="selThemeInfo" parameterType="Long" resultType="com.gg.midend.domain.VO.ThemeInfo">
+    <include refid="selectThemeAll"/>
+    WHERE theme_id = #{themeId}
+  </select>
+
+    <select id="selThemeAppInfo" parameterType="com.gg.midend.domain.DTO.QryThemeAppReq"
+            resultType="com.gg.midend.domain.VO.ThemeAppInfo">
+        SELECT TH.theme_id     themeId,
+               TH.theme_name   themeName,
+               TH.hospital_id  hospitalId,
+               TH.user_id      userId,
+               TH.doct_id      doctId,
+               TH.theme_status themeStatus,
+               TH.theme_type   themeType,
+               TH.pay_no       payNo,
+               TH.pay_flag     payFlag,
+               TH.pay_amt      payAmt,
+               TH.available,
+               TH.new_reply    newReply,
+               TH.new_msgid    newMsgId,
+               TH.countdown,
+               TH.last_themeid lastThemeId,
+               TH.create_time  createTime,
+               TH.update_time  updateTime,
+               TH.remark1,
+               TH.remark2,
+               TH.remark3,
+               IA.pat_name patName,
+               IA.pat_sex patSex,
+               IA.pat_age patAge,
+               IA.history,
+               IA.allergy,
+               IA.allergy,
+               IA.family,
+               IA.now,
+               IA.habits,
+               IA.pic_path picPath
+        FROM interhospital.INTERHOSP_THEME TH
+        LEFT JOIN
+            interhospital.INTERHOSP_APP IA
+            ON TH.theme_id = IA.theme_id
+        WHERE
+            TH.pat_id = #{patId}
+            AND TH.available = #{available}
+        <if test="themeId !=null">
+            AND TH.theme_id = #{themeId}
+        </if>
+    </select>
+
+    <insert id="intThemeInfo" parameterType="com.gg.midend.domain.DTO.ThemeReq">
+        <selectKey keyProperty="themeId" resultType="Long" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO interhospital.INTERHOSP_THEME(
+        theme_name,hospital_id,dept_id,doct_id,pat_id,user_id,theme_type,pay_no,pay_amt,new_msgid,countdown,last_themeid,purpose,remark1,remark2,remark3,
+        <if test="payFlag != null and payFlag != '' ">pay_flag,</if>
+        <if test="available != null and available != '' ">available,</if>
+        <if test="newReply != null and newReply != '' ">new_reply,</if>
+        create_time,
+        update_time
+        ) VALUES(
+        #{themeName},#{hospitalId},#{deptId},#{doctId},#{patId},#{userId},#{themeType},#{payNo},#{payAmt},#{newMsgId},#{countdown},#{lastThemeId},#{purpose},#{remark1},#{remark2},#{remark3},
+        <if test="payFlag != null and payFlag != '' ">#{payFlag},</if>
+        <if test="available != null and available != '' ">#{available},</if>
+        <if test="newReply != null and newReply != '' ">#{newReply},</if>
+        sysdate(),
+        sysdate()
+        )
+    </insert>
+
+    <update id="stopTheme" parameterType="Long">
+      UPDATE interhospital.INTERHOSP_THEME
+      SET theme_status = 1,
+          update_time  = sysdate()
+      WHERE theme_id = #{themeId}
+  </update>
+
+    <!-- 医生查询问诊主题及病人信息 -->
+    <select id="queryThemePatInfo" parameterType="com.gg.midend.domain.DTO.QryThemePatReq"
+            resultType="com.gg.midend.domain.VO.ThemePatInfo">
+        SELECT
+            HT.hospital_id hospitalId,
+            HT.theme_id themeId,
+            HT.theme_type themeType,
+            HT.theme_status themeStatus,
+            HT.last_themeid lastThemeId,
+            HT.new_msgid newMsgId,
+            date_format(HT.update_time,'%Y%m%d') msgDate,
+            date_format(HT.update_time,'%H%i%s') msgTime,
+            HT.pat_id patId,
+            HP.pat_name patName,
+            HM.msg_cyr msg
+        FROM
+            interhospital.INTERHOSP_THEME HT
+        LEFT JOIN
+            midend.COM_PATIENT HP
+            ON HP.hospital_id = HT.hospital_id
+            AND HP.pat_id = HT.pat_id
+            AND HP.user_id = HT.user_id
+            AND HP.use_flag= 'Y'
+        LEFT JOIN
+            interhospital.INTERHOSP_MSG HM
+            ON HM.theme_id = HT.theme_id
+            AND HM.msg_id = HT.new_msgid
+        WHERE
+            HT.hospital_id = #{hospitalId}
+            AND HT.doct_id = #{doctId}
+        <if test="payFlag !=null">
+            AND HT.pay_flag = #{payFlag}
+        </if>
+    </select>
+
+    <!-- 问诊统计 -->
+    <select id="staticsStatus" resultType="com.gg.midend.domain.VO.ThemeStatics">
+        SELECT
+        count(if(theme_status = 0,theme_id,NULL)) inqNum,
+        count(if(theme_status = 1,theme_id,NULL)) finishNum,
+        count(if((theme_status = 1 or theme_status = 0)
+        AND DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(create_time),theme_id,NULL)) oneWeekNum
+        FROM interhospital.INTERHOSP_THEME
+        WHERE
+        <if test="doctId !=null">
+            doct_id = #{doctId}
+        </if>
+    </select>
+
+    <update id="updThemeMsg" parameterType="com.gg.midend.domain.DTO.ModifyThemeMsgReq">
+        UPDATE interhospital.INTERHOSP_THEME
+        <set>
+            update_time = sysdate(),
+            theme_status = #{themeStatus},
+            <if test="newReply != null and newReply != '' ">new_reply = #{newReply},</if>
+            <if test="newMsgId != null and newMsgId != '' ">new_msgid = #{newMsgId},</if>
+            <if test="countdown != null and countdown != '' ">countdown = #{countdown},</if>
+        </set>
+        WHERE
+        theme_id = #{themeId}
+    </update>
+
+    <update id="updThemeName">
+        UPDATE interhospital.INTERHOSP_THEME
+        <set>
+            update_time = sysdate(),
+            theme_name = #{themeName},
+            purpose = #{purpose}
+        </set>
+        WHERE
+        theme_id = #{themeId}
+    </update>
+
+</mapper>

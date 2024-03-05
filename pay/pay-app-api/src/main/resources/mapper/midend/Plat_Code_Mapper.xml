@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="plat_code">
+	<resultMap id="BaseResultMap" type="map">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<id column="par_id" jdbcType="VARCHAR" property="par_id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="note" jdbcType="VARCHAR" property="note" />
+		<result column="pad1" jdbcType="VARCHAR" property="pad1" />
+	</resultMap>
+
+	<select id="selectByParid" parameterType="map"
+		resultMap="BaseResultMap">
+		select a.id from
+		midend.plat_code a
+		where par_id = #{par_id,jdbcType=VARCHAR}
+	</select>
+</mapper>

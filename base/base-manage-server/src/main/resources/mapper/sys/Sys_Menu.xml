@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="menu">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="path" jdbcType="VARCHAR" property="path"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="icon" jdbcType="VARCHAR" property="icon"/>
+        <result column="component" jdbcType="VARCHAR" property="component"/>
+        <result column="redirect" jdbcType="VARCHAR" property="redirect"/>
+        <result column="parent_id" jdbcType="INTEGER" property="parentId"/>
+        <result column="isoper" jdbcType="VARCHAR" property="isoper"/>
+    </resultMap>
+
+    <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+        select
+        <if test="total != null">
+            COUNT(*) total
+        </if>
+        <if test="total == null">
+            id,id as `key`, path, name, name title, icon, component, redirect, parent_id
+        </if>
+        from sys_menu
+        <where>
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER}
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+
+    <select id="selectByRoleid" parameterType="map" resultMap="BaseResultMap">
+      SELECT g.*
+      FROM (
+          (
+              SELECT b.*
+              FROM sys_rolemenu a LEFT JOIN sys_menu b ON a.menu_id = b.id
+              WHERE a.role_id = #{role_id} and b.isoper = 0
+          )
+          UNION
+          (
+              SELECT d.*
+              FROM (
+                  SELECT b.parent_id
+                  FROM sys_rolemenu a LEFT JOIN sys_menu b ON a.menu_id = b.id
+                  WHERE a.role_id = #{role_id} and b.isoper = 0
+              ) c LEFT JOIN sys_menu d ON c.parent_id = d.id
+          )
+          UNION
+          (
+              SELECT f.*
+                  FROM (
+                  SELECT d.parent_id
+                  FROM (
+                      SELECT b.parent_id
+                      FROM sys_rolemenu a LEFT JOIN sys_menu b ON a.menu_id = b.id
+                      WHERE a.role_id = #{role_id} and b.isoper = 0
+                  ) c LEFT JOIN sys_menu d ON c.parent_id = d.id
+              ) e LEFT JOIN sys_menu f ON e.parent_id = f.id
+          )
+      ) g
+      WHERE g.id IS NOT NULL
+      ORDER BY g.id
+    </select>
+
+
+<!--    新增Sql-->
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        select
+        <if test="total == null">
+            id,path,`name`,icon,component,redirect,parent_id,isoper
+        </if>
+        from sys_menu
+        ORDER BY id
+    </select>
+
+    <insert id="insert" parameterType="map">
+        insert into sys_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="path != null">path,</if>
+            <if test="name != null">`name`,</if>
+            <if test="icon != null">icon,</if>
+            <if test="component != null">component,</if>
+            <if test="redirect != null">redirect,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="isoper != null">isoper</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="path != null">#{path},</if>
+            <if test="name != null">#{name},</if>
+            <if test="icon != null">#{icon},</if>
+            <if test="component != null">#{component},</if>
+            <if test="redirect != null">#{redirect},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="isoper != null">#{isoper}</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="map">
+        UPDATE sys_menu
+        SET path = #{path},`name` = #{name},icon = #{icon},component = #{component},redirect = #{redirect},isoper = #{isoper}
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" parameterType="map" resultMap="BaseResultMap">
+        select
+        id,path,`name`,icon,component,redirect,parent_id,isoper
+        from sys_menu
+        where id=#{id} OR parent_id=#{id}
+        ORDER BY id
+    </select>
+
+    <select id="delete" parameterType="map">
+        delete from sys_menu where id in
+        <foreach collection="deleteList" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

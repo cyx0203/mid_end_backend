@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ruleSeason">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="pid" jdbcType="CHAR" property="pid"/>
+        <result column="sid" jdbcType="CHAR" property="sid"/>
+        <result column="start_date" jdbcType="CHAR" property="startDate"/>
+        <result column="end_date" jdbcType="CHAR" property="endDate"/>
+        <result column="start_time" jdbcType="CHAR" property="startTime"/>
+        <result column="end_time" jdbcType="CHAR" property="endTime"/>
+        <result column="active" jdbcType="CHAR" property="active"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT a.*, b.name AS seasonName, c.name AS noodName
+        FROM rule_season a
+        LEFT OUTER JOIN midend.plat_code b ON b.id = a.pid AND b.par_id = 'ZSL'
+        LEFT OUTER JOIN midend.plat_code c ON c.id = a.sid AND c.par_id = 'CSL'
+        WHERE a.hospital_id = #{hospitalId}
+        <if test="active != null">
+            AND a.active = #{active}
+        </if>
+        ORDER BY a.pid, a.sid
+    </select>
+
+    <select id="selectByPid" parameterType="map" resultType="map">
+        SELECT rs.pid, rs.start_time AS astime, rs.end_time AS aetime, srs.start_time AS pstime, srs.end_time AS petime
+		FROM rule_season rs
+		LEFT JOIN rule_season srs ON rs.pid = srs.pid AND srs.sid = '2'
+		WHERE srs.hospital_id = #{hospitalId}
+		AND rs.sid = '1'
+		ORDER BY rs.pid
+    </select>
+    
+    <update id="updateDate" parameterType="map">
+        UPDATE rule_season
+        <set>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+        </set>
+        WHERE hospital_id = #{hospitalId}
+        AND pid = #{pid}
+    </update>
+    
+    <update id="updateTime" parameterType="map">
+        UPDATE rule_season
+        <set>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+        </set>
+        WHERE hospital_id = #{hospitalId}
+        AND pid = #{pid}
+        AND sid = #{sid}
+    </update>
+    
+    <update id="updateActive" parameterType="map">
+        UPDATE rule_season
+        <set>
+            <if test="active != null">active = #{active},</if>
+        </set>
+        WHERE hospital_id = #{hospitalId}
+        AND pid = '0'
+    </update>
+    
+    <update id="updateSWActive" parameterType="map">
+        UPDATE rule_season
+        <set>
+            <if test="swActive != null">active = #{swActive},</if>
+        </set>
+        WHERE hospital_id = #{hospitalId}
+        AND pid &lt;&gt; '0'
+    </update>
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcDate">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="date" jdbcType="VARCHAR" property="date"/>
+        <result column="valid" jdbcType="VARCHAR" property="valid"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+        <result column="update_time" jdbcType="VARCHAR" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT *,
+        CONVERT(CONCAT(SUBSTR(date,1,4),'-',SUBSTR(date,5,2),'-',SUBSTR(date,7,2)),CHAR) AS dateFormat,
+        CONVERT(CONCAT(SUBSTR(create_time,1,4),'-',SUBSTR(create_time,5,2),'-',SUBSTR(create_time,7,2),'
+        ',SUBSTR(create_time,9,2),':',SUBSTR(create_time,11,2),':',SUBSTR(create_time,13,2)),CHAR) AS createTimeFormat,
+        CONVERT(CONCAT(SUBSTR(update_time,1,4),'-',SUBSTR(update_time,5,2),'-',SUBSTR(update_time,7,2),'
+        ',SUBSTR(update_time,9,2),':',SUBSTR(update_time,11,2),':',SUBSTR(update_time,13,2)),CHAR) AS updateTimeFormat
+        FROM apt_resource
+        WHERE 1 = 1
+        <if test="businessType != null">
+            AND business_type = #{businessType}
+        </if>
+        <if test="hospitalId != null">
+            AND hospital_id = #{hospitalId}
+        </if>
+        <if test="valid != null">
+            AND valid = #{valid}
+        </if>
+        <if test="startDate != null">
+            AND date <![CDATA[ >= ]]> #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND date <![CDATA[ <= ]]> #{endDate}
+        </if>
+        <if test="date != null">
+            AND date = #{date}
+        </if>
+        ORDER BY date
+    </select>
+
+    <select id="selectFromToday" parameterType="map" resultMap="BaseResultMap">
+        SELECT *
+        FROM src_date
+        WHERE business_type = #{businessType} AND hospital_id = #{hospitalId}
+        AND `date` <![CDATA[ >= ]]> DATE_FORMAT(NOW(),'%Y%m%d')
+    </select>
+
+    <update id="update" parameterType="map">
+        UPDATE src_date
+        <set>
+            <if test="valid != null">valid = #{valid},</if>
+            update_time = NOW(),
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insert" parameterType="map" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO src_date
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            business_type, hospital_id, date, valid, create_time,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{businessType}, #{hospitalId}, #{date}, '0', NOW(),
+        </trim>
+    </insert>
+
+</mapper>

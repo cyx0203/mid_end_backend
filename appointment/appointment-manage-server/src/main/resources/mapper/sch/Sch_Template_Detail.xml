@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="schTempDtl">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="temp_id" jdbcType="INTEGER" property="tempId"/>
+        <result column="week" jdbcType="CHAR" property="week"/>
+        <result column="noon" jdbcType="CHAR" property="noon"/>
+        <result column="dept_id" jdbcType="VARCHAR" property="deptId"/>
+        <result column="register_type" jdbcType="CHAR" property="registerType"/>
+        <result column="doctor_id" jdbcType="VARCHAR" property="doctorId"/>
+        <result column="create_user" jdbcType="INTEGER" property="createUser"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="ScheduleMap" type="map">
+        <id column="deptId" jdbcType="VARCHAR" property="deptId"/>
+        <result column="deptName" jdbcType="VARCHAR" property="deptName"/>
+        <collection property="children" javaType="java.util.ArrayList" ofType="map">
+            <id column="registerType" jdbcType="VARCHAR" property="registerType" />
+            <result column="registerTypeName" jdbcType="VARCHAR" property="registerTypeName" />
+            <collection property="children" javaType="java.util.ArrayList" ofType="map">
+	            <id column="doctorId" jdbcType="VARCHAR" property="doctorId" />
+	            <result column="doctorName" jdbcType="VARCHAR" property="doctorName" />
+        </collection>
+        </collection>
+    </resultMap>
+    
+    <select id="selectByTempId" parameterType="map" resultMap="BaseResultMap">
+        SELECT S.*,
+        R.name AS registerTypeName,
+        D.name AS doctorName
+        FROM sch_template_detail S
+        LEFT JOIN midend.com_register_type R ON R.id = S.register_type
+        LEFT JOIN midend.com_doctor D ON D.id = S.doctor_id
+        WHERE S.temp_id = #{tempId}
+        ORDER BY R.order
+    </select>
+
+    <insert id="insert" parameterType="map">
+        INSERT INTO sch_template_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            temp_id, week, noon, dept_id, register_type, doctor_id,
+            create_user, create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{tempId}, #{week}, #{noon}, #{deptId}, #{registerType}, #{doctorId},
+            #{createUser}, NOW()
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="map">
+        UPDATE sch_template_detail
+        <set>
+            <if test="registerType != null">register_type = #{registerType},</if>
+            <if test="doctorId != null">doctor_id = #{doctorId},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="map">
+        DELETE FROM sch_template_detail
+        WHERE id = #{id}
+    </delete>
+
+    <!--以下SQL暂时无用-->
+
+    <insert id="insertBatch" parameterType="map">
+        INSERT INTO sch_template_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="list != null">
+                temp_id, week, noon, dept_id, dept_name, register_type, doctor_id, doctor_name,
+                create_user, create_time
+            </if>
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                <if test="item != null">
+                    #{item.tempId}, #{item.week}, #{item.noon}, #{item.deptId}, #{item.deptName}, #{item.registerType},
+                    #{item.doctorId}, #{item.doctorName}, #{item.createUser}, NOW()
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+
+    <delete id="deleteBlank" parameterType="map">
+        DELETE FROM sch_template_detail
+        WHERE temp_id = #{tempId} AND week = #{week} AND noon = #{noon} AND dept_id = #{deptId}
+    </delete>
+
+    <select id="selectSchedule" parameterType="map" resultMap="ScheduleMap">
+        SELECT detail.dept_id AS deptId,dept.name AS deptName, detail.register_type AS registerType, regType.name AS registerTypeName, detail.doctor_id AS doctorId, doctor.name AS doctorName 
+        FROM sch_template_detail detail 
+        LEFT JOIN sch_template template ON detail.temp_id = template.id 
+        LEFT OUTER JOIN sch_dept dept ON dept.id = detail.dept_id
+        LEFT OUTER JOIN midend.com_register_type regType ON regType.id = detail.register_type 
+        LEFT OUTER JOIN midend.com_doctor doctor ON doctor.id = detail.doctor_id 
+        WHERE template.hospital_id = #{hospitalId}
+        GROUP BY detail.dept_id, detail.register_type, detail.doctor_id
+    </select>
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="rolemenu">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="role_id" jdbcType="INTEGER" property="roleId" />
+        <result column="menu_id" jdbcType="INTEGER" property="menuId" />
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, role_id, menu_id
+  </sql>
+
+    <insert id="insertRoleMenu" parameterType="map">
+        insert into sys_rolemenu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="roleId != null">
+                role_id,
+            </if>
+            <if test="menuidList != null">
+                menu_id,
+            </if>
+        </trim>
+        values
+        <foreach collection="menuidList" item="menu" index="index" separator="," >
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                <if test="id != null">
+                    #{id,jdbcType=VARCHAR},
+                </if>
+                    <if test="roleId != null">
+                    #{roleId,jdbcType=VARCHAR},
+                </if>
+                <if test="menu != null">
+                    #{menu,jdbcType=INTEGER},
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+
+    <delete id="deleteByPrimaryKey" parameterType="map">
+        delete from sys_rolemenu
+        where role_id = #{roleId,jdbcType=INTEGER}
+    </delete>
+
+
+</mapper>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>midend-service-center</artifactId>
+        <groupId>com.gg.midend</groupId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>authority-api</artifactId>
+    <version>1.0.0</version>
+
+    <description>
+        (1)湖北省武汉市江夏区第一人民医院CA认证服务
+        (2)版本更新记录：
+        v1.0.0 2023.03.06 fun-mean
+        创建版本
+    </description>
+
+    <properties>
+        <!-- 应用名称 -->
+        <appName>江夏医院CA认证服务</appName>
+        <!-- 应用版本 -->
+        <appVersion>${version}</appVersion>
+        <!-- 应用版本说明 -->
+        <appVersionInfo>${description}</appVersionInfo>
+    </properties>
+
+    <!-- 开发者信息 -->
+    <developers>
+        <developer>
+            <name>fun-mean</name>
+            <email>fangm@guoguang.com.cn</email>
+        </developer>
+    </developers>
+
+    <dependencies>
+        <dependency>
+            <groupId>HBCA</groupId>
+            <artifactId>HbcaSdk</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/HbcaSdk-1.0.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>HBCA</groupId>
+            <artifactId>core</artifactId>
+            <version>3.3.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/core-3.3.0.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>orgine-powermop-api-gateway-sdk</groupId>
+            <artifactId>powermop</artifactId>
+            <version>3.1.6.4</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/orgine-powermop-api-gateway-sdk-3.1.6.4-SNAPSHOT.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>orgine-powermop-encrypt</groupId>
+            <artifactId>powermop</artifactId>
+            <version>1.1.7</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/orgine-powermop-encrypt-1.1.7-SNAPSHOT.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.9</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

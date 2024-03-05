@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="chkTransDetail">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="merchant_id" property="merchantId" jdbcType="VARCHAR"/>
+        <result column="hospital_id" property="hospitalId" jdbcType="VARCHAR"/>
+        <result column="account_date" property="accountDate" jdbcType="VARCHAR"/>
+        <result column="fac_id" property="facId" jdbcType="VARCHAR"/>
+        <result column="trans_type" property="transType" jdbcType="VARCHAR"/>
+        <result column="third_id" property="thirdId" jdbcType="VARCHAR"/>
+        <result column="pay_type" property="payType" jdbcType="VARCHAR"/>
+        <result column="goods_id" property="goodsId" jdbcType="VARCHAR"/>
+        <result column="check_id" property="checkId" jdbcType="VARCHAR"/>
+        <result column="check_origin_id" property="checkOriginId" jdbcType="VARCHAR"/>
+        <result column="biz_serial_no" property="bizSerialNo" jdbcType="VARCHAR"/>
+        <result column="third_serial_no" property="thirdSerialNo" jdbcType="VARCHAR"/>
+        <result column="biz_refund_serial_no" property="bizRefundSerialNo" jdbcType="VARCHAR"/>
+        <result column="third_refund_serial_no" property="thirdRefundSerialNo" jdbcType="VARCHAR"/>
+        <result column="account_source" property="accountSource" jdbcType="VARCHAR"/>
+        <result column="payer_name" property="payerName" jdbcType="VARCHAR"/>
+        <result column="payer_account" property="payerAccount" jdbcType="VARCHAR"/>
+        <result column="oper_id" property="operId" jdbcType="VARCHAR"/>
+        <result column="oper_name" property="operName" jdbcType="VARCHAR"/>
+        <result column="trans_time" property="transTime" jdbcType="VARCHAR"/>
+        <result column="biz_trans_amt" property="bizTransAmt" jdbcType="VARCHAR"/>
+        <result column="third_trans_amt" property="thirdTransAmt" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <result column="merchantName" property="merchantName" jdbcType="VARCHAR"/>
+        <result column="channelName" property="channelName" jdbcType="VARCHAR"/>
+        <result column="payTypeName" property="payTypeName" jdbcType="VARCHAR"/>
+        <result column="orderId" property="orderId" jdbcType="VARCHAR"/>
+        <result column="refundId" property="refundId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT * FROM
+        (SELECT CTD.*,MM.name as merchantName,PC.name as channelName,PT.name as payTypeName,
+        CASE CTD.trans_type WHEN -1 THEN (SELECT order_id FROM pay_order_pay WHERE order_trace =
+        (SELECT order_trace FROM pay_order_pay WHERE order_id = POP.order_id) AND trans_type ='1')
+        ELSE POP.order_id END as orderId,
+        CASE CTD.trans_type WHEN -1 THEN POP.order_id ELSE NULL END as refundId,
+        CASE CTD.error_type WHEN 0 THEN 0 ELSE CER.error_type END as errorType
+        FROM chk_trans_detail CTD
+        LEFT JOIN pay_order_pay POP ON (POP.order_id = CTD.check_id OR POP.third_seq_no = CTD.check_id)
+        LEFT JOIN mer_merchant MM ON CTD.merchant_id = MM.id
+        LEFT JOIN midend.plat_channel PC ON POP.channel_id = PC.id
+        LEFT JOIN pay_type PT ON CTD.pay_type = PT.id
+        LEFT JOIN chk_error_record CER ON CTD.check_id = CER.check_id
+        <where>
+            <if test="channelId != null">
+                POP.channel_id = #{channelId}
+            </if>
+            <if test="hospitalId != null">
+                AND CTD.hospital_id = #{hospitalId}
+            </if>
+            <if test="startDate != null and endDate != null">
+                AND CTD.account_date BETWEEN #{startDate} AND #{endDate}
+            </if>
+            <if test="merchantId != null">
+                AND CTD.merchant_id = #{merchantId}
+            </if>
+            <if test="payType != null">
+                AND (CTD.pay_type = #{payType} OR CTD.third_id = #{payType})
+            </if>
+            <if test="transType != null">
+                AND CTD.trans_type = #{transType}
+            </if>
+            <if test="errorType != null">
+                AND CTD.error_type = #{errorType}
+            </if>
+        </where>
+        )  L
+        <where>
+            <if test="orderTrace != null">
+                L.orderId LIKE CONCAT('%', #{orderTrace}, '%') OR L.refundId LIKE CONCAT('%', #{orderTrace}, '%')
+                OR L.check_id LIKE CONCAT('%', #{orderTrace}, '%')
+            </if>
+        </where>
+        ORDER BY L.orderId DESC
+    </select>
+    
+    <select id="selectInOut" parameterType="map" resultType="map">
+        SELECT
+        A.instName,A.thirdName,
+        IFNULL(sum(IF(A.trans_type = 1,A.biz_trans_amt,NULL)),0) as hisIn,
+        IFNULL(sum(IF(A.trans_type = 1,A.third_trans_amt,NULL)),0) as thirdIn,
+        IFNULL(sum(IF(A.trans_type = -1,A.biz_trans_amt,NULL)),0) as hisOut,
+        IFNULL(sum(IF(A.trans_type = -1,A.third_trans_amt,NULL)),0) as thirdOut,
+        (IFNULL(sum(IF(A.trans_type = 1,A.biz_trans_amt,NULL)),0) - IFNULL(sum(IF(A.trans_type = -1,A.biz_trans_amt,NULL)),0)) as hisActual,
+        (IFNULL(sum(IF(A.trans_type = 1,A.third_trans_amt,NULL)),0) - IFNULL(sum(IF(A.trans_type = -1,A.third_trans_amt,NULL)),0)) as thirdActual
+        FROM (SELECT
+        CTD.*,MM.inst_id as instId,MI.name as instName,PT.third_id as thirdId,
+        PTH.name as thirdName
+        FROM chk_trans_detail CTD
+        LEFT JOIN mer_merchant MM ON CTD.merchant_id = MM.id
+        LEFT JOIN mer_institution MI ON MM.inst_id = MI.id
+        LEFT JOIN pay_type PT ON CTD.pay_type = PT.id
+        LEFT JOIN pay_third PTH ON PT.third_id = PTH.id
+        <where>
+            <if test="startDate != null and endDate != null">
+                CTD.account_date BETWEEN #{startDate} AND #{endDate}
+            </if>
+            <if test="hospitalId != null">
+                AND CTD.hospital_id = #{hospitalId}
+            </if>
+        </where>) A
+        GROUP BY A.instName,A.thirdName
+        ORDER BY A.instName
+    </select>
+
+    <select id="selectInOutByGood" parameterType="map" resultType="map">
+        SELECT
+        A.instName,A.goodName,
+        IFNULL(sum(IF(A.trans_type = 1,A.biz_trans_amt,NULL)),0) as hisIn,
+        IFNULL(sum(IF(A.trans_type = 1,A.third_trans_amt,NULL)),0) as thirdIn,
+        IFNULL(sum(IF(A.trans_type = -1,A.biz_trans_amt,NULL)),0) as hisOut,
+        IFNULL(sum(IF(A.trans_type = -1,A.third_trans_amt,NULL)),0) as thirdOut,
+        (IFNULL(sum(IF(A.trans_type = 1,A.biz_trans_amt,NULL)),0) - IFNULL(sum(IF(A.trans_type = -1,A.biz_trans_amt,NULL)),0)) as hisActual,
+        (IFNULL(sum(IF(A.trans_type = 1,A.third_trans_amt,NULL)),0) - IFNULL(sum(IF(A.trans_type = -1,A.third_trans_amt,NULL)),0)) as thirdActual
+        FROM (SELECT
+        CTD.*,MM.inst_id as instId,MI.name as instName,PG.name as goodName
+        FROM chk_trans_detail CTD
+        LEFT JOIN mer_merchant MM ON CTD.merchant_id = MM.id
+        LEFT JOIN mer_institution MI ON MM.inst_id = MI.id
+        LEFT JOIN pay_goods PG ON CTD.goods_id = PG.id
+        <where>
+            <if test="startDate != null and endDate != null">
+                CTD.account_date BETWEEN #{startDate} AND #{endDate}
+            </if>
+            <if test="hospitalId != null">
+                AND CTD.hospital_id = #{hospitalId}
+            </if>
+        </where>) A
+        GROUP BY A.instName,A.goodName
+        ORDER BY A.instName
+    </select>
+
+    <select id="selectInOutByOperId" parameterType="map" resultType="map">
+        SELECT
+        A.instName,IF(A.oper_id is NULL OR A.oper_id = '' ,'未知',A.oper_id) as operId,
+        IFNULL(sum(IF(A.trans_type = 1,A.biz_trans_amt,NULL)),0) as hisIn,
+        IFNULL(sum(IF(A.trans_type = 1,A.third_trans_amt,NULL)),0) as thirdIn,
+        IFNULL(sum(IF(A.trans_type = -1,A.biz_trans_amt,NULL)),0) as hisOut,
+        IFNULL(sum(IF(A.trans_type = -1,A.third_trans_amt,NULL)),0) as thirdOut,
+        (IFNULL(sum(IF(A.trans_type = 1,A.biz_trans_amt,NULL)),0) - IFNULL(sum(IF(A.trans_type = -1,A.biz_trans_amt,NULL)),0)) as hisActual,
+        (IFNULL(sum(IF(A.trans_type = 1,A.third_trans_amt,NULL)),0) - IFNULL(sum(IF(A.trans_type = -1,A.third_trans_amt,NULL)),0)) as thirdActual
+        FROM (SELECT
+        CTD.*,MM.inst_id as instId,MI.name as instName
+        FROM chk_trans_detail CTD
+        LEFT JOIN mer_merchant MM ON CTD.merchant_id = MM.id
+        LEFT JOIN mer_institution MI ON MM.inst_id = MI.id
+        <where>
+            <if test="startDate != null and endDate != null">
+                CTD.account_date BETWEEN #{startDate} AND #{endDate}
+            </if>
+            <if test="hospitalId != null">
+                AND CTD.hospital_id = #{hospitalId}
+            </if>
+        </where>) A
+        GROUP BY A.instName,A.oper_id
+        ORDER BY A.instName
+    </select>
+
+</mapper>

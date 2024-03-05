@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="interhospCommWords">
+
+    <sql id="selCommWordsAll">
+        SELECT hospital_id hospitalId,
+               doct_id     doctId,
+               type,
+               content,
+               create_time createTime,
+               update_time updateTime,
+               remark1
+        FROM interhospital.INTERHOSP_COMMWORDS
+    </sql>
+
+  <!-- 查询条件 -->
+    <sql id="selWhereSearch">
+        <where>
+            hospital_id = #{hospitalId}
+            AND doct_id = #{doctId}
+            <if test="type !=null">
+                AND type = #{type}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selCommWordsList" parameterType="com.gg.midend.domain.DTO.QryWordsReq"
+            resultType="com.gg.midend.domain.VO.CommWordsInfo">
+        <include refid="selCommWordsAll"/>
+        <include refid="selWhereSearch"/>
+    </select>
+
+  <insert id="intCommWords" parameterType="com.gg.midend.domain.DTO.CreatWordsReq">
+    INSERT INTO interhospital.INTERHOSP_COMMWORDS(
+        hospital_id,
+        doct_id,
+        type,
+        content,
+        create_time,
+        update_time
+    ) VALUES(
+        #{hospitalId},
+        #{doctId},
+        #{type},
+        #{content},
+        sysdate(),
+        sysdate()
+    )
+  </insert>
+
+    <update id="updCommWords" parameterType="com.gg.midend.domain.DTO.CreatWordsReq">
+        UPDATE
+        interhospital.INTERHOSP_COMMWORDS
+        <set>
+            <if test="content != null and content != ''">content = #{content},</if>
+            update_time = sysdate()
+        </set>
+        WHERE
+        hospital_id = #{hospitalId} AND doct_id = #{doctId} AND type = #{type}
+    </update>
+
+</mapper>

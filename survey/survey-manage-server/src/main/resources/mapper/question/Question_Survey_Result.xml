@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="questionSurveyResult">
+	<resultMap id="BaseResultMap" type="map">
+		<result column="question_id" jdbcType="VARCHAR" property="questionId" />
+		<result column="item_id" jdbcType="VARCHAR" property="itemId" />
+		<result column="item_result" jdbcType="VARCHAR" property="itemResult" />
+		<result column="user_id" jdbcType="VARCHAR" property="userId" />
+		<result column="channel_id" jdbcType="VARCHAR" property="channelId" />
+		<result column="date_time" jdbcType="VARCHAR" property="dateTime" />
+		<result column="user_phone" jdbcType="VARCHAR" property="userPhone" />
+		<result column="user_name" jdbcType="VARCHAR" property="userName" />
+	</resultMap>
+
+	<select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+		SELECT
+		A.item_result
+		FROM question_survey_result A
+		WHERE A.item_id = #{itemId}
+	</select>
+
+	<select id="selectDeptStat" parameterType="map" resultMap="BaseResultMap">
+		SELECT
+		A.item_result
+		FROM question_survey_result A
+		<where>
+			<if test="itemId != null or '' ">
+				A.item_id = #{itemId}
+			</if>
+			<if test="startDate != null or '' ">
+				and left(A.date_time, 8) &gt;= #{startDate}
+			</if>
+			<if test="endDate != null or '' ">
+				and left(A.date_time, 8) &lt;= #{endDate}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectSuggestion" parameterType="map" resultMap="BaseResultMap">
+		SELECT
+		A.*
+		FROM question_survey_result A
+		INNER JOIN (SELECT B.id FROM question_survey_item B WHERE B.type = '4') C
+		ON A.item_id = C.id
+		<where>
+			<if test="startDate != null or '' ">
+				and left(A.date_time, 8) &gt;= #{startDate}
+			</if>
+			<if test="endDate != null or '' ">
+				and left(A.date_time, 8) &lt;= #{endDate}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectForStarts" parameterType="map" resultMap="BaseResultMap">
+		SELECT
+		COUNT(*) count,
+		AVG(item_result) avg,
+		COUNT(item_result=1 OR NULL) count1,
+		COUNT(item_result=2 OR NULL) count2,
+		COUNT(item_result=3 OR NULL) count3,
+		COUNT(item_result=4 OR NULL) count4,
+		COUNT(item_result=5 OR NULL) count5
+		FROM question_survey_result WHERE item_id = #{itemId}
+	</select>
+
+	<insert id="insert" parameterType="map">
+		insert into question_survey_result
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			question_id,
+			item_id,
+			item_result,
+			user_id,
+			channel_id,
+			date_time,
+			user_name,
+			user_phone
+		</trim>
+		values
+		<foreach collection="resultList" item="item" index="index"
+			separator=",">
+			<trim prefix="(" suffix=")" suffixOverrides=",">
+				#{item.questionId},
+				#{item.itemId},
+				#{item.itemResullt},
+				#{item.userId},
+				#{item.channelId},
+				DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
+				#{item.userName},
+				#{item.userPhone}
+			</trim>
+		</foreach>
+	</insert>
+
+
+
+	<select id="staByType1And2" parameterType="map" resultMap="BaseResultMap">
+		SELECT
+		COUNT(*) count,
+		COUNT(item_result ='A' OR NULL) countA,
+		COUNT(item_result ='B' OR NULL) countB,
+		COUNT(item_result ='C' OR NULL) countC,
+		COUNT(item_result ='D' OR NULL) countD,
+		COUNT(item_result ='E' OR NULL) countE
+		FROM question_survey_result WHERE item_id = #{itemId}
+	</select>
+</mapper>

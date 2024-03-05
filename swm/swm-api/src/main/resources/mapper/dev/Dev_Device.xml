@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="devdevice">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="DEV_ID" jdbcType="CHAR" property="fId"/>
+        <result column="TERM" jdbcType="VARCHAR" property="fTerm"/>
+        <result column="DEV_NAME" jdbcType="VARCHAR" property="fName"/>
+        <result column="INST_ADDR" jdbcType="CHAR" property="fInstaddr"/>
+        <result column="DEPT" jdbcType="CHAR" property="fDept"/>
+        <result column="USE_STAT" jdbcType="CHAR" property="fUsestat"/>
+        <result column="IP" jdbcType="CHAR" property="fIp"/>
+        <result column="PORT" jdbcType="INTEGER" property="fPort"/>
+        <result column="MAC" jdbcType="CHAR" property="fMac"/>
+        <result column="TYPE_ID" jdbcType="CHAR" property="fType"/>
+        <result column="MARK" jdbcType="CHAR" property="fMark"/>
+        <result column="SPC" jdbcType="CHAR" property="fSpc"/>
+        <result column="FAC_ID" jdbcType="CHAR" property="fFacid"/>
+        <result column="CODE" jdbcType="CHAR" property="fCode"/>
+        <result column="WORK1" jdbcType="CHAR" property="fWork1"/>
+        <result column="WORK2" jdbcType="CHAR" property="fWork2"/>
+        <result column="PAD1" jdbcType="CHAR" property="fPad1"/>
+        <result column="PAD2" jdbcType="CHAR" property="fPad2"/>
+        <result column="PAD3" jdbcType="CHAR" property="fPad3"/>
+        <result column="PAD4" jdbcType="CHAR" property="fPad4"/>
+        <result column="HOSPITAL_ID" jdbcType="CHAR" property="fHospitalid"/>
+
+        <result column="WDNAME" jdbcType="VARCHAR" property="wdname"/>
+        <result column="ZHNAME" jdbcType="VARCHAR" property="zhname"/>
+        <result column="STYLENAME" jdbcType="VARCHAR" property="stylename"/>
+        <result column="USESTATNAME" jdbcType="VARCHAR" property="usestatname"/>
+        <result column="STATENAME" jdbcType="VARCHAR" property="statename"/>
+
+        <result column="INSTSTYLENAME" jdbcType="VARCHAR" property="inststylename"/>
+        <result column="FUNCAREANAME" jdbcType="VARCHAR" property="funcareaname"/>
+        <result column="AREANAME" jdbcType="VARCHAR" property="areaname"/>
+        <result column="ISPNAME" jdbcType="VARCHAR" property="ispname"/>
+        <result column="FACNAME" jdbcType="VARCHAR" property="facname"/>
+
+        <result column="STATEVALUE" jdbcType="VARCHAR" property="statevalue"/>
+        <result column="STATENAME" jdbcType="VARCHAR" property="statename"/>
+        <result column="DEPTNAME" jdbcType="VARCHAR" property="deptname"/>
+
+        <result column="SPCNAME" jdbcType="VARCHAR" property="fSpcname"/>
+
+
+    </resultMap>
+    <sql id="Base_Column_List">
+        DEV_ID, DEV_NAME, DEPT, HOSPITAL_ID, TERM, INST_ADDR, USE_STAT, IP, PORT, MAC, TYPE_ID,
+        MARK, SPC, FAC_ID, CODE, WORK1, WORK2, PAD1, PAD2, PAD3, PAD4
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from midend.dev_device
+        <where>
+            <if test="checkIpWithoutSelf == null and fId != null">
+                DEV_ID = #{fId,jdbcType=CHAR}
+            </if>
+            <if test="fUsestat != null">
+                AND USESTAT = #{fUsestat,jdbcType=CHAR}
+            </if>
+            <if test="fType != null">
+                AND TYPE_ID = #{fType,jdbcType=CHAR}
+            </if>
+            <if test="fMark != null">
+                AND MARK = #{fMark,jdbcType=CHAR}
+            </if>
+            <if test="fSpc != null">
+                AND SPC = #{fSpc,jdbcType=CHAR}
+            </if>
+            <if test="fIp != null">
+                AND IP = #{fIp,jdbcType=CHAR}
+            </if>
+            <if test="checkIpWithoutSelf != null and fId != null">
+                AND DEV_ID != #{fId,jdbcType=CHAR}
+            </if>
+            <if test="fHospitalid != null">
+                AND HOSPITAL_ID = #{fHospitalid,jdbcType=CHAR}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWorkDev" parameterType="map" resultMap="BaseResultMap">
+        select
+        ID,WORK1,WORK2,HOSPITAL_ID
+        from midend.dev_device
+        <where>
+            USE_STAT = '0' AND HOSPITAL_ID in ${hosplist}
+        </where>
+    </select>
+
+    <select id="selectDev" parameterType="map" resultMap="BaseResultMap">
+
+        SELECT
+        B.DEPT_NAME WDNAME,
+        C.DEPT_NAME ZHNAME,
+        A.DEV_ID,
+        A.TERM,
+        A.TYPE_ID,
+        A.MARK,
+        D1.TYPE_NAME fTypename,
+
+        A.SPC fSpc,
+
+        A.INST_ADDR,
+        A.USE_STAT,
+        C1.CODE_NAME AS USESTATNAME,
+        SN.NAME AS STATENAME,
+
+        A.DEPT,
+        A.DEV_NAME,
+        A.INST_ADDR,
+        A.IP,
+        A.PAD1,
+        A.PAD2,
+        A.PAD3,
+        A.PAD4,
+        A.WORK1,
+        A.WORK2,
+        A.HOSPITAL_ID
+
+        FROM dev_device A
+        LEFT JOIN sys_code C1 ON C1.PAR_ID = 'C1' AND A.USE_STAT = C1.CODE_ID
+        LEFT JOIN dev_type D1 ON D1.TYPE_ID = A.TYPE_ID
+        LEFT JOIN des_dev_state S LEFT JOIN des_state SN ON S.CAT_ID = SN.CAT_ID AND S.VALUE = SN.VALUE
+        ON A.DEV_ID = S.DEV_ID AND (S.CAT_ID = 1001 OR S.CAT_ID = 2001)
+        AND S.HOSPITAL_ID = #{fHospitalid}
+        , dev_branch B, dev_branch C
+        <where>
+            <if test="fDeptid != null">
+                A.DEPT=B.DEPT_ID AND B.PAR_DEPT=C.DEPT_ID AND B.DEPT_LIST LIKE concat(#{fDeptid},'%')
+            </if>
+            <if test="fType != null">
+                AND A.TYPE_ID=#{fType}
+            </if>
+            <if test="fMark != null">
+                AND A.MARK=#{fMark}
+            </if>
+            <if test="fSpc != null">
+                AND A.SPC=#{fSpc}
+            </if>
+            <if test="startdate != null and enddate != null">
+                AND A.SPC BETWEEN #{startdate} AND #{enddate}
+            </if>
+            <if test="fUsestat != null">
+                AND A.USE_STAT=#{fUsestat}
+            </if>
+            <if test="fId != null">
+                AND A.DEV_ID =#{fId}
+            </if>
+            <if test="fHospitalid != null">
+                AND A.HOSPITAL_ID =#{fHospitalid}
+            </if>
+        </where>
+        <if test="orderby!=null">
+            ORDER BY ${orderby}
+        </if>
+
+    </select>
+
+    <select id="selectDevListWithState" parameterType="map" resultMap="BaseResultMap">
+        SELECT A.DEV_ID,A.TERM,A.TYPE_ID,B.VALUE STATEVALUE,C.NAME STATENAME,A.INST_ADDR,A.IP,A.MARK,A.SPC
+        ,F.TEL factel,F.FAC_NAME facname, A.HOSPITAL_ID,G.TYPE_NAME typename,
+        D2.DEPT_NAME DEPTNAME,
+        D3.DEPT_NAME zhname
+        <if test="fDeptid != null">
+            ,D.DEPT_NAME DEPTNAME, E.DEPT_NAME zhname
+        </if>
+        FROM dev_device A
+        LEFT JOIN des_dev_state B ON A.DEV_ID = B.DEV_ID AND B.CAT_ID IN ('1001','2001') AND B.HOSPITAL_ID =
+        #{fHospitalid}
+        LEFT JOIN des_state C ON B.CAT_ID = C.CAT_ID AND B.VALUE = C.VALUE
+        LEFT JOIN dev_factory F ON A.FAC_ID = F.FAC_ID
+        LEFT JOIN dev_type G ON G.TYPE_ID = A.TYPE_ID
+        LEFT JOIN dev_branch D2 ON A.DEPT = D2.DEPT_ID AND A.HOSPITAL_ID = D2.HOSPITAL_ID
+        LEFT JOIN dev_branch D3 ON D2.PAR_DEPT = D3.DEPT_ID AND D2.HOSPITAL_ID = D3.HOSPITAL_ID
+        <if test="fDeptid != null">
+            , dev_branch D, dev_branch E
+        </if>
+        <where>
+            <if test="fId != null">
+                A.DEV_ID = #{fId}
+            </if>
+            <if test="fDeptid != null">
+                A.DEPT=D.DEPT_ID AND D.PAR_DEPT=E.DEPT_ID AND D.DEPT_LIST LIKE concat(#{fDeptid},'%')
+            </if>
+            <if test="fType != null">
+                AND A.TYPE_ID=#{fType}
+            </if>
+            <if test="fMark != null">
+                AND A.MARK=#{fMark}
+            </if>
+            <if test="fSpc != null">
+                AND A.SPC=#{fSpc}
+            </if>
+            <if test="fHospitalid != null">
+                AND A.HOSPITAL_ID=#{fHospitalid}
+            </if>
+            <if test="fStateList != null">
+                AND B.VALUE IN
+                <foreach item="fState" index="index" collection="fStateList" separator="," open="(" close=")">
+                    ${fState}
+                </foreach>
+            </if>
+
+        </where>
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="map">
+        delete from dev_device
+        where DEV_ID = #{fId,jdbcType=CHAR}
+        AND HOSPITAL_ID =#{fHospitalid}
+    </delete>
+
+    <insert id="insertSelective" parameterType="map">
+        insert into dev_device
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fId != null">
+                DEV_ID,
+            </if>
+            <if test="fName != null">
+                DEV_NAME,
+            </if>
+            <if test="fInstaddr != null">
+                INST_ADDR,
+            </if>
+            <if test="fDept != null">
+                DEPT,
+            </if>
+            <if test="fUsestat != null">
+                USE_STAT,
+            </if>
+            <if test="fIp != null">
+                IP,
+            </if>
+            <if test="fPort != null">
+                PORT,
+            </if>
+            <if test="fMac != null">
+                MAC,
+            </if>
+            <if test="fType != null">
+                TYPE_ID,
+            </if>
+            <if test="fMark != null">
+                MARK,
+            </if>
+            <if test="fSpc != null">
+                SPC,
+            </if>
+            <if test="fFacid != null">
+                FAC_ID,
+            </if>
+            <if test="fCode != null">
+                CODE,
+            </if>
+            <if test="fWork1 != null">
+                WORK1,
+            </if>
+            <if test="fWork2 != null">
+                WORK2,
+            </if>
+            <if test="fPad1 != null">
+                PAD1,
+            </if>
+            <if test="fPad2 != null">
+                PAD2,
+            </if>
+            <if test="fPad3 != null">
+                PAD3,
+            </if>
+            <if test="fPad4 != null">
+                PAD4,
+            </if>
+            <if test="fTerm != null">
+                TERM,
+            </if>
+            <if test="fHospitalid != null">
+                HOSPITAL_ID,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fId != null">
+                #{fId,jdbcType=CHAR},
+            </if>
+            <if test="fName != null">
+                #{fName,jdbcType=VARCHAR},
+            </if>
+            <if test="fInstaddr != null">
+                #{fInstaddr,jdbcType=CHAR},
+            </if>
+            <if test="fDept != null">
+                #{fDept,jdbcType=CHAR},
+            </if>
+            <if test="fUsestat != null">
+                #{fUsestat,jdbcType=CHAR},
+            </if>
+            <if test="fIp != null">
+                #{fIp,jdbcType=CHAR},
+            </if>
+            <if test="fPort != null">
+                #{fPort,jdbcType=INTEGER},
+            </if>
+            <if test="fMac != null">
+                #{fMac,jdbcType=CHAR},
+            </if>
+            <if test="fType != null">
+                #{fType,jdbcType=CHAR},
+            </if>
+            <if test="fMark != null">
+                #{fMark,jdbcType=CHAR},
+            </if>
+            <if test="fSpc != null">
+                #{fSpc,jdbcType=CHAR},
+            </if>
+            <if test="fFacid != null">
+                #{fFacid,jdbcType=CHAR},
+            </if>
+            <if test="fCode != null">
+                #{fCode,jdbcType=CHAR},
+            </if>
+            <if test="fWork1 != null">
+                #{fWork1,jdbcType=CHAR},
+            </if>
+            <if test="fWork2 != null">
+                #{fWork2,jdbcType=CHAR},
+            </if>
+            <if test="fPad2 != null">
+                #{fPad2,jdbcType=CHAR},
+            </if>
+            <if test="fPad3 != null">
+                #{fPad3,jdbcType=CHAR},
+            </if>
+            <if test="fPad4 != null">
+                #{fPad4,jdbcType=CHAR},
+            </if>
+            <if test="fTerm != null">
+                #{fTerm,jdbcType=VARCHAR},
+            </if>
+            <if test="fHospitalid != null">
+                #{fHospitalid,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="map">
+        update dev_device
+        <set>
+            <if test="fName != null">
+                DEV_NAME = #{fName,jdbcType=VARCHAR},
+            </if>
+            <if test="fInstaddr != null">
+                INST_ADDR = #{fInstaddr,jdbcType=CHAR},
+            </if>
+            <if test="fDept != null">
+                DEPT = #{fDept,jdbcType=CHAR},
+            </if>
+            <if test="fUsestat != null">
+                USE_STAT = #{fUsestat,jdbcType=CHAR},
+            </if>
+            <if test="fIp != null">
+                IP = #{fIp,jdbcType=CHAR},
+            </if>
+            <if test="fPort != null">
+                PORT = #{fPort,jdbcType=INTEGER},
+            </if>
+            <if test="fMac != null">
+                MAC = #{fMac,jdbcType=CHAR},
+            </if>
+            <if test="fType != null">
+                TYPE_ID = #{fType,jdbcType=CHAR},
+            </if>
+            <if test="fMark != null">
+                MARK = #{fMark,jdbcType=CHAR},
+            </if>
+            <if test="fSpc != null">
+                SPC = #{fSpc,jdbcType=CHAR},
+            </if>
+            <if test="fPc != null">
+                PC = #{fPc,jdbcType=CHAR},
+            </if>
+            <if test="fFacid != null">
+                FAC_ID = #{fFacid,jdbcType=CHAR},
+            </if>
+            <if test="fCode != null">
+                CODE = #{fCode,jdbcType=CHAR},
+            </if>
+            <if test="fWork1 != null">
+                WORK1 = #{fWork1,jdbcType=CHAR},
+            </if>
+            <if test="fWork2 != null">
+                WORK2 = #{fWork2,jdbcType=CHAR},
+            </if>
+            <if test="fPad1 != null">
+                PAD1 = #{fPad1,jdbcType=CHAR},
+            </if>
+            <if test="fPad2 != null">
+                PAD2 = #{fPad2,jdbcType=CHAR},
+            </if>
+            <if test="fPad3 != null">
+                PAD3 = #{fPad3,jdbcType=CHAR},
+            </if>
+            <if test="fPad4 != null">
+                PAD4 = #{fPad4,jdbcType=CHAR},
+            </if>
+        </set>
+        where DEV_ID = #{fId,jdbcType=CHAR}
+        AND HOSPITAL_ID = #{fHospitalid,jdbcType=CHAR}
+    </update>
+</mapper>

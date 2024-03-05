@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: data-api
+  config:
+    location: file:config/application.yml

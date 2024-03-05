@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>midend-service-center</artifactId>
+        <groupId>com.gg.midend</groupId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>identity-api</artifactId>
+    <version>1.0.0</version>
+    <name>identity-api</name>
+    <description>
+        (1)本系统实现了患者主索引api接口功能
+        (2)版本更新记录：
+        v1.0.0 2022.11.21 lufm
+        创建版本
+    </description>
+
+</project>

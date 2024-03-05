@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="chkThirdTrans">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="merchant_id" property="merchantId" jdbcType="VARCHAR"/>
+        <result column="account_date" property="accountDate" jdbcType="VARCHAR"/>
+        <result column="fac_id" property="facId" jdbcType="VARCHAR"/>
+        <result column="trans_type" property="transType" jdbcType="VARCHAR"/>
+        <result column="third_id" property="thirdId" jdbcType="VARCHAR"/>
+        <result column="check_id" property="checkId" jdbcType="VARCHAR"/>
+        <result column="check_origin_id" property="checkOriginId" jdbcType="VARCHAR"/>
+        <result column="serial_no" property="serialNo" jdbcType="VARCHAR"/>
+        <result column="refund_serial_no" property="refundSerialNo" jdbcType="VARCHAR"/>
+        <result column="payer_name" property="payerName" jdbcType="VARCHAR"/>
+        <result column="payer_account" property="payerAccount" jdbcType="VARCHAR"/>
+        <result column="trans_time" property="transTime" jdbcType="VARCHAR"/>
+        <result column="trans_amt" property="transAmt" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        ( SELECT A.*,
+        M.name AS merchantName,
+        T.name AS thirdName
+        FROM chk_third_trans A
+        LEFT JOIN mer_merchant M ON M.id = A.merchant_id
+        LEFT JOIN pay_third T ON T.id = A.third_id
+        LEFT JOIN pay_order_pay B ON (B.order_id = A.check_id OR B.third_seq_no = A.check_id)
+        WHERE 1 = 1
+        <if test="merchantId != null">
+            AND A.merchant_id = #{merchantId}
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND A.account_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+        <if test="queryNo != null">
+            AND (
+            A.check_id LIKE concat("%",#{queryNo},"%") OR
+            A.check_origin_id LIKE concat("%",#{queryNo},"%") OR
+            A.serial_no LIKE concat("%",#{queryNo},"%") OR
+            A.refund_serial_no LIKE concat("%",#{queryNo},"%")
+            )
+        </if>
+        <if test="hospitalId != null">
+            AND B.hospital_id = #{hospitalId}
+        </if>)
+        UNION
+        (SELECT A.*,
+        M.name AS merchantName,
+        T.name AS thirdName
+        FROM chk_third_trans_h A
+        LEFT JOIN mer_merchant M ON M.id = A.merchant_id
+        LEFT JOIN pay_third T ON T.id = A.third_id
+        LEFT JOIN pay_order_pay B ON (B.order_id = A.check_id OR B.third_seq_no = A.check_id)
+        WHERE 1 = 1
+        <if test="merchantId != null">
+            AND A.merchant_id = #{merchantId}
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND A.account_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+        <if test="queryNo != null">
+            AND (
+            A.check_id LIKE concat("%",#{queryNo},"%") OR
+            A.check_origin_id LIKE concat("%",#{queryNo},"%") OR
+            A.serial_no LIKE concat("%",#{queryNo},"%") OR
+            A.refund_serial_no LIKE concat("%",#{queryNo},"%")
+            )
+        </if>
+        <if test="hospitalId != null">
+            AND B.hospital_id = #{hospitalId}
+        </if>)
+        ORDER BY trans_time
+    </select>
+
+    <select id="selectStat" parameterType="map" resultType="map">
+        SELECT COUNT(A.check_id) AS thirdCount,
+        SUM(A.trans_amt) AS thirdSum,
+        A.trans_type AS transType
+        FROM
+        ((SELECT ctt.check_id,ctt.trans_amt,ctt.trans_type FROM chk_third_trans ctt WHERE ctt.account_date =#{queryDate} AND ctt.merchant_id =#{merchantId})
+        UNION
+        (SELECT ctth.check_id,ctth.trans_amt,ctth.trans_type FROM chk_third_trans_h ctth WHERE ctth.account_date =#{queryDate} AND ctth.merchant_id =#{merchantId})
+        ) A
+        GROUP BY A.trans_type
+    </select>
+
+
+</mapper>

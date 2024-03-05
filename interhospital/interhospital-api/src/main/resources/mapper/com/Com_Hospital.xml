@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gg.midend.mapper.HospitalMapper">
+
+    <select id="selHospInfo" resultType="com.gg.midend.domain.VO.HospInfo">
+        SELECT id        hospitalId,
+               name      hospitalName,
+               par_id    parId,
+               level,
+               type,
+               class     hosClass,
+               grade,
+               phone,
+               address,
+               branch_id branchId
+        FROM midend.COM_HOSPITAL
+        WHERE id = #{hospitalId}
+    </select>
+
+  <!-- 查询启用医院及上级机构 -->
+    <select id="selHospList" resultType="com.gg.midend.domain.VO.HospListInfo">
+        select CH.ID    hospitalId,
+               CH.NAME  hospitalName,
+               CB2.ID   deptId1,
+               CB2.NAME deptName1,
+               CB.ID    deptId2,
+               CB.NAME  deptName2
+        FROM midend.COM_HOSPITAL CH
+                 LEFT JOIN midend.COM_BRANCH CB ON CB.ID = CH.BRANCH_ID
+                 LEFT JOIN midend.COM_BRANCH CB2 ON CB.PAR_ID = CB2.ID
+        WHERE CH.ACTIVE = #{active}
+        ORDER BY CH.BRANCH_ID
+    </select>
+
+</mapper>

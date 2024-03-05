@@ -1,0 +1,61 @@
+server:
+  port: 16010
+
+file:
+  #  excel模板
+  #  templateDir: /home/wechat/meal/meal-manage-server/
+  templateDir: C:/
+  #  文件存放路径
+  fileDir: D:/develop_tools/Tomcat8/webapps/file/
+  #  文件访问路径
+  fileUrl: http://127.0.0.1:8084/file/
+
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:13306/midend_pay?useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&connectTimeout=60000&socketTimeout=60000&autoReconnect=true&autoReconnectForPools=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC&allowMultiQueries=true
+    username: admin
+    password: Abc_123456
+    #    password: Geit@86#97$0000
+    #    password: Abc_123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+    initial-size: 1
+    min-idle: 1
+    max-active: 20
+    max-wait: 60000
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    validation-query: SELECT 1 FROM DUAL
+    test-While-Idle: true
+    test-on-borrow: false
+    test-on-return: false
+    pool-prepared-statements: false
+    filters: stat,wall,log4j,config
+
+mybatis:
+  mapper-locations: classpath:mapper/*/*.xml
+  config-location: classpath:mybatis/mybatis-config.xml
+
+logging:
+  config: classpath:log4j2.xml
+
+#支付平台退款请求地址，根据实际需求，更改ip和端口号
+payRefundUrl:
+  common: http://127.0.0.1:38887/lxzchkpay
+  # 0005 创建退费订单
+  createRefundOrder: ${payRefundUrl.common}/payPlatform/createRefundOrder
+  # 0006 执行退款操作
+  refundOrder: ${payRefundUrl.common}/payPlatform/refundOrder
+  # 0007 退款确认
+  refundQuery: ${payRefundUrl.common}/payPlatform/refundQuery
+  # 0008 订单支付结果查询
+  queryPayOrder: ${payRefundUrl.common}/payPlatform/queryPayOrder
+  # 0009 订单退款结果查询
+  queryRefundOrder: ${payRefundUrl.common}/payPlatform/queryRefundOrder
+
+#支付平台查询请求地址，根据实际需求，更改ip和端口号
+payQueryUrl:
+  common: http://127.0.0.1:38887/lxzchkpay
+  # 0003 查询订单
+  queryOrder: ${payQueryUrl.common}/payPlatform/queryOrder

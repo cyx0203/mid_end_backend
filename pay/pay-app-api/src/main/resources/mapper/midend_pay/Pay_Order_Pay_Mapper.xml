@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pay_order_pay">
+	<resultMap id="BaseResultMap" type="map">
+		<id column="order_id" jdbcType="VARCHAR" property="order_id" />
+		<result column="merchant_id" jdbcType="VARCHAR"
+			property="merchant_id" />
+		<result column="hospital_id" jdbcType="VARCHAR"
+			property="hospital_id" />
+		<result column="order_trace" jdbcType="VARCHAR"
+			property="order_trace" />
+		<result column="trans_type" jdbcType="INTEGER"
+			property="trans_type" />
+		<result column="third_id" jdbcType="CHAR" property="third_id" />
+		<result column="pay_type_id" jdbcType="CHAR"
+			property="pay_type_id" />
+		<result column="channel_id" jdbcType="VARCHAR"
+			property="channel_id" />
+		<result column="order_amt" jdbcType="INTEGER"
+			property="order_amt" />
+		<result column="third_seq_no" jdbcType="VARCHAR"
+			property="third_seq_no" />
+		<result column="create_date" jdbcType="CHAR"
+			property="create_date" />
+		<result column="create_time" jdbcType="CHAR"
+			property="create_time" />
+		<result column="third_date" jdbcType="CHAR"
+			property="third_date" />
+		<result column="third_time" jdbcType="CHAR"
+			property="third_time" />
+		<result column="status" jdbcType="CHAR" property="status" />
+		<result column="refund_reason" jdbcType="VARCHAR"
+			property="refund_reason" />
+		<result column="oper_id" jdbcType="VARCHAR" property="oper_id" />
+		<result column="oper_name" jdbcType="VARCHAR"
+			property="oper_name" />
+		<result column="term_id" jdbcType="VARCHAR" property="term_id" />
+
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		order_id, merchant_id, hospital_id, order_trace,
+		trans_type, third_id,
+		pay_type_id,
+		channel_id, order_amt, third_seq_no,
+		create_date, create_time, third_date, third_time,
+		status,
+		refund_reason,oper_id,oper_name,term_id
+	</sql>
+
+	<insert id="insert" parameterType="map">
+		insert into pay_order_pay
+		(order_id, merchant_id, hospital_id,
+		order_trace, trans_type,
+		third_id,
+		pay_type_id, channel_id, order_amt,
+		third_seq_no, create_date,
+		create_time,
+		third_date, third_time, status,
+		refund_reason,oper_id,oper_name,term_id)
+		values
+		(#{order_id,jdbcType=VARCHAR},
+		#{merchant_id,jdbcType=VARCHAR},
+		#{hospital_id,jdbcType=VARCHAR},
+		#{order_trace,jdbcType=VARCHAR},
+		#{trans_type,jdbcType=INTEGER},
+		#{third_id,jdbcType=CHAR},
+		#{pay_type_id,jdbcType=CHAR},
+		#{channel_id,jdbcType=VARCHAR},
+		#{order_amt,jdbcType=INTEGER},
+		#{third_seq_no,jdbcType=VARCHAR},
+		#{create_date,jdbcType=CHAR},
+		#{create_time,jdbcType=CHAR},
+		#{third_date,jdbcType=CHAR},
+		#{third_time,jdbcType=CHAR},
+		#{status,jdbcType=CHAR},
+		#{refund_reason,jdbcType=VARCHAR},
+		#{oper_id,jdbcType=VARCHAR},
+		#{oper_name,jdbcType=VARCHAR},
+		#{term_id,jdbcType=VARCHAR})
+	</insert>
+
+	<select id="selectOrder" resultMap="BaseResultMap">
+		select
+		a.order_id,a.merchant_id,a.pay_type_id,a.third_id,a.channel_id,a.order_trace
+		from
+		pay_order_pay a where order_id = #{orderId,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectSecOrder" resultMap="BaseResultMap">
+		select
+		a.order_id,a.merchant_id,a.pay_type_id,a.third_id,a.channel_id,a.order_trace
+		from
+		pay_order_pay a where order_id = #{secOrderId,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectOrderComplete" resultMap="BaseResultMap">
+		select
+		a.order_id,a.merchant_id,a.pay_type_id,a.third_id,a.order_trace,a.order_amt,b.acct_pay
+		acct_pay,b.fund_pay_sumamt fund_pay_sumamt from
+		pay_order_pay a left
+		join pay_medical_fee b on a.order_id =
+		b.order_id where a.order_id =
+		#{orderId,jdbcType=VARCHAR} and
+		status = '1'
+	</select>
+
+	<select id="selectSecOrderComplete" resultMap="BaseResultMap">
+		select
+		a.order_id,a.merchant_id,a.pay_type_id,a.third_id,a.order_trace,a.order_amt,b.acct_pay
+		acct_pay,b.fund_pay_sumamt fund_pay_sumamt from
+		pay_order_pay a left
+		join pay_medical_fee b on a.order_id =
+		b.order_id where a.order_id =
+		#{secOrderId,jdbcType=VARCHAR} and
+		status = '1'
+	</select>
+
+	<update id="updatePayOrderPayStatus" parameterType="map">
+		update pay_order_pay
+		<set>
+			<if test="status != null">
+				status = #{status,jdbcType=CHAR},
+			</if>
+			<if test="thirdDate != null">
+				third_date = #{thirdDate,jdbcType=CHAR},
+			</if>
+			<if test="thirdTime != null">
+				third_time = #{thirdTime,jdbcType=CHAR},
+			</if>
+			<if test="thirdPtls != null">
+				third_seq_no = #{thirdPtls,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where order_id = #{orderId,jdbcType=VARCHAR}
+	</update>
+
+	<update id="updateSecPayOrderPayStatus" parameterType="map">
+		update pay_order_pay
+		<set>
+			<if test="status != null">
+				status = #{status,jdbcType=CHAR},
+			</if>
+			<if test="thirdDate != null">
+				third_date = #{thirdDate,jdbcType=CHAR},
+			</if>
+			<if test="thirdTime != null">
+				third_time = #{thirdTime,jdbcType=CHAR},
+			</if>
+			<if test="secThirdPtls != null">
+				third_seq_no = #{secThirdPtls,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where order_id = #{secOrderId,jdbcType=VARCHAR}
+	</update>
+
+	<select id="selectUncheck" resultMap="BaseResultMap">
+		select a.order_id from
+		pay_order_pay a where order_trace = #{orderTrace,jdbcType=VARCHAR}
+		and
+		trans_type = -1 and status in ('0', '9')
+	</select>
+
+	<select id="selectRefundOrder" resultMap="BaseResultMap">
+		select
+		a.order_id,a.merchant_id,a.pay_type_id,a.third_id,a.channel_id,a.order_trace,a.order_amt,a.refund_reason
+		from
+		pay_order_pay a where order_id = #{refundorderId,jdbcType=VARCHAR}
+		and status = '0'
+	</select>
+
+	<select id="selectSecRefundOrder" resultMap="BaseResultMap">
+		select
+		a.order_id,a.merchant_id,a.pay_type_id,a.third_id,a.channel_id,a.order_trace,a.order_amt,a.refund_reason
+		from
+		pay_order_pay a where order_id =
+		#{secRefundorderId,jdbcType=VARCHAR}
+		and status = '0'
+	</select>
+
+	<update id="updatePayOrderPayRefundStatus" parameterType="map">
+		update pay_order_pay
+		<set>
+			<if test="status != null">
+				status = #{status,jdbcType=CHAR},
+			</if>
+			<if test="thirdDate != null">
+				third_date = #{thirdDate,jdbcType=CHAR},
+			</if>
+			<if test="thirdTime != null">
+				third_time = #{thirdTime,jdbcType=CHAR},
+			</if>
+			<if test="thirdPtls != null">
+				third_seq_no = #{thirdPtls,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where order_id = #{refundorderId,jdbcType=VARCHAR}
+	</update>
+
+	<update id="updateSecPayOrderPayRefundStatus"
+		parameterType="map">
+		update pay_order_pay
+		<set>
+			<if test="status != null">
+				status = #{status,jdbcType=CHAR},
+			</if>
+			<if test="thirdDate != null">
+				third_date = #{thirdDate,jdbcType=CHAR},
+			</if>
+			<if test="thirdTime != null">
+				third_time = #{thirdTime,jdbcType=CHAR},
+			</if>
+			<if test="secThirdPtls != null">
+				third_seq_no = #{secThirdPtls,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where order_id = #{secRefundorderId,jdbcType=VARCHAR}
+	</update>
+
+	<select id="selectAllConfirmRefundOrder"
+		resultMap="BaseResultMap">
+		select
+		a.pay_type_id,a.third_id,a.order_amt,a.refund_reason,b.acct_pay
+		acct_pay,b.fund_pay_sumamt fund_pay_sumamt
+		from
+		pay_order_pay a left
+		join pay_medical_fee b on a.order_id =
+		b.order_id
+		where a.order_trace =
+		#{orderTrace,jdbcType=VARCHAR} and
+		a.trans_type = -1 and status = '1'
+	</select>
+
+	<update id="updateAllPayOrderPayStatus" parameterType="map">
+		update pay_order_pay
+		<set>
+			<if test="status != null">
+				status = #{status,jdbcType=CHAR},
+			</if>
+		</set>
+		where order_trace = #{orderTrace,jdbcType=VARCHAR} and trans_type = 1
+	</update>
+
+	<select id="selectAllUnConfirmOrder" resultMap="BaseResultMap">
+		select
+		a.order_id,a.order_trace,a.trans_type,a.third_id,a.pay_type_id,a.refund_reason
+		from
+		pay_order_pay a where a.status = '0' and a.create_date =
+		#{createDate,jdbcType=CHAR} and a.third_id = #{thirdId,jdbcType=CHAR}
+	</select>
+
+	<select id="selectTodayAllYBOrder" resultMap="BaseResultMap">
+		select
+		a.order_trace from
+		pay_order_pay a where a.create_date =
+		#{createDate,jdbcType=CHAR} and
+		a.third_id = '06'
+	</select>
+
+	<select id="selectYBOrderByOrderTrace" resultMap="BaseResultMap">
+		select
+		a.order_trace from
+		pay_order_pay a where a.order_trace =
+		#{orderTrace,jdbcType=VARCHAR} and
+		a.third_id = '06'
+	</select>
+
+	<select id="selectOrigalOrderId" resultMap="BaseResultMap">
+		select
+		a.order_id from
+		pay_order_pay a where a.status = '1' and a.order_trace =
+		#{orderTrace,jdbcType=VARCHAR} and a.third_id =
+		#{thirdId,jdbcType=CHAR} and a.trans_type = 1
+	</select>
+
+</mapper>

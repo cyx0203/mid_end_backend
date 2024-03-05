@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcOrder">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="order_no" jdbcType="VARCHAR" property="orderNo"/>
+        <result column="src_id" jdbcType="VARCHAR" property="srcId"/>
+        <result column="src_sch_id" jdbcType="VARCHAR" property="srcSchId"/>
+        <result column="date" jdbcType="VARCHAR" property="date"/>
+        <result column="idcard" jdbcType="VARCHAR" property="idcard"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_phone" jdbcType="VARCHAR" property="userPhone"/>
+        <result column="pay_type" jdbcType="VARCHAR" property="payType"/>
+        <result column="pay_fee" jdbcType="VARCHAR" property="payFee"/>
+        <result column="trans_order_no" jdbcType="VARCHAR" property="transOrderNo"/>
+        <result column="bus_order_no" jdbcType="VARCHAR" property="busOrderNo"/>
+        <result column="pay_account" jdbcType="VARCHAR" property="payAccount"/>
+        <result column="merchant_id" jdbcType="VARCHAR" property="merchantId"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="oper_id" jdbcType="VARCHAR" property="operId"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+        <result column="update_time" jdbcType="VARCHAR" property="updateTime"/>
+        <result column="create_source" jdbcType="VARCHAR" property="createSource"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT src.id AS `key`,
+        src.*,
+        C.name AS custName,
+        sch.noon AS noon,
+        dept.name AS deptName,
+        doc.name AS docName,
+        regType.name AS regTypeName,
+        platcode.name AS payName,
+        CONVERT(CONCAT(SUBSTR(src.create_time,1,10), ' ',SUBSTR(src.create_time,12,8)),CHAR) AS createTimeFormat,
+        CONVERT(CONCAT(SUBSTR(src.update_time,1,10), ' ',SUBSTR(src.update_time,12,8)),CHAR) AS updateTimeFormat
+        FROM src_order src
+        LEFT JOIN src_schedule sch ON src.src_sch_id = sch.id
+        LEFT JOIN midend.plat_channel C ON src.cust_id = C.id
+        LEFT JOIN midend.plat_code platcode ON src.pay_type = platcode.note AND platcode.par_id = 'ZF'
+        LEFT JOIN sch_dept dept ON dept.id = sch.dept_id
+        LEFT JOIN midend.com_doctor doc ON doc.id = sch.doctor_id
+        LEFT JOIN midend.com_register_type regType ON regType.id = sch.register_type
+        WHERE src.date BETWEEN #{startDate} AND #{endDate}
+        AND (src.status = '2' OR src.status = '3' OR src.status = '9')
+        <if test="userInfo != null">
+            AND (
+            src.user_id LIKE concat("%",#{userInfo},"%") OR
+            src.user_name LIKE concat("%",#{userInfo},"%")
+            )
+        </if>
+        <if test="queryDeptId != null">
+            AND sch.dept_id = #{queryDeptId}
+        </if>
+        <if test="custId != null">
+            AND src.cust_id = #{custId}
+        </if>
+        ORDER BY src.create_time DESC
+    </select>
+
+    <select id="selectUnlock" parameterType="map" resultType="string">
+        SELECT id
+        FROM src_order
+        WHERE status = '1' AND TIMESTAMPDIFF(MINUTE, update_time, NOW()) >= #{autoUnlockMinute}
+    </select>
+
+    <update id="autoUnlock" parameterType="map">
+        <selectKey keyProperty="unLockListStr" keyColumn="orderIdList" resultType="string" order="BEFORE">
+            SELECT GROUP_CONCAT(ord.id) AS orderIdList
+            FROM src_order AS ord
+            WHERE ord.status = '1' AND TIMESTAMPDIFF(MINUTE, ord.update_time, NOW()) > #{autoUnlockMinute}
+        </selectKey>
+        UPDATE src_order O, src_source S
+        SET O.update_time = NOW(), O.status = '0', S.status = '0'
+        WHERE O.src_id = S.id AND
+        <if test="unLockListStr == null">
+            O.id IN (0)
+        </if>
+        <if test="unLockListStr != null and unLockListStr != ''">
+            O.id IN (${unLockListStr})
+        </if>
+    </update>
+
+    <select id="selectHavingRegister" parameterType="map" resultMap="BaseResultMap">
+        SELECT *
+        FROM src_order
+        WHERE src_sch_id = #{srcSchId} AND status = '2'
+    </select>
+
+</mapper>

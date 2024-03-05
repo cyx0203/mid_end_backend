@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcOrderDetail">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="action" jdbcType="VARCHAR" property="action"/>
+        <result column="cust_id" jdbcType="VARCHAR" property="custId"/>
+        <result column="oper_id" jdbcType="VARCHAR" property="operId"/>
+        <result column="result" jdbcType="VARCHAR" property="result"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+    </resultMap>
+
+    <select id="selectByOrderId" parameterType="map" resultMap="BaseResultMap">
+        SELECT D.*,
+        C.name AS custName,
+        CONVERT(CONCAT(SUBSTR(D.create_time,1,10), ' ', SUBSTR(D.create_time,12,8)), CHAR) AS createTimeFormat
+        FROM src_order_detail D
+        LEFT JOIN midend.plat_channel C ON D.cust_id = C.id
+        WHERE D.order_id = #{orderId}
+    </select>
+
+    <select id="selectByKey" parameterType="map" resultMap="BaseResultMap">
+        SELECT detail.*,
+        CONCAT(SUBSTR(detail.create_time,1,10), ' ',SUBSTR(detail.create_time,12,8)) AS createTimeF,
+        concat(platChannel.name, '-', platChannel.company) AS custName,
+        srcOrder.date, srcOrder.idcard, srcOrder.user_id, srcOrder.user_name, srcOrder.user_phone,
+        comDept.name AS deptName, comDoctor.name AS docName, regType.name AS regTypeName,
+        srcOrder.order_no AS orderNo,
+        srcOrder.src_id AS sourceId,
+        srcOrder.src_sch_id AS scheduleId
+        FROM src_order_detail detail
+        LEFT OUTER JOIN src_order srcOrder ON srcOrder.id = detail.order_id
+        LEFT OUTER JOIN src_schedule srcSchedule ON srcOrder.src_sch_id = srcSchedule.id
+        LEFT OUTER JOIN midend.plat_channel platChannel ON detail.cust_id = platChannel.id AND platChannel.active = '1'
+        LEFT OUTER JOIN sch_dept comDept ON comDept.id = srcSchedule.dept_id
+        LEFT OUTER JOIN midend.com_doctor comDoctor ON comDoctor.id = srcSchedule.doctor_id
+        LEFT OUTER JOIN midend.com_register_type regType ON regType.id = srcSchedule.register_type
+        WHERE LEFT(detail.create_time, 10) <![CDATA[ >= ]]> #{startDate}
+        AND LEFT(detail.create_time, 10) <![CDATA[ <= ]]> #{endDate}
+        <if test="custId != null">
+            AND detail.cust_id = #{custId}
+        </if>
+        <if test="queryDeptId != null">
+            AND srcSchedule.dept_id = #{queryDeptId}
+        </if>
+        <if test="keywords != null">
+            AND (
+            srcOrder.idcard LIKE concat("%",#{keywords},"%") OR
+            srcOrder.user_id LIKE concat("%",#{keywords},"%") OR
+            srcOrder.user_name LIKE concat("%",#{keywords},"%") OR
+            srcOrder.user_phone LIKE concat("%",#{keywords},"%")
+            )
+        </if>
+        ORDER BY detail.create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="map">
+        INSERT INTO src_order_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            order_id, action, cust_id, oper_id, result, create_time, remark,
+        </trim>
+        VALUES
+        <foreach collection="unLockList" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="item != null">
+                    #{item}, '0', '007', 'A0006', '1', NOW(), '',
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+</mapper>

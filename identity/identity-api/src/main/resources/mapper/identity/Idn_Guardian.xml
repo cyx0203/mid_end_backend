@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="idnguardian">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="idn_id" jdbcType="INTEGER" property="idnId"/>
+        <id column="relation" jdbcType="VARCHAR" property="relation"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        idn_id, relation, name, phone, address, pad1
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from idn_guardian
+        <where>
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="idnId != null">
+                and idn_id = #{idnId}
+            </if>
+            <if test="relation != null">
+                and relation = #{relation}
+            </if>
+        </where>
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="map">
+        delete from idn_guardian
+        where idn_id = #{idnId,jdbcType=INTEGER}
+        and relation = #{relation,jdbcType=VARCHAR}
+    </delete>
+    <insert id="insert" parameterType="map">
+        insert into idn_guardian (idn_id, relation, name,
+        phone, address, pad1
+        )
+        values (#{idnId,jdbcType=INTEGER}, #{relation,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+        #{phone,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{pad1,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <insert id="insertBatch" parameterType="map">
+        <foreach collection="list" index="index" item="item" separator=";">
+            insert into idn_guardian
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+
+                <if test="idnId != null">
+                    idn_id,
+                </if>
+                <if test="item.relation != null">
+                    relation,
+                </if>
+                <if test="item.name != null">
+                    `name`,
+                </if>
+                <if test="item.phone != null">
+                    phone,
+                </if>
+                <if test="item.address != null">
+                    address,
+                </if>
+
+            </trim>
+            <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+                <if test="idnId != null">
+                    #{idnId,jdbcType=INTEGER},
+                </if>
+                <if test="item.relation != null">
+                    #{item.relation,jdbcType=VARCHAR},
+                </if>
+                <if test="item.name != null">
+                    #{item.name,jdbcType=VARCHAR},
+                </if>
+                <if test="item.phone != null">
+                    #{item.phone,jdbcType=VARCHAR},
+                </if>
+                <if test="item.address != null">
+                    #{item.address,jdbcType=VARCHAR},
+                </if>
+            </trim>
+            on duplicate key update
+            <trim prefix="" suffixOverrides=",">
+                <if test="idnId != null">
+                    idn_id = #{idnId,jdbcType=INTEGER},
+                </if>
+                <if test="item.name != null">
+                    `name` = #{item.name,jdbcType=VARCHAR},
+                </if>
+                <if test="item.phone != null">
+                    phone = #{item.phone,jdbcType=VARCHAR},
+                </if>
+                <if test="item.address != null">
+                    address = #{item.address,jdbcType=VARCHAR}
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+
+
+    <insert id="insertSelective" parameterType="map">
+        insert into idn_guardian
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="idnId != null">
+                idn_id,
+            </if>
+            <if test="relation != null">
+                relation,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="address != null">
+                address,
+            </if>
+            <if test="pad1 != null">
+                pad1,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="idnId != null">
+                #{idnId,jdbcType=INTEGER},
+            </if>
+            <if test="relation != null">
+                #{relation,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="pad1 != null">
+                #{pad1,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="map">
+        update idn_guardian
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                address = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="pad1 != null">
+                pad1 = #{pad1,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where idn_id = #{idnId,jdbcType=INTEGER}
+        and relation = #{relation,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="map">
+        update idn_guardian
+        set name = #{name,jdbcType=VARCHAR},
+        phone = #{phone,jdbcType=VARCHAR},
+        address = #{address,jdbcType=VARCHAR},
+        pad1 = #{pad1,jdbcType=VARCHAR}
+        where idn_id = #{idnId,jdbcType=INTEGER}
+        and relation = #{relation,jdbcType=VARCHAR}
+    </update>
+
+
+</mapper>

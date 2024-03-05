@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="idnaddress">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="idn_id" jdbcType="INTEGER" property="idnId"/>
+        <id column="address_type" jdbcType="VARCHAR" property="addressType"/>
+        <result column="province" jdbcType="VARCHAR" property="province"/>
+        <result column="city" jdbcType="VARCHAR" property="city"/>
+        <result column="area" jdbcType="VARCHAR" property="area"/>
+        <result column="street" jdbcType="VARCHAR" property="street"/>
+        <result column="full_addr" jdbcType="VARCHAR" property="fullAddr"/>
+        <result column="zip_code" jdbcType="VARCHAR" property="zipCode"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        idn_id, address_type, province, city, area, street, full_addr, zip_code, pad1
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from idn_address
+        <where>
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="idnId != null">
+                and idn_id = #{idnId}
+            </if>
+            <if test="addressType != null">
+                and address_type = #{addressType}
+            </if>
+        </where>
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="map">
+        delete from idn_address
+        where idn_id = #{idnId,jdbcType=INTEGER}
+        and address_type = #{addressType,jdbcType=VARCHAR}
+    </delete>
+    <insert id="insert" parameterType="map">
+        insert into idn_address (idn_id, address_type, province,
+        city, area, street,
+        full_addr, zip_code, pad1
+        )
+        values (#{idnId,jdbcType=INTEGER}, #{addressType,jdbcType=VARCHAR}, #{province,jdbcType=VARCHAR},
+        #{city,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, #{street,jdbcType=VARCHAR},
+        #{fullAddr,jdbcType=VARCHAR}, #{zipCode,jdbcType=VARCHAR}, #{pad1,jdbcType=VARCHAR}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="map">
+        insert into idn_address
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="idnId != null">
+                idn_id,
+            </if>
+            <if test="addressType != null">
+                address_type,
+            </if>
+            <if test="province != null">
+                province,
+            </if>
+            <if test="city != null">
+                city,
+            </if>
+            <if test="area != null">
+                area,
+            </if>
+            <if test="street != null">
+                street,
+            </if>
+            <if test="fullAddr != null">
+                full_addr,
+            </if>
+            <if test="zipCode != null">
+                zip_code,
+            </if>
+            <if test="pad1 != null">
+                pad1,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="idnId != null">
+                #{idnId,jdbcType=INTEGER},
+            </if>
+            <if test="addressType != null">
+                #{addressType,jdbcType=VARCHAR},
+            </if>
+            <if test="province != null">
+                #{province,jdbcType=VARCHAR},
+            </if>
+            <if test="city != null">
+                #{city,jdbcType=VARCHAR},
+            </if>
+            <if test="area != null">
+                #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="street != null">
+                #{street,jdbcType=VARCHAR},
+            </if>
+            <if test="fullAddr != null">
+                #{fullAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="zipCode != null">
+                #{zipCode,jdbcType=VARCHAR},
+            </if>
+            <if test="pad1 != null">
+                #{pad1,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="insertBatch" parameterType="map">
+        <foreach collection="list" index="index" item="item" separator=";">
+            insert into idn_address
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="idnId != null">
+                    idn_id,
+                </if>
+                <if test="item.addressType != null">
+                    address_type,
+                </if>
+                <if test="item.province != null">
+                    province,
+                </if>
+                <if test="item.city != null">
+                    city,
+                </if>
+                <if test="item.area != null">
+                    area,
+                </if>
+                <if test="item.street != null">
+                    street,
+                </if>
+                <if test="item.fullAddr != null">
+                    full_addr,
+                </if>
+                <if test="item.zipCode != null">
+                    zip_code,
+                </if>
+                <if test="item.pad1 != null">
+                    pad1,
+                </if>
+            </trim>
+            <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+                <if test="idnId != null">
+                    #{idnId,jdbcType=INTEGER},
+                </if>
+                <if test="item.addressType != null">
+                    #{item.addressType,jdbcType=VARCHAR},
+                </if>
+                <if test="item.province != null">
+                    #{item.province,jdbcType=VARCHAR},
+                </if>
+                <if test="item.city != null">
+                    #{item.city,jdbcType=VARCHAR},
+                </if>
+                <if test="item.area != null">
+                    #{item.area,jdbcType=VARCHAR},
+                </if>
+                <if test="item.street != null">
+                    #{item.street,jdbcType=VARCHAR},
+                </if>
+                <if test="item.fullAddr != null">
+                    #{item.fullAddr,jdbcType=VARCHAR},
+                </if>
+                <if test="item.zipCode != null">
+                    #{item.zipCode,jdbcType=VARCHAR},
+                </if>
+                <if test="item.pad1 != null">
+                    #{item.pad1,jdbcType=VARCHAR},
+                </if>
+            </trim>
+            on duplicate key update
+            <trim prefix="" suffixOverrides=",">
+                <if test="idnId != null">
+                    idn_id = #{idnId,jdbcType=INTEGER},
+                </if>
+                <if test="item.province != null and item.addressType != null">
+                    province = #{item.province,jdbcType=VARCHAR},
+                </if>
+                <if test="item.city != null and item.addressType != null">
+                    city = #{item.city,jdbcType=VARCHAR},
+                </if>
+                <if test="item.area != null and item.addressType != null">
+                    area = #{item.area,jdbcType=VARCHAR},
+                </if>
+                <if test="item.street != null and item.addressType != null">
+                    street = #{item.street,jdbcType=VARCHAR},
+                </if>
+                <if test="item.fullAddr != null and item.addressType != null">
+                    full_addr = #{item.fullAddr,jdbcType=VARCHAR},
+                </if>
+                <if test="item.zipCode != null and item.addressType != null">
+                    zip_code = #{item.zipCode,jdbcType=VARCHAR},
+                </if>
+                <if test="item.pad1 != null and item.addressType != null">
+                    pad1 = #{item.pad1,jdbcType=VARCHAR}
+                </if>
+            </trim>
+
+        </foreach>
+    </insert>
+
+
+    <update id="updateByPrimaryKeySelective" parameterType="map">
+        update idn_address
+        <set>
+            <if test="province != null">
+                province = #{province,jdbcType=VARCHAR},
+            </if>
+            <if test="city != null">
+                city = #{city,jdbcType=VARCHAR},
+            </if>
+            <if test="area != null">
+                area = #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="street != null">
+                street = #{street,jdbcType=VARCHAR},
+            </if>
+            <if test="fullAddr != null">
+                full_addr = #{fullAddr,jdbcType=VARCHAR},
+            </if>
+            <if test="zipCode != null">
+                zip_code = #{zipCode,jdbcType=VARCHAR},
+            </if>
+            <if test="pad1 != null">
+                pad1 = #{pad1,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where idn_id = #{idnId,jdbcType=INTEGER}
+        and address_type = #{addressType,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="map">
+        update idn_address
+        set province = #{province,jdbcType=VARCHAR},
+        city = #{city,jdbcType=VARCHAR},
+        area = #{area,jdbcType=VARCHAR},
+        street = #{street,jdbcType=VARCHAR},
+        full_addr = #{fullAddr,jdbcType=VARCHAR},
+        zip_code = #{zipCode,jdbcType=VARCHAR},
+        pad1 = #{pad1,jdbcType=VARCHAR}
+        where idn_id = #{idnId,jdbcType=INTEGER}
+        and address_type = #{addressType,jdbcType=VARCHAR}
+    </update>
+
+
+</mapper>

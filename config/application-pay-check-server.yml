@@ -1,0 +1,73 @@
+server:
+  #  本地
+  port: 18011
+spring:
+  mvc:
+    async:
+#      超时时间60秒
+      request-timeout: 60000
+
+  http:
+    encoding.charset: UTF-8
+    encoding.enable: true
+    encoding.force: true
+    multipart:
+      maxFileSize: 1024MB
+      maxRequestSize: 1024MB
+
+  datasource:
+#    本地
+    url: jdbc:mysql://192.168.101.93:6609/midend_pay?useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&connectTimeout=60000&socketTimeout=60000&autoReconnect=true&autoReconnectForPools=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC&allowMultiQueries=true
+    username: admin
+    password: Abc_123456
+#    password: Admin@86970000
+#    password: Geit@86#97$0000
+
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+    initial-size: 1
+    min-idle: 1
+    max-active: 20
+    max-wait: 60000
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    validation-query: SELECT 1 FROM DUAL
+    test-While-Idle: true
+    test-on-borrow: false
+    test-on-return: false
+    pool-prepared-statements: false
+    filters: stat,wall,log4j,config
+
+mybatis:
+  mapper-locations: classpath:mapper/*/*.xml
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+logging:
+  config: classpath:log4j2.xml
+#   config: classpath:logback-spring.xml
+file:
+  # 服务器资源文件存放路径 根据实际情况修改
+#  uploadDir: D:/Program Files (x86)/Apache Software Foundation/Tomcat 7.0/webapps/antdlib/
+  uploadDir: /home/wechat/pay/server/pay-check-server/
+  # 服务器资源访问路径
+  url: http://localhost:8080/antdlib/
+
+SysConstants:
+  #国光采集获取HIS账单服务URL
+  GET_BILLS_HIS_URL: http://192.168.101.50:9191/unifiedPayment/YytApp/BillsService
+  #国光采集获取微信支付宝账单服务URL
+  GET_BILLS_WXZFB_URL: http://192.168.101.95:18013/pay-getbills-wxzfb/applyThirdPayBills
+  #国光采集获取银联商务账单服务URL
+  GET_BILLS_UNION_URL: http://192.168.101.95:18012/pay-getbills-union/applyThirdPayBills
+  #医院id
+  hospitalId: 1642554482292
+  #厂商id
+  facId: 1001
+
+
+billCheck:
+  # 1关联，0不关联 ，关联平台pay_order_pay表，如果这个项目有支付平台，可以减少错账
+  linkPlatformFlag: 1
+  # 对账模式：A-平台&&HIS，B-THIRD&&HIS, C-平台&&THIRD  暂时都选B，A和C暂时用不到
+  checkMode: B

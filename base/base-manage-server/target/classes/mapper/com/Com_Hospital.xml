@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hospital">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="par_id" jdbcType="VARCHAR" property="parId"/>
+        <result column="level" jdbcType="VARCHAR" property="level"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="class" jdbcType="VARCHAR" property="class"/>
+        <result column="grade" jdbcType="VARCHAR" property="grade"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="branch_id" jdbcType="VARCHAR" property="branchId"/>
+        <result column="create_time" jdbcType="CHAR" property="createTime"/>
+        <result column="update_time" jdbcType="CHAR" property="updateTime"/>
+        <result column="active" jdbcType="CHAR" property="active"/>
+    </resultMap>
+
+    <resultMap id="SubResultMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="key" jdbcType="VARCHAR" property="key"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="par_id" jdbcType="VARCHAR" property="parId"/>
+        <result column="level" jdbcType="VARCHAR" property="level"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="class" jdbcType="VARCHAR" property="class"/>
+        <result column="grade" jdbcType="VARCHAR" property="grade"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="branch_id" jdbcType="VARCHAR" property="branchId"/>
+        <result column="create_time" jdbcType="CHAR" property="createTime"/>
+        <result column="update_time" jdbcType="CHAR" property="updateTime"/>
+        <result column="active" jdbcType="CHAR" property="active"/>
+        <result column="branchLv3Name" jdbcType="VARCHAR" property="branchLv3Name"/>
+        <result column="branchLv2Name" jdbcType="VARCHAR" property="branchLv2Name"/>
+        <result column="typeName" jdbcType="VARCHAR" property="typeName"/>
+        <result column="md5_key" jdbcType="VARCHAR" property="md5Key"/>
+        <result column="updateTimeFormat" jdbcType="VARCHAR" property="updateTimeFormat"/>
+
+        <collection property="children" javaType="java.util.ArrayList" ofType="map">
+            <result column="sub_id" jdbcType="VARCHAR" property="id"/>
+            <result column="sub_name" jdbcType="VARCHAR" property="name"/>
+            <result column="sub_par_id" jdbcType="VARCHAR" property="parId"/>
+            <result column="sub_level" jdbcType="VARCHAR" property="level"/>
+            <result column="sub_type" jdbcType="VARCHAR" property="type"/>
+            <result column="sub_class" jdbcType="VARCHAR" property="class"/>
+            <result column="sub_grade" jdbcType="VARCHAR" property="grade"/>
+            <result column="sub_phone" jdbcType="VARCHAR" property="phone"/>
+            <result column="sub_address" jdbcType="VARCHAR" property="address"/>
+            <result column="sub_branch_id" jdbcType="VARCHAR" property="branchId"/>
+            <result column="sub_create_time" jdbcType="CHAR" property="createTime"/>
+            <result column="sub_update_time" jdbcType="CHAR" property="updateTime"/>
+            <result column="sub_active" jdbcType="CHAR" property="active"/>
+            <result column="sub_branchLv3Name" jdbcType="VARCHAR" property="branchLv3Name"/>
+            <result column="sub_branchLv2Name" jdbcType="VARCHAR" property="branchLv2Name"/>
+            <result column="sub_typeName" jdbcType="VARCHAR" property="typeName"/>
+            <result column="sub_md5_key" jdbcType="VARCHAR" property="md5Key"/>
+            <result column="sub_updateTimeFormat" jdbcType="VARCHAR" property="updateTimeFormat"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectForTree" parameterType="map" resultMap="BaseResultMap">
+        SELECT id, name, par_id, level
+        FROM com_hospital
+    </select>
+
+
+    <select id="selectHosByLevel" parameterType="map" resultType="map">
+        SELECT * , id `value`, `name` title  FROM midend.com_hospital
+        <where>
+            <if test="hospitalId != null">
+                and (id = #{hospitalId} or par_id =  #{hospitalId})
+            </if>
+            <if test="parId != null">
+                and par_id = #{parId}
+            </if>
+            <if test="level != null">
+                and `level` = #{level}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT A.*,
+        CONVERT(CONCAT(SUBSTR(A.update_time,1,10), ' ',SUBSTR(A.update_time,12,8)),CHAR) AS updateTimeFormat,
+        B3.name branchLv3Name,
+        B2.name branchLv2Name,
+        C1.name typeName
+        FROM com_hospital A
+        LEFT JOIN plat_code C1 ON C1.par_id = 'MT' AND C1.id = A.type
+        , com_branch B3, com_branch B2
+        WHERE A.branch_id = B3.id AND B3.par_id = B2.id AND B3.list LIKE
+        concat(#{branchList},'%')
+        <if test="keywords != null">
+            AND (
+            A.id LIKE concat("%",#{keywords},"%") OR
+            A.name LIKE concat("%",#{keywords},"%")
+            )
+        </if>
+        ORDER BY A.create_time DESC
+    </select>
+
+
+    <select id="selectPar" parameterType="map" resultMap="SubResultMap">
+        SELECT hosp.*, hosp_sub.*, hosp.id as `key`
+        FROM
+        (SELECT A.*,
+        CONVERT(CONCAT(SUBSTR(A.update_time,1,10), ' ',SUBSTR(A.update_time,12,8)),CHAR) AS updateTimeFormat,
+        B3.name branchLv3Name,
+        B2.name branchLv2Name,
+        C1.name typeName
+        FROM com_hospital A
+        LEFT JOIN plat_code C1 ON C1.par_id = 'MT' AND C1.id = A.type
+        , com_branch B3, com_branch B2
+        WHERE A.level = '1' AND A.branch_id = B3.id AND B3.par_id = B2.id AND B3.list LIKE
+        concat(#{branchList},'%') ) AS hosp
+        LEFT JOIN(
+            SELECT A_SUB.id sub_id,
+                    A_SUB.name sub_name,
+                    A_SUB.par_id sub_par_id,
+                    A_SUB.level sub_level,
+                    A_SUB.type sub_type,
+                    A_SUB.class sub_class,
+                    A_SUB.grade sub_grade,
+                    A_SUB.phone sub_phone,
+                    A_SUB.address sub_address,
+                    A_SUB.branch_id sub_branch_id,
+                    A_SUB.create_time sub_create_time,
+                    A_SUB.update_time sub_update_time,
+                    A_SUB.active sub_active,
+                    A_SUB.md5_key sub_md5_key,
+            CONVERT(CONCAT(SUBSTR(A_SUB.update_time,1,10), ' ',SUBSTR(A_SUB.update_time,12,8)),CHAR) AS sub_updateTimeFormat,
+            B3_SUB.name sub_branchLv3Name,
+            B2_SUB.name sub_branchLv2Name,
+            C1_SUB.name sub_typeName
+            FROM com_hospital A_SUB
+            LEFT JOIN plat_code C1_SUB ON C1_SUB.par_id = 'MT' AND C1_SUB.id = A_SUB.type
+            , com_branch B3_SUB, com_branch B2_SUB
+            WHERE A_SUB.level = '2' AND A_SUB.branch_id = B3_SUB.id AND B3_SUB.par_id = B2_SUB.id AND B3_SUB.list LIKE
+        concat(#{branchList},'%')
+        ) AS hosp_sub ON hosp_sub.sub_par_id = hosp.id
+        WHERE
+        1=1
+        <if test="keywords != null">
+            AND (
+                hosp.id LIKE concat("%",#{keywords},"%") OR
+                hosp.name LIKE concat("%",#{keywords},"%")
+            ) OR
+            (
+                hosp_sub.sub_id LIKE concat("%",#{keywords},"%") OR
+                hosp_sub.sub_name LIKE concat("%",#{keywords},"%")
+            )
+        </if>
+        ORDER BY hosp.create_time DESC
+    </select>
+
+
+    <update id="updateNameById">
+        update com_hospital
+        set
+        name=#{hospitalName}
+        where id=#{id}
+    </update>
+
+    <update id="updateById" parameterType="map">
+        UPDATE com_hospital
+        <set>
+            <if test="name != null">`name` = #{name},</if>
+            <if test="type != null">`type` = #{type},</if>
+            <if test="class != null">class = #{class},</if>
+            <if test="grade != null">grade = #{grade},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="branchId != null">branch_id = #{branchId},</if>
+            <if test="md5Key != null">md5_key = #{md5Key},</if>
+            <if test="active != null">active = #{active},</if>
+            update_time = now()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+
+    <insert id="insert" parameterType="map">
+        insert into com_hospital
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,`name`,par_id,create_time,update_time,
+            <if test="level != null">level,</if>
+            <if test="type != null">type,</if>
+            <if test="class != null">class,</if>
+            <if test="grade != null">grade,</if>
+            <if test="phone != null">phone,</if>
+            <if test="address != null">address,</if>
+            <if test="branchId != null">branch_id,</if>
+            <if test="active != null">active,</if>
+            <if test="md5Key != null">md5_key,</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            #{id},
+            #{name},
+            #{parId},
+            now(),
+            now(),
+            <if test="level != null">#{level},</if>
+            <if test="type != null">#{type},</if>
+            <if test="class != null">#{class},</if>
+            <if test="grade != null">#{grade},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="address != null">#{address},</if>
+            <if test="branchId != null">#{branchId},</if>
+            <if test="active != null">#{active},</if>
+            <if test="md5Key != null">#{md5Key},</if>
+        </trim>
+    </insert>
+
+
+    <update id="stopOrStart" parameterType="map">
+        update com_hospital
+        set
+        active=#{active}
+        where id=#{id} or par_id = #{id}
+    </update>
+
+
+    <select id="selectByUser" parameterType="map" resultMap="BaseResultMap">
+        SELECT * FROM com_hospital
+        WHERE par_id = (SELECT par_id
+        FROM com_hospital
+        WHERE id = #{id})
+    </select>
+
+
+</mapper>

@@ -1,0 +1,13 @@
+##湖北省武汉市江夏区第一人民医院 CA认证 配置文件
+ca_config:
+  ##生成的二维码宽度
+  qrWidth: 200
+  ##认证 url
+  baseURL: http://ca.xhjnyy.cn:8080/hbcaMDPS/mps
+  ##推送手机登录 uri
+  loginByPushURI: /thirdPlatformInter/loginByPush
+  ##二维码登录 uri
+  loginByQrCodeURI: /thirdPlatformInter/loginByQrCode
+  ##轮询检查 uri
+  chkSignURI: /thirdPlatformInter/checkSignResult
+

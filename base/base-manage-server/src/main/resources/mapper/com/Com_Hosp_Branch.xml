@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hospBranch">
+
+
+    <select id="queryBranch" parameterType="map" resultType="map">
+        SELECT a.*  FROM com_hosp_branch a
+        <where>
+            1=1
+            <if test="hospitalId != null">
+                and a.hospital_id = #{hospitalId}
+            </if>
+            <if test="parId != null">
+                and a.par_id = #{parId}
+            </if>
+            <if test="level != null">
+                and a.level = #{level}
+            </if>
+        </where>
+        order by a.level,a.list
+        limit 0,1
+    </select>
+
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT a.* , a.id `value`, a.name title  FROM com_hosp_branch a
+        left join com_hospital b on a.hospital_id = b.id
+        <where>
+            <if test="hospitalId != null">
+                and (b.id = #{hospitalId} or b.par_id =  #{hospitalId})
+            </if>
+
+        </where>
+    </select>
+
+
+    <select id="selectList" parameterType="map" resultType="map">
+        SELECT a.* , a.list `key`,a.id `value`, a.name title  FROM com_hosp_branch a
+        left join com_hospital b on a.hospital_id = b.id
+        <where>
+            <if test="hospitalId != null">
+                and (b.id = #{hospitalId} or b.par_id =  #{hospitalId})
+            </if>
+        </where>
+    </select>
+
+
+
+    <!--以下为添加-->
+    <!--机构树功能-->
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="par_id" jdbcType="VARCHAR" property="parId"/>
+        <result column="list" jdbcType="VARCHAR" property="list"/>
+        <result column="level" jdbcType="CHAR" property="level"/>
+        <result column="address" jdbcType="INTEGER" property="address"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="map">
+        insert into com_hosp_branch
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="hospitalId != null">hospital_id,</if>
+            <if test="id != null">id,</if>
+            <if test="name != null">`name`,</if>
+            <if test="parId != null">par_id,</if>
+            <if test="list != null">list,</if>
+            <if test="level != null">level,</if>
+            <if test="address != null">address,</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="hospitalId != null">#{hospitalId},</if>
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="parId != null">#{parId},</if>
+            <if test="list != null">#{list},</if>
+            <if test="level != null">#{level},</if>
+            <if test="address != null">#{address},</if>
+        </trim>
+    </insert>
+
+    <select id="delete" parameterType="map">
+        delete from com_hosp_branch where id in
+        <foreach collection="deleteList" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </select>
+
+    <update id="update" parameterType="map">
+        UPDATE com_hosp_branch
+        SET address = #{address},`name` = #{name}
+        WHERE id = #{id}
+    </update>
+
+    <select id="select" parameterType="map" resultMap="BaseResultMap">
+        select
+        <if test="total == null">
+            id,address,`name`,list,level,par_id,hospital_id
+        </if>
+        from com_hosp_branch
+        WHERE hospital_id = #{hospitalId}
+    </select>
+
+    <select id="selectById" parameterType="map" resultMap="BaseResultMap">
+        select
+            hospital_id,id,`name`,par_id,list,level,address
+        from com_hosp_branch
+        where id=#{id} OR par_id=#{id}
+        ORDER BY id
+    </select>
+
+</mapper>

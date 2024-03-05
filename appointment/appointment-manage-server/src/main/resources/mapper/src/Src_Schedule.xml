@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcSchedule">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="src_date_id" jdbcType="INTEGER" property="srcDateId"/>
+        <result column="noon" jdbcType="VARCHAR" property="noon"/>
+        <result column="dept_id" jdbcType="VARCHAR" property="deptId"/>
+        <result column="register_type" jdbcType="VARCHAR" property="registerType"/>
+        <result column="doctor_id" jdbcType="VARCHAR" property="doctorId"/>
+        <result column="active" jdbcType="VARCHAR" property="active"/>
+    </resultMap>
+
+    <select id="selectUnValid" parameterType="map" resultMap="BaseResultMap">
+        SELECT S.*,
+        D.date AS srcDate
+        FROM src_schedule S, src_date D
+        WHERE S.src_date_id = D.id AND D.business_type = #{businessType}
+        AND D.hospital_id = #{hospitalId} AND (S.valid = '0' || S.valid = '9')
+        <if test="srcDateId != null">
+            AND S.src_date_id = #{srcDateId}
+        </if>
+    </select>
+
+    <update id="update" parameterType="map">
+        UPDATE src_schedule
+        <set>
+            <if test="valid != null">valid = #{valid},</if>
+            <if test="active != null">active = #{active},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStop" parameterType="map">
+        UPDATE src_schedule
+        <set>
+            <if test="valid != null">valid = #{valid},</if>
+            <if test="active != null">active = #{active},</if>
+        </set>
+        WHERE id = #{id} AND active = '1'
+    </update>
+    
+    <insert id="insertByTask" parameterType="map">
+        INSERT INTO src_schedule
+        ( id, src_date_id, noon, dept_id, register_type, doctor_id, valid, active )
+        SELECT uuid_format(uuid()), #{srcDateId}, TD.noon, TD.dept_id, TD.register_type, TD.doctor_id, '0', '1'
+        FROM sch_template_detail TD, sch_template T
+        WHERE TD.week = #{dayOfWeek} AND TD.temp_id = T.id AND T.active = '1'
+    </insert>
+
+    <select id="selectFromToday" parameterType="map" resultType="map">
+        SELECT sch.id AS scheduleId,
+        sch.dept_id AS deptId,
+        sch.register_type AS regType,
+        rtype.name AS registerTypeName,
+        sch.doctor_id AS doctorId,
+        doc.name AS doctorName,
+        d.date AS `date`,
+        sch.noon AS noon,
+        sch.valid AS valid,
+        sch.active AS active,
+        CASE WHEN sch.valid = '1' THEN (SELECT count(1) FROM src_source AS src WHERE src.src_sch_id = sch.id AND
+        src.status = '0' AND src.num_type != '3')
+        ELSE 0 END AS remainder,
+        CASE WHEN sch.valid = '1' THEN (SELECT count(1) FROM src_source AS src WHERE src.src_sch_id = sch.id)
+        ELSE 0 END AS `sum`
+
+        FROM src_schedule AS sch
+        INNER JOIN src_date AS d ON sch.src_date_id = d.id
+        LEFT JOIN midend.com_register_type rtype ON rtype.id = sch.register_type
+        LEFT JOIN midend.com_doctor AS doc ON sch.doctor_id = doc.id
+
+        WHERE d.hospital_id = #{hospitalId} AND d.date >= DATE_FORMAT(NOW(),'%Y%m%d')
+        <if test="queryDeptId != null">
+            AND sch.dept_id = #{queryDeptId}
+        </if>
+        ORDER BY rtype.order
+    </select>
+    
+    <insert id="insertByAdd" parameterType="map">
+        <selectKey keyProperty="scheduleId,srcDateId" keyColumn="scheduleId,srcDateId" order="BEFORE" resultType="map">
+            SELECT uuid_format(uuid()) AS scheduleId,
+                   srcDate.id AS srcDateId
+            FROM src_date srcDate
+            WHERE srcDate.date = #{date}
+        </selectKey>
+        INSERT INTO src_schedule
+		( id, src_date_id, noon, dept_id, register_type, doctor_id, valid, active )
+		VALUES
+		(#{scheduleId}, #{srcDateId}, #{noon}, #{deptId}, #{registerType}, #{doctorId}, '0', '1')
+    </insert>
+
+</mapper>

@@ -1,0 +1,59 @@
+server:
+  port: 16080
+
+file:
+  # 服务器资源文件存放路径 根据实际情况修改
+  uploadDir: /home/wechat/meal/dishPic/
+  # 服务器资源访问路径
+  url: http://cloud-food.test238.ggzzrj.com/dish/
+  # excel模板
+#  templateDir: /home/wechat/meal/meal-manage-server/
+  templateDir: c:/
+  fileDir: /home/wechat/meal/file/
+  fileUrl: http://cloud-food.test238.ggzzrj.com/file/
+
+refundIp: 127.0.0.1:3333
+
+refund:
+  refundUrl: http://${refundIp}/forward-api/refund
+
+app:
+  version: 1.0.0
+
+# 启动项目自动生成mapper文件，数据库建好以后，第一次启动时设置为true
+mapper:
+  generate: false
+
+
+spring:
+  datasource:
+    #  根据实际情况修改
+#    url: jdbc:mysql://127.0.0.1:6609/midend_meal?useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&connectTimeout=60000&socketTimeout=60000&autoReconnect=true&autoReconnectForPools=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC&allowMultiQueries=true
+#    username: root
+#    password: Geit@86#97$0000
+    url: jdbc:mysql://127.0.0.1:18888/th_midend_meal?useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&connectTimeout=60000&socketTimeout=60000&autoReconnect=true&autoReconnectForPools=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC&allowMultiQueries=true
+    username: root
+    password: Admin@86970000
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+    initial-size: 1
+    min-idle: 1
+    max-active: 20
+    max-wait: 60000
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    validation-query: SELECT 1 FROM DUAL
+    test-While-Idle: true
+    test-on-borrow: false
+    test-on-return: false
+    pool-prepared-statements: true
+    max-pool-prepared-statement-per-connection-size: 20
+    filters: stat,wall,log4j,redis
+
+mybatis:
+  mapperLocations: classpath:mapper/*/*.xml
+  configLocation: classpath:mybatis/mybatis-config.xml
+logging:
+  config: classpath:log4j2.xml
+

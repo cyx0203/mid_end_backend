@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mealorderdish">
+
+    <resultMap id="BaseResultMap" type="map">
+        <result column="order_id" jdbcType="INTEGER" property="orderId" />
+        <result column="dish_id" jdbcType="INTEGER" property="dishId" />
+        <result column="dish_num" jdbcType="INTEGER" property="dishNum" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="price" jdbcType="DOUBLE" property="price" />
+    </resultMap>
+
+    <select id="query-orderDish" parameterType="map" resultMap="BaseResultMap">
+        SELECT a.* , b.name, b.price FROM meal_order_dish a
+        left join meal_dish b  on a.dish_id = b.id
+        <where>
+
+            <if test="orderId  != null and orderId != ''">
+                AND order_id = #{orderId}
+            </if>
+
+        </where>
+    </select>
+
+
+    <select id="dish-total" parameterType="map" resultType="map">
+        SELECT c.name,SUM(dish_num) as totalNum FROM meal_order  a
+        LEFT JOIN meal_order_dish b ON a.order_id = b.order_id
+        LEFT JOIN meal_dish c ON c.id = b.dish_id
+        left join meal_canteen d on a.canteen_id = d.id
+        left join th_midend.com_hospital e on d.hospital_id = e.id
+        left join th_midend.com_hosp_branch f on a.hosp_branch_id = f.id
+        <where>
+            <if test="startDate != null and endDate != null">
+                and a.order_date between #{startDate} and #{endDate}
+            </if>
+            <if test="canteenId  != null and canteenId != ''">
+                AND a.canteen_id = #{canteenId}
+            </if>
+            <if test="hospitalId  != null and hospitalId != ''">
+                AND (e.id =#{hospitalId} or e.par_id = #{hospitalId})
+            </if>
+            <if test="status  != null and status != ''">
+                AND a.status = #{status}
+            </if>
+            <if test="timeInterval != null">
+                AND a.time_interval = #{timeInterval,jdbcType=VARCHAR}
+            </if>
+            <if test="timeInterval != null">
+                AND f.list  like concat(#{hospBranchIdList},'%')
+            </if>
+        </where>
+        group by c.name
+    </select>
+
+    <select id="take-total" parameterType="map" resultType="map">
+        SELECT c.name,SUM(dish_num) as totalNum FROM meal_order  a
+        LEFT JOIN meal_order_dish b ON a.order_id = b.order_id
+        LEFT JOIN meal_dish c ON c.id = b.dish_id
+        left join meal_canteen d on a.canteen_id = d.id
+        left join th_midend.com_hospital e on d.hospital_id = e.id
+        left join th_midend.com_hosp_branch f on a.hosp_branch_id = f.id
+        <where>
+            <if test="startDate != null and endDate != null">
+                and a.order_date between #{startDate} and #{endDate}
+            </if>
+            <if test="canteenId  != null and canteenId != ''">
+                AND a.canteen_id = #{canteenId}
+            </if>
+            <if test="hospitalId  != null and hospitalId != ''">
+                AND (e.id =#{hospitalId} or e.par_id = #{hospitalId})
+            </if>
+            <if test="status  != null and status != ''">
+                AND a.status = #{status}
+            </if>
+            <if test="timeInterval != null">
+                AND a.time_interval = #{timeInterval,jdbcType=VARCHAR}
+            </if>
+            <if test="hospBranchIdList != null and hospBranchIdList.size() >0">
+                and (<foreach collection="hospBranchIdList" item="item" separator="or">
+                f.list  like concat(#{item},'%')
+            </foreach>)
+            </if>
+        </where>
+        group by c.name
+    </select>
+
+
+
+    <select id="order-total" parameterType="map" resultType="map">
+        SELECT a.receiver_name as name,a.receiver_phone_no as phone,a.ship_address_full as address,GROUP_CONCAT(c.name,"：",b.dish_num separator "，")  as detail, a.status FROM meal_order a
+        LEFT JOIN meal_order_dish b ON a.order_id = b.order_id
+        LEFT JOIN meal_dish c ON c.id = b.dish_id
+        left join meal_canteen d on a.canteen_id = d.id
+        left join th_midend.com_hospital e on d.hospital_id = e.id
+        left join th_midend.com_hosp_branch f on f.id = a.hosp_branch_id
+        <where>
+            <if test="startDate != null and endDate != null">
+                and a.order_date between #{startDate} and #{endDate}
+            </if>
+            <if test="canteenId  != null and canteenId != ''">
+                AND a.canteen_id = #{canteenId}
+            </if>
+            <if test="hospitalId  != null and hospitalId != ''">
+                AND (e.id =#{hospitalId} or e.par_id = #{hospitalId})
+            </if>
+            <if test="status  != null and status != ''">
+                AND a.status = #{status}
+            </if>
+            <if test="statuses != null and statuses != ''">
+                AND a.status in (${statuses})
+            </if>
+            <if test="timeInterval != null">
+                AND a.time_interval = #{timeInterval,jdbcType=VARCHAR}
+            </if>
+            <if test="hospBranchIdList != null">
+                AND f.list LIKE concat(#{hospBranchIdList},'%')
+            </if>
+        </where>
+        group by a.ship_address_full
+    </select>
+
+
+</mapper>

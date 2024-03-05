@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com">
+
+    <select id="selectHospital" parameterType="map" resultType="map">
+        SELECT id
+        FROM midend.com_hospital
+        WHERE active = '1' AND level = '2'
+    </select>
+
+    <select id="selectRegisterType" parameterType="map" resultType="map">
+        SELECT id AS value, name AS txt
+        FROM midend.com_register_type
+        WHERE hospital_id = #{hospitalId}
+        ORDER BY `order`, id
+    </select>
+
+    <select id="selectDoctor" parameterType="map" resultType="map">
+        SELECT id AS value,
+        CONCAT(name, '(', id, ')') AS txt
+        FROM midend.com_doctor
+        WHERE hospital_id = #{hospitalId}
+        ORDER BY id
+    </select>
+
+    <select id="selectChannel" parameterType="map" resultType="map">
+        SELECT id AS value, name AS txt
+        FROM midend.plat_channel
+        ORDER BY id
+    </select>
+</mapper>

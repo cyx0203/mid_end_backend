@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>midend-service-center</artifactId>
+        <groupId>com.gg.midend</groupId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 微服务名称【不同的微服务对应不同的值，该值影响打包后的jar文件名称】 -->
+    <artifactId>swm-manage-server</artifactId>
+    <version>1.0.0</version>
+
+    <!-- 开发者信息 -->
+    <developers>
+        <developer>
+            <name>cyx</name>
+        </developer>
+    </developers>
+
+    <properties>
+        <shedlock-spring.version>2.3.0</shedlock-spring.version>
+        <shedlock-provider-jdbc-template.version>2.3.0</shedlock-provider-jdbc-template.version>
+    </properties>
+
+    <dependencies>
+        <!-- 分布式定时任务解决同时触发的问题 -->
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-spring</artifactId>
+            <version>${shedlock-spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-provider-jdbc-template</artifactId>
+            <version>${shedlock-provider-jdbc-template.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

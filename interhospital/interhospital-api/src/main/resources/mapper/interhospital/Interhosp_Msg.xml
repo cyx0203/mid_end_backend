@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gg.midend.mapper.MsgMapper">
+
+  <!-- 医生根据主题ID查询聊天记录 -->
+  <select id="selMsgInfo" parameterType="com.gg.midend.domain.DTO.QryMsgReq"
+          resultType="com.gg.midend.domain.VO.ThemeMsgInfo">
+    SELECT
+    msg_id   id,
+    theme_id themeId,
+    msg_cyr  message,
+    pic_path msgImageAddress,
+    msg_by   msgBy,
+    org_id   orgId,
+    msg_type type,
+    msg_card card,
+    msg_state state,
+    date_format(create_time,'%Y%m%d') msgDate,
+    date_format(create_time,'%H%i%s') msgTime,
+    remark1,
+    remark2,
+    remark3
+    FROM interhospital.INTERHOSP_MSG
+    WHERE
+    theme_id = #{themeId}
+    AND msg_by = #{msgBy}
+    AND msg_state in (1,2)
+    <if test="msgType !=null">
+      AND msg_type = #{msgType}
+    </if>
+  </select>
+
+  <insert id="intMsgInfo" parameterType="com.gg.midend.domain.DTO.CreatMsgReq">
+    <selectKey keyProperty="msgId" resultType="java.lang.Long" order="AFTER">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    INSERT INTO interhospital.INTERHOSP_MSG (
+    theme_id,
+    msg_by,
+    msg_type,
+    <if test="card != null and card != '' ">msg_card,</if>
+    <if test="message != null and message != '' ">msg_cyr,</if>
+    <if test="msgImageAddress != null and msgImageAddress != '' ">pic_path,</if>
+    <if test="orgId != null and orgId != '' ">org_id,</if>
+    create_time,
+    update_time
+    ) VALUES(
+    #{themeId},
+    #{msgBy},
+    #{type},
+    <if test="card != null and card != '' ">#{card},</if>
+    <if test="message != null and message != '' ">#{message},</if>
+    <if test="msgImageAddress != null and msgImageAddress != '' ">#{msgImageAddress},</if>
+    <if test="orgId != null and orgId != '' ">#{orgId},</if>
+    sysdate(),
+    sysdate()
+    )
+  </insert>
+
+  <update id="updMsgState" parameterType="com.gg.midend.domain.DTO.RecallMsgReq">
+    UPDATE interhospital.INTERHOSP_MSG
+    SET msg_state   = #{status},
+        update_time = sysdate()
+    WHERE theme_id = #{themeId}
+      AND msg_id = #{msgId}
+  </update>
+
+</mapper>

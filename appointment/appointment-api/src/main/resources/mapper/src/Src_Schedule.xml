@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcSchedule">
+
+    <select id="selectSchedule" parameterType="map" resultType="map">
+        SELECT sch.id AS scheduleId,
+               DATE_FORMAT(d.date, '%Y-%m-%d') AS 'date',
+               sch.dept_id AS deptCode,
+               dept.name AS deptName,
+               regType.id AS regType,
+               regType.`desc` AS regTypeName,
+               IFNULL(sch.doctor_id, '') AS docCode,
+               IFNULL(doc.name, '') AS docName,
+               IFNULL(title.name, '') AS docTitle,
+               IFNULL(doc.expert, '') AS docSpec,
+               IFNULL(doc.`desc`, '') AS docDesc,
+               IFNULL(doc.image_path, '') AS docImgPath,
+               sch.noon AS noon,
+               (
+               SELECT count(1) FROM src_source AS src WHERE src.src_sch_id = sch.id AND src.status = '0' AND src.num_type != '3'
+               AND IF(DATE_FORMAT(NOW(), '%Y%m%d') = d.date, src.etime > DATE_FORMAT(NOW(), '%H%i'), true)
+               ) AS remainder,
+               0 AS clinicFee,
+               0 AS regFee,
+               regType.price / 100 AS payFee
+
+        FROM src_schedule AS sch
+        INNER JOIN src_date AS d ON sch.src_date_id = d.id
+        LEFT JOIN midend.com_doctor AS doc ON sch.doctor_id = doc.id
+        LEFT JOIN midend.com_doctor_title AS title ON doc.title_id = title.id
+        LEFT JOIN midend.com_register_type AS regType ON regType.id = sch.register_type
+        LEFT JOIN  sch_dept AS dept ON dept.id = sch.dept_id
+
+        WHERE d.valid = '1' AND sch.valid = '1' AND sch.active = '1'
+        AND d.hospital_id = #{hospitalId} AND d.date = DATE_FORMAT(#{queryDate}, '%Y%m%d') AND sch.dept_id = #{deptCode}
+        <if test="allowRegTypeList != null and allowRegTypeList != ''">
+            AND regType.id IN (${allowRegTypeList})
+        </if>
+        <if test="notAllowRegTypeList != null and notAllowRegTypeList != ''">
+            AND regType.id NOT IN (${notAllowRegTypeList})
+        </if>
+        <if test="docCode != null and docCode != ''">
+            AND sch.doctor_id = #{docCode}
+        </if>
+    </select>
+
+    <select id="selectScheduleByDoctor" parameterType="map" resultType="map">
+        SELECT sch.id AS scheduleId,
+               DATE_FORMAT(d.date, '%Y-%m-%d') AS 'date',
+               IFNULL(sch.doctor_id, '') AS docCode,
+               IFNULL(doc.name, '') AS docName,
+               IFNULL(title.name, '') AS docTitle,
+               IFNULL(doc.expert, '') AS docSpec,
+               IFNULL(doc.`desc`, '') AS docDesc,
+               IFNULL(doc.image_path, '') AS docImgPath,
+               sch.dept_id AS deptCode,
+               dept.name AS deptName,
+               regType.id AS regType,
+               regType.`desc` AS regTypeName,
+               sch.noon AS noon,
+               (
+               SELECT count(1) FROM src_source AS src WHERE src.src_sch_id = sch.id AND src.status = '0' AND src.num_type != '3'
+               AND IF(DATE_FORMAT(NOW(), '%Y%m%d') = d.date, src.etime > DATE_FORMAT(NOW(), '%H%i'), true)
+               ) AS remainder,
+               regType.price / 100 AS payFee
+
+        FROM src_schedule AS sch
+        INNER JOIN src_date AS d ON sch.src_date_id = d.id
+        LEFT JOIN midend.com_doctor AS doc ON sch.doctor_id = doc.id
+        LEFT JOIN midend.com_doctor_title AS title ON doc.title_id = title.id
+        LEFT JOIN midend.com_register_type AS regType ON regType.id = sch.register_type
+        LEFT JOIN sch_dept AS dept ON dept.id = sch.dept_id
+
+        WHERE d.valid = '1' AND sch.valid = '1' AND sch.active = '1' AND d.date >= DATE_FORMAT(NOW(), '%Y%m%d')
+        AND d.hospital_id = #{hospitalId} AND sch.dept_id = #{deptCode} AND sch.doctor_id = #{docCode}
+    </select>
+
+    <select id="selectScheduleByDoctorName" parameterType="map" resultType="map">
+        SELECT '' AS scheduleId,
+               '' AS 'date',
+               sch.dept_id AS deptCode,
+               dept.name AS deptName,
+               '' AS regType,
+               '' AS regTypeName,
+               IFNULL(sch.doctor_id, '') AS docCode,
+               IFNULL(doc.name, '') AS docName,
+               IFNULL(title.name, '') AS docTitle,
+               IFNULL(doc.expert, '') AS docSpec,
+               IFNULL(doc.`desc`, '') AS docDesc,
+               IFNULL(doc.image_path, '') AS docImgPath,
+               '' AS noon,
+               (
+               SELECT count(1) FROM src_source AS src WHERE src.src_sch_id = sch.id AND src.status = '0' AND src.num_type != '3'
+               AND IF(DATE_FORMAT(NOW(), '%Y%m%d') = d.date, src.etime > DATE_FORMAT(NOW(), '%H%i'), true)
+               ) AS remainder,
+               0 AS clinicFee,
+               0 AS regFee,
+               regType.price / 100 AS payFee
+
+        FROM src_schedule AS sch
+        INNER JOIN src_date AS d ON sch.src_date_id = d.id
+        LEFT JOIN midend.com_doctor AS doc ON sch.doctor_id = doc.id
+        LEFT JOIN midend.com_doctor_title AS title ON doc.title_id = title.id
+        LEFT JOIN midend.com_register_type AS regType ON regType.id = sch.register_type
+        LEFT JOIN sch_dept AS dept ON dept.id = sch.dept_id
+
+        WHERE d.valid = '1' AND sch.valid = '1' AND sch.active = '1' AND d.hospital_id = #{hospitalId}
+        AND doc.name LIKE CONCAT('%', #{docName}, '%')
+        GROUP BY doc.id
+    </select>
+
+</mapper>

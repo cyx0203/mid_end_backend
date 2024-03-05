@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="desdevstate">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="HOSPITAL_ID" jdbcType="CHAR" property="hospitalId"/>
+        <result column="DEV_ID" jdbcType="CHAR" property="devId"/>
+        <result column="CAT_ID" jdbcType="CHAR" property="stateId"/>
+        <result column="VALUE" jdbcType="CHAR" property="value"/>
+        <result column="WTYPE" jdbcType="CHAR" property="wType"/>
+        <result column="ERR" jdbcType="CHAR" property="err"/>
+        <result column="DTIME" jdbcType="CHAR" property="dTime"/>
+        <result column="PAD1" jdbcType="CHAR" property="pad1"/>
+
+        <result column="STATENAME" jdbcType="CHAR" property="stateName"/>
+        <result column="VALUENAME" jdbcType="CHAR" property="valueName"/>
+        <result column="COLOR" jdbcType="CHAR" property="color"/>
+        <result column="MDN" jdbcType="CHAR" property="mdn"/>
+        <result column="CNT" jdbcType="CHAR" property="cnt"/>
+        <result column="BOX" jdbcType="CHAR" property="box"/>
+    </resultMap>
+
+
+
+    <select id="selectDevStateByDevid" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        A.*,
+        S1.CAT_NAME bjName,
+        D.hosp_branch_id dept,
+        B.name wdName,
+        C.name zhName,
+        D.INST_ADDR instAddr,
+        S2.NAME gzName
+
+        FROM des_dev_state A
+        LEFT JOIN midend.dev_statecat S1 ON S1.CAT_ID = A.CAT_ID
+        LEFT JOIN des_state S2 ON S2.CAT_ID = A.CAT_ID AND S2.VALUE = A.VALUE
+        LEFT JOIN midend.dev_device D ON D.ID = A.DEV_ID AND D.HOSPITAL_ID = #{hospitalId},
+        midend.com_hosp_branch B, midend.com_hosp_branch C
+        WHERE A.DEV_ID = #{id}
+        AND B.id = D.hosp_branch_id AND B.PAR_ID=C.id
+        AND A.HOSPITAL_ID = #{hospitalId}
+
+    </select>
+
+    <select id="selectWorkDevs" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        DEV_ID,DTIME,HOSPITAL_ID
+        FROM des_dev_state
+        WHERE CAT_ID = '2001' AND VALUE != '6'
+        <!--  AND VALUE != '2'-->
+    </select>
+
+
+    <update id="updateDevStates" parameterType="map">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE des_dev_state SET
+            value = #{item.value},
+            dtime = DATE_FORMAT(NOW(),'%Y%m%d%H%i%s')
+            WHERE dev_id = #{item.id} AND cat_id = #{item.stateId} AND HOSPITAL_ID = #{item.hospitalId}
+        </foreach>
+    </update>
+
+
+    <update id="updateStopDevStates" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE des_dev_state SET
+            VALUE = #{item.fValue},
+            DTIME = DATE_FORMAT(NOW(),'%Y%m%d%H%i%s')
+            WHERE DEV_ID = #{item.fId} AND CAT_ID = '2001' AND VALUE !='2' AND HOSPITAL_ID = #{item.fHospitalid}
+        </foreach>
+    </update>
+
+    <update id="updateFailurePostDevStates" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE des_dev_state SET
+            VALUE = #{item.fValue},
+            DTIME = DATE_FORMAT(NOW(),'%Y%m%d%H%i%s')
+            WHERE DEV_ID = #{item.fId} AND CAT_ID = '2001' AND VALUE !='6' AND HOSPITAL_ID = #{item.fHospitalid}
+        </foreach>
+    </update>
+
+</mapper>

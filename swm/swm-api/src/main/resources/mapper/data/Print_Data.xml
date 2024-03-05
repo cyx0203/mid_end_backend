@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="printdata">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="date" jdbcType="VARCHAR" property="date" />
+    <result column="time" jdbcType="VARCHAR" property="time" />
+    <result column="type" jdbcType="VARCHAR" property="trdType" />
+    <result column="card_no" jdbcType="VARCHAR" property="cardNo" />
+    <result column="pat_id" jdbcType="VARCHAR" property="patId" />
+    <result column="data" jdbcType="VARCHAR" property="data" />
+    <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="channel" jdbcType="VARCHAR" property="channel" />
+
+  </resultMap>
+
+  <select id="query" parameterType="map" resultType="map">
+
+    SELECT A.card_no , A.pat_id,a.data,
+    CONVERT(CONCAT(SUBSTR(A.DATE,1,4),'-',SUBSTR(A.DATE,5,2),'-',SUBSTR(A.DATE,7,2),' ',SUBSTR(A.TIME,1,2),':',SUBSTR(A.TIME,3,2),':',SUBSTR(A.TIME,5,2)),CHAR) datetime,
+    C2.name typeName
+    FROM trd_print_data A
+    LEFT OUTER JOIN midend.plat_code C2 ON C2.par_id = 'JY' AND C2.id = A.type
+    <where>
+      <if test="cardNo != null">
+        A.card_no =#{cardNo}
+      </if>
+      <if test="patId  != null">
+        AND A.pat_id =#{patId }
+      </if>
+      <if test="date  != null">
+        AND A.date =#{date }
+      </if>
+      <if test="trdType != null">
+        AND A.type =#{trdType}
+      </if>
+      <if test="hospitalId != null">
+        AND A.hospital_id =#{hospitalId}
+      </if>
+      <if test="channel != null">
+        AND A.channel =#{channel}
+      </if>
+    </where>
+    order by a.date desc,a.time desc
+  </select>
+
+  
+  <insert id="save" parameterType="map">
+    insert into trd_print_data
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+        `DATE`,
+        `TIME`,
+      <if test="trdType != null">
+        type,
+      </if>
+      <if test="cardNo != null">
+        card_no,
+      </if>
+      <if test="patId != null">
+        pat_id,
+      </if>
+      <if test="data != null">
+        `DATA`,
+      </if>
+      <if test="hospitalId != null">
+        hospital_id,
+      </if>
+      <if test="channel != null">
+        channel,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      
+        DATE_FORMAT(NOW(),'%Y%m%d'),
+        DATE_FORMAT(NOW(),'%H%i%s'),
+    
+      <if test="trdType != null">
+        #{trdType,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNo != null">
+        #{cardNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patId != null">
+        #{patId,jdbcType=VARCHAR},
+      </if>
+      <if test="data != null">
+        #{data},
+      </if>
+      <if test="hospitalId != null">
+        #{hospitalId,jdbcType=VARCHAR},
+      </if>
+      <if test="channel != null">
+        #{channel,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+ <delete id="deletePrintDatas" parameterType="map">
+        delete from trd_print_data
+        where DATE &lt;= #{enddate}
+ </delete>
+  
+</mapper>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="trdStat">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="STAT_DATE" jdbcType="VARCHAR" property="statDate" />
+    <result column="HOSPITAL_ID" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="DEV_ID" jdbcType="VARCHAR" property="devId" />
+    <result column="MERCHANT_ID" jdbcType="VARCHAR" property="merchantId" />
+    <result column="CHANNEL" jdbcType="VARCHAR" property="channel" />
+    <result column="STAT_TAG" jdbcType="VARCHAR" property="statTag" />
+    <result column="SUM_FEE" jdbcType="VARCHAR" property="sumFee" />
+    <result column="COUNT_OK" jdbcType="VARCHAR" property="countOk" />
+    <result column="COUNT_FAIL" jdbcType="VARCHAR" property="countFail" />
+    <result column="TYPE" jdbcType="VARCHAR" property="type" />
+    <result column="PAD1" jdbcType="VARCHAR" property="pad1" />
+    <result column="PAD2" jdbcType="VARCHAR" property="pad2" />
+    <result column="PAD3" jdbcType="VARCHAR" property="pad3" />
+  </resultMap>
+
+
+  <sql id="Base_Column_List">
+    STAT_DATE, HOSPITAL_ID, CHANNEL, STAT_TAG, SUMFEE, COUNT, PAD1, PAD2, PAD3, PROJ_ID, TYPE
+  </sql>
+
+  <insert id="insertSta" parameterType="map">
+    insert into trd_stat
+      (
+        STAT_DATE,
+        HOSPITAL_ID,
+        CHANNEL,
+        STAT_TAG,
+        DEV_ID,
+        APP,
+        SUM_FEE,
+        COUNT_OK,
+        COUNT_FAIL,
+        `TYPE`
+      )
+    values
+    <foreach collection="list" item="item" index="index" separator="," >
+      (
+        #{item.trdDate},
+        #{item.hospitalId},
+        #{item.channel},
+        #{item.type},
+        #{item.devId},
+        #{item.app},
+        #{item.amt},
+        #{item.countOk},
+        #{item.countFail},
+        #{item.pad1}
+      )
+    </foreach>
+  </insert>
+
+  <select id="statistics"  parameterType="map" resultMap="BaseResultMap">
+      (SELECT CONVERT(SUM(sum_fee),DECIMAL(10.2)) sum_fee, SUM(count_ok) count_ok, stat_tag, '总计' as dev_id,hospital_id,channel,app
+      FROM trd_stat A
+      LEFT JOIN midend.com_hospital B ON A.hospital_id = B.id
+      <where>
+          1=1
+          <if test="startDate != null and endDate != null">
+              AND A.stat_date BETWEEN #{startDate} and #{endDate}
+          </if>
+          <if test="hospitalId != null">
+              AND (B.id = #{hospitalId} OR B.par_id = #{hospitalId})
+          </if>
+          <if test="type != null">
+              AND A.type = #{type}
+          </if>
+          <if test="channel != null">
+              AND A.channel = #{channel}
+          </if>
+          <if test="channel == null">
+              AND A.channel = 'al'
+          </if>
+          <if test="app != null">
+              AND A.app = #{app}
+          </if>
+          <if test="app == null">
+              AND A.app = 'al'
+          </if>
+      </where>
+      GROUP BY stat_tag)
+      UNION
+      (SELECT CONVERT(SUM(sum_fee),DECIMAL(10.2)) sum_fee, SUM(count_ok) count_ok, stat_tag, dev_id,hospital_id,channel,app
+      FROM trd_stat A
+      LEFT JOIN midend.com_hospital B ON A.hospital_id = B.id
+      <where>
+          1=1
+          <if test="startDate != null and endDate != null">
+             AND A.stat_date BETWEEN #{startDate} and #{endDate}
+          </if>
+          <if test="hospitalId != null">
+              AND (B.id = #{hospitalId} OR B.par_id = #{hospitalId})
+          </if>
+          <if test="type != null">
+              AND A.type = #{type}
+          </if>
+          <if test="channel != null">
+              AND A.channel = #{channel}
+          </if>
+          <if test="channel == null">
+              AND A.channel = 'al'
+          </if>
+          <if test="app != null">
+              AND A.app = #{app}
+          </if>
+          <if test="app == null">
+              AND A.app = 'al'
+          </if>
+      </where>
+      GROUP BY stat_tag,dev_id)
+  </select>
+
+</mapper>

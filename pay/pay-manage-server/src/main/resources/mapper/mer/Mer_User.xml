@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="merUser">
+
+    <select id="selectByUserId" parameterType="map" resultType="map">
+        SELECT M.id AS merchantId,
+        M.name AS merchantName
+        FROM mer_user U, mer_merchant M
+        WHERE U.account = #{account} AND U.merchant_id = M.id
+        ORDER BY M.inst_id DESC
+    </select>
+</mapper>

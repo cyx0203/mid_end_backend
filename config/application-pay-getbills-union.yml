@@ -1,0 +1,162 @@
+server:
+#  正式
+#  port: 3336
+
+#  测试
+  port: 3366
+spring:
+  mvc:
+    async:
+#      超时时间60秒
+      request-timeout: 60000
+
+  http:
+    encoding.charset: UTF-8
+    encoding.enable: true
+    encoding.force: true
+    multipart:
+      maxFileSize: 1024MB
+      maxRequestSize: 1024MB
+
+  datasource:
+    url: jdbc:mysql://127.0.0.1:12233/midend_pay?useUnicode=yes&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&connectTimeout=60000&socketTimeout=60000&autoReconnect=true&autoReconnectForPools=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC&allowMultiQueries=true
+    username: root
+    password: Admin@86970000
+    #    password: Geit@86#97$0000
+    #    password: Abc_123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+    initial-size: 1
+    min-idle: 1
+    max-active: 20
+    max-wait: 60000
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    validation-query: SELECT 1 FROM DUAL
+    test-While-Idle: true
+    test-on-borrow: false
+    test-on-return: false
+    pool-prepared-statements: false
+    filters: stat,wall,log4j,config
+
+mybatis:
+  mapper-locations: classpath:mapper/*/*.xml
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+logging:
+  config: classpath:log4j2.xml
+#   config: classpath:logback-spring.xml
+file:
+  # 服务器资源文件存放路径 根据实际情况修改
+#  uploadDir: D:/Program Files (x86)/Apache Software Foundation/Tomcat 7.0/webapps/antdlib/
+  uploadDir: /home/wechat/pay/
+  # 服务器资源访问路径
+  url: http://localhost:8080/antdlib/
+
+
+sys-constants:
+  # 国光上传第三方账单服务 URL
+  UPLOAD_THIRD_BILL_URL: http://127.0.0.1:18011/pay-check-server/getOutThirdCheckData
+  # 银联对账 ftp url
+  HOST_NAME: 11.56.252.20
+  # 银联对账 ftp port
+  PORT: 21
+  # 银联对账 用户名
+  USER_NAME: sddzyy
+  # 银联对账 密码
+  PASSWORD: lrxj@d4
+  # 银联对账 ftp 服务器文件路径
+  PATH: /upload
+  # 医院 id
+  hospitalId: 1642554482292
+  # 银联商务 proId - merchantId - payType 配置；从上到下 merchantId 分别来自 济宁行、建行、农行
+  pro_mer_list:
+    - proId: 1642554555872
+      merchantId: 537370880620104
+      payType: Union
+    - proId: 1642554537145
+      merchantId: 105370880620416
+      payType: Union
+    - proId: 1642554517207
+      merchantId: 103370880621523
+      payType: Union
+
+# 终端支付渠道配置信息 终端号 - 卡类型（1: 银行卡, 2: 社保卡）
+# 支付渠道 - 银行卡 - 04
+# 支付渠道 - 医保 (本地医保卡、异地医保卡、本地医保电子凭证、异地医保电子凭证) - 06
+terminal-constants:
+  terminal_map:
+    65177052: "04"
+    65177053: "06"
+    65177054: "04"
+    65177055: "06"
+    65177056: "04"
+    65177057: "06"
+    65177058: "04"
+    65177059: "06"
+    65177060: "04"
+    65177061: "06"
+    65177062: "04"
+    65177063: "06"
+    65177064: "04"
+    65177065: "06"
+    65177066: "04"
+    65177067: "06"
+    65177068: "04"
+    65177069: "06"
+    65177070: "04"
+    65177071: "06"
+    65177072: "04"
+    67409769: "06"
+    65177048: "04"
+    65177049: "06"
+    67411081: "04"
+    67411082: "06"
+    67411083: "04"
+    67411084: "06"
+    67411085: "04"
+    67411086: "06"
+    67411087: "04"
+    67411088: "06"
+    67411089: "04"
+    67411090: "06"
+    67411091: "04"
+    67411092: "06"
+    67411093: "04"
+    67411094: "06"
+    67411095: "04"
+    67411096: "06"
+    67411097: "04"
+    67411098: "06"
+    67411099: "04"
+    67411100: "06"
+    67411101: "04"
+    67411102: "06"
+    67411103: "04"
+    67411104: "06"
+    65176826: "04"
+    65176827: "06"
+    65176828: "04"
+    65176829: "06"
+    65176830: "04"
+    65176831: "06"
+    65176832: "04"
+    65176833: "06"
+    65176834: "04"
+    65176835: "06"
+    65176836: "04"
+    65176837: "06"
+    65176838: "04"
+    65176839: "06"
+    65176840: "04"
+    65176841: "06"
+    65176842: "04"
+    65176843: "06"
+    65176844: "04"
+    65176845: "06"
+    65176846: "04"
+    65176847: "06"
+    65176848: "04"
+    65176849: "06"
+    88888888: "06"

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="code">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="value"/>
+        <result column="name" jdbcType="VARCHAR" property="txt"/>
+        <result column="par_id" jdbcType="VARCHAR" property="parId"/>
+        <result column="note" jdbcType="VARCHAR" property="note"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+    </resultMap>
+    <resultMap id="SWMMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="value"/>
+        <result column="name" jdbcType="VARCHAR" property="label"/>
+        <result column="par_id" jdbcType="VARCHAR" property="parId"/>
+        <result column="note" jdbcType="VARCHAR" property="note"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+    </resultMap>
+
+    <select id="selectByParId" parameterType="map" resultMap="BaseResultMap">
+        select *
+        from plat_code
+        <where>
+            <if test="parId != null">
+                par_id = #{parId,jdbcType=VARCHAR}
+            </if>
+            <if test="keywords != null">
+                AND (id LIKE "%"#{keywords}"%" OR NAME LIKE "%"#{keywords}"%")
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByParId_SWM" parameterType="map" resultMap="SWMMap">
+        select *
+        from plat_code
+        <where>
+            <if test="parId != null">
+                par_id = #{parId,jdbcType=VARCHAR}
+            </if>
+            <if test="keywords != null">
+                AND (id LIKE "%"#{keywords}"%" OR NAME LIKE "%"#{keywords}"%")
+            </if>
+        </where>
+    </select>
+
+    <select id="selectOrderById" parameterType="map" resultMap="BaseResultMap">
+        select *
+        from plat_code
+        where par_id = #{parId,jdbcType=VARCHAR}
+        order by id
+    </select>
+
+    <select id="selectParent" parameterType="map" resultMap="BaseResultMap">
+        select *
+        from plat_code
+        where par_id = '##'
+    </select>
+
+    <select id="selectChildren" parameterType="map" resultMap="BaseResultMap">
+        select *
+        from plat_code
+        where par_id != '##'
+    </select>
+
+    <insert id="insert" parameterType="map">
+        insert into plat_code
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="parId != null">par_id,</if>
+            <if test="note != null">note,</if>
+            <if test="pad1 != null">pad1,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id,jdbcType=VARCHAR},</if>
+            <if test="name != null">#{name,jdbcType=VARCHAR},</if>
+            <if test="parId != null">#{parId,jdbcType=VARCHAR},</if>
+            <if test="note != null">#{note,jdbcType=VARCHAR},</if>
+            <if test="pad1 != null">#{pad1,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="map">
+        update plat_code
+        <set>
+            <if test="id != null">id = #{id,jdbcType=VARCHAR},</if>
+            <if test="name != null">name = #{name,jdbcType=VARCHAR},</if>
+            <if test="parId != null">par_id = #{parId,jdbcType=VARCHAR},</if>
+            <if test="note != null">note = #{note,jdbcType=VARCHAR},</if>
+            <if test="pad1 != null">pad1 = #{pad1,jdbcType=VARCHAR},</if>
+        </set>
+        where id = #{oid} AND par_id = #{oparId}
+    </update>
+
+    <delete id="deleteById" parameterType="map">
+        delete from plat_code
+        where id = #{id} AND par_id = #{parId}
+    </delete>
+
+    <delete id="deleteAllById" parameterType="map">
+        delete from plat_code where par_id = #{id} OR (id = #{id} AND par_id = #{parId})
+    </delete>
+    
+    <update id="updateSecond" parameterType="map">
+        UPDATE plat_code SET par_id=#{parId} WHERE par_id=#{oid}
+    </update>
+
+</mapper>

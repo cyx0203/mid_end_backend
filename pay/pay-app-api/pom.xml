@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>midend-service-center</artifactId>
+        <groupId>com.gg.midend</groupId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    
+    <!-- 微服务名称【不同的微服务对应不同的值，该值影响打包后的jar文件名称】 -->
+    <artifactId>pay-app-api</artifactId>
+    <version>1.0.0</version>
+
+    <!-- 开发者信息 -->
+    <developers>
+        <developer>
+            <name>liuxz</name>
+            <email>liuxz@guoguang.com.cn</email>
+        </developer>
+    </developers>
+
+    <!-- 系统描述【注意，开发人员每次变更，务必记得填写变更内容】 -->
+    <description>
+
+    </description>
+    
+    <properties>
+        <shedlock-spring.version>2.3.0</shedlock-spring.version>
+        <shedlock-provider-jdbc-template.version>2.3.0</shedlock-provider-jdbc-template.version>
+    </properties>
+
+    <dependencies>
+	   	<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-quartz</artifactId>
+		</dependency>
+		
+		<dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.10</version>
+        </dependency>
+		
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
+		
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-spring</artifactId>
+            <version>${shedlock-spring.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-provider-jdbc-template</artifactId>
+            <version>${shedlock-provider-jdbc-template.version}</version>
+        </dependency>
+	</dependencies>
+
+</project>

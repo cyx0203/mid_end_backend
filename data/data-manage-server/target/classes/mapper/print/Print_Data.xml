@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="printdata">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="date" jdbcType="VARCHAR" property="date" />
+    <result column="time" jdbcType="VARCHAR" property="time" />
+    <result column="type" jdbcType="VARCHAR" property="trdType" />
+    <result column="card_no" jdbcType="VARCHAR" property="cardNo" />
+    <result column="pat_id" jdbcType="VARCHAR" property="patId" />
+    <result column="data" jdbcType="VARCHAR" property="data" />
+    <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId" />
+    <result column="channel" jdbcType="VARCHAR" property="channel" />
+  </resultMap>
+
+ <delete id="deletePrintDatas" parameterType="map">
+    delete from trd_print_data
+    where DATE &lt;= #{enddate}
+ </delete>
+  
+</mapper>

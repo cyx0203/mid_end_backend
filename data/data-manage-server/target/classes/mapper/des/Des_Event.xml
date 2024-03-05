@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="desEvent">
+
+    <resultMap id="BaseResultMap" type="map">
+        <result column="event_id" jdbcType="INTEGER" property="eventId"/>
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="tstart" jdbcType="CHAR" property="tStart"/>
+        <result column="tstart_t" jdbcType="CHAR" property="tStartT"/>
+        <result column="dev_id" jdbcType="VARCHAR" property="devId"/>
+        <result column="cat_id" jdbcType="DECIMAL" property="catId"/>
+        <result column="value" jdbcType="DECIMAL" property="value"/>
+        <result column="to" jdbcType="VARCHAR" property="to"/>
+        <result column="totype" jdbcType="VARCHAR" property="toType"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="phase" jdbcType="VARCHAR" property="phase"/>
+        <result column="ev_step" jdbcType="DECIMAL" property="evStep"/>
+        <result column="ev_ack" jdbcType="VARCHAR" property="evAck"/>
+        <result column="ev_up" jdbcType="DECIMAL" property="evUp"/>
+        <result column="ev_real" jdbcType="VARCHAR" property="evReal"/>
+        <result column="ev_long" jdbcType="DECIMAL" property="evLong"/>
+        <result column="tl_total" jdbcType="DECIMAL" property="tlTotal"/>
+        <result column="prced" jdbcType="VARCHAR" property="prced"/>
+        <result column="active" jdbcType="VARCHAR" property="active"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT A.*,
+        CONCAT(SUBSTR(A.tstart,1,4),'-',SUBSTR(A.tstart,5,2),'-',SUBSTR(A.tstart,7,2), ' ',SUBSTR(A.tstart_t,1,2), ':',SUBSTR(A.tstart_t,3,2), ':',SUBSTR(A.tstart_t,5,2)) AS startTime,
+        date_format(A.ev_real, '%Y-%m-%d %H:%i:%s') dealTime,
+        DS.cat_name catName,
+        B.name type
+        FROM des_event A
+        LEFT JOIN midend.dev_statecat DS ON A.cat_id = DS.cat_id
+        LEFT JOIN des_state B ON A.cat_id = B.cat_id AND A.value = B.value
+        <where>
+            1=1
+            <if test="hospitalId != null">
+                and A.hospital_id = #{hospitalId}
+            </if>
+            <if test="devId != null">
+                and A.dev_id = #{devId}
+            </if>
+            <if test="startDate != null and endDate != null">
+                and A.tstart between #{startDate} and #{endDate}
+            </if>
+        </where>
+    </select>
+
+</mapper>

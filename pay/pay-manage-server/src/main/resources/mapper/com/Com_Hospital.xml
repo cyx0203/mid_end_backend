@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hospital">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="par_id" jdbcType="VARCHAR" property="parId"/>
+        <result column="level" jdbcType="VARCHAR" property="level"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="class" jdbcType="VARCHAR" property="class"/>
+        <result column="grade" jdbcType="VARCHAR" property="grade"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="branch_id" jdbcType="VARCHAR" property="branchId"/>
+        <result column="create_time" jdbcType="CHAR" property="createTime"/>
+        <result column="update_time" jdbcType="CHAR" property="updateTime"/>
+        <result column="active" jdbcType="CHAR" property="active"/>
+    </resultMap>
+
+    <select id="select" parameterType="map" resultMap="BaseResultMap">
+        SELECT id, `name`, par_id, `level`
+        FROM midend.com_hospital
+        <where>
+            1=1
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+            <if test="parId != null and parId != ''">
+                AND par_id = #{parId}
+            </if>
+            <if test="level != null and level != ''">
+                AND level = #{level}
+            </if>
+            <if test="hospitalId != null and hospitalId != ''">
+                AND (id = #{hospitalId} OR par_id = #{hospitalId})
+            </if>
+        </where>
+    </select>
+
+    <select id="selectForTree" parameterType="map" resultMap="BaseResultMap">
+        SELECT *,id `key`,`name` title,id `value`
+        FROM midend.com_hospital
+        WHERE id = #{hospitalId} OR par_id = #{hospitalId}
+    </select>
+
+    <select id="selectNameByHospitalId" parameterType="map" resultMap="BaseResultMap">
+        SELECT name
+        FROM midend.com_hospital
+        WHERE id = #{hospitalId}
+    </select>
+
+</mapper>

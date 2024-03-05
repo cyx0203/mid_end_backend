@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="devBranch">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="fName"/>
+        <result column="par_id" jdbcType="VARCHAR" property="parId"/>
+        <result column="list" jdbcType="VARCHAR" property="list"/>
+        <result column="level" jdbcType="CHAR" property="level"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="pad1" jdbcType="VARCHAR" property="fPad1"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT *, name AS title, list AS 'key'
+        FROM dev_branch
+        WHERE hospital_id = #{hospitalId}
+        ORDER BY id
+    </select>
+
+    <select id="selectForEdit" parameterType="map" resultMap="BaseResultMap">
+        SELECT *, id AS 'key', id AS 'value', name AS title
+        FROM dev_branch
+    </select>
+
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="sysUser">
+
+    <resultMap id="BaseResultMap" type="map">
+        <id     jdbcType="INTEGER" column="id"                    property="id"/>
+        <result jdbcType="VARCHAR" column="account"               property="account"/>
+        <result jdbcType="VARCHAR" column="name"                  property="name"/>
+        <result jdbcType="VARCHAR" column="role_id"               property="roleId"/>
+        <result jdbcType="VARCHAR" column="state"                 property="state"/>
+        <result jdbcType="VARCHAR" column="avatar"                property="avatar"/>
+    </resultMap>
+
+    <select id="selSysUser" parameterType="map" resultMap="BaseResultMap">
+        SELECT id, `account`, `name`, role_id, state, avatar
+        FROM midend.SYS_USER
+        WHERE account = #{account}
+    </select>
+</mapper>

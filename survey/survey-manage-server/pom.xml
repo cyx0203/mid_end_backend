@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>midend-service-center</artifactId>
+        <groupId>com.gg.midend</groupId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 微服务名称【不同的微服务对应不同的值，该值影响打包后的jar文件名称】 -->
+    <artifactId>survey-manage-server</artifactId>
+    <version>1.0.0</version>
+
+    <!-- 开发者信息 -->
+    <developers>
+        <developer>
+            <name>tangxy</name>
+            <email>tangxy@guoguang.com.cn</email>
+        </developer>
+    </developers>
+
+</project>

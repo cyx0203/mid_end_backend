@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mealcanteen">
+
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId" />
+        <result column="profile" jdbcType="VARCHAR" property="profile" />
+        <result column="detail" jdbcType="VARCHAR" property="detail" />
+        <result column="telephone" jdbcType="VARCHAR" property="telephone" />
+        <result column="delivery_breakfast_begin" jdbcType="TIME" property="deliveryBreakfastBegin" />
+        <result column="delivery_breakfast_end" jdbcType="TIME" property="deliveryBreakfastEnd" />
+        <result column="delivery_lunch_begin" jdbcType="TIME" property="deliveryLunchBegin" />
+        <result column="delivery_lunch_end" jdbcType="TIME" property="deliveryLunchEnd" />
+        <result column="delivery_dinner_begin" jdbcType="TIME" property="deliveryDinnerBegin" />
+        <result column="delivery_dinner_end" jdbcType="TIME" property="deliveryDinnerEnd" />
+        <result column="order_time_begin" jdbcType="TIME" property="orderTimeBegin" />
+        <result column="order_time_end" jdbcType="TIME" property="orderTimeEnd" />
+        <result column="canteen_address" jdbcType="VARCHAR" property="canteenAddress" />
+        <result column="today_order_breakfast_begin" jdbcType="TIME" property="todayBreakfastBegin" />
+        <result column="today_order_breakfast_end" jdbcType="TIME" property="todayBreakfastEnd" />
+        <result column="today_order_lunch_begin" jdbcType="TIME" property="todayLunchBegin" />
+        <result column="today_order_lunch_end" jdbcType="TIME" property="todayLunchEnd" />
+        <result column="today_order_dinner_begin" jdbcType="TIME" property="todayDinnerBegin" />
+        <result column="today_order_dinner_end" jdbcType="TIME" property="todayDinnerEnd" />
+    </resultMap>
+
+    <select id="query-canteen" parameterType="map" resultMap="BaseResultMap">
+        SELECT *
+        FROM meal_canteen a
+        left join th_midend.com_hospital b on a.hospital_id = b.id
+        <where>
+            <if test="id != null and id != ''">
+                a.id =#{id}
+            </if>
+            <if test="name != null and name != ''">
+                and a.name LIKE concat("%",#{name},"%")
+            </if>
+            <if test="hospitalId  != null and hospitalId != ''">
+                AND (b.id =#{hospitalId} or b.par_id = #{hospitalId})
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="save-canteen" parameterType="map">
+        insert into meal_canteen
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="hospitalId != null">
+                hospital_id,
+            </if>
+            <if test="profile != null">
+                profile,
+            </if>
+            <if test="detail != null">
+                detail,
+            </if>
+            <if test="telephone != null">
+                telephone,
+            </if>
+            <if test="canteenAddress != null">
+                canteen_address,
+            </if>
+            <if test="deliveryBreakfastBegin != null">
+                delivery_breakfast_begin,
+            </if>
+            <if test="deliveryBreakfastEnd != null">
+                delivery_breakfast_end,
+            </if>
+            <if test="deliveryLunchBegin != null">
+                delivery_lunch_begin,
+            </if>
+            <if test="deliveryLunchEnd != null">
+                delivery_lunch_end,
+            </if>
+            <if test="deliveryDinnerBegin != null">
+                delivery_dinner_begin,
+            </if>
+            <if test="deliveryDinnerEnd != null">
+                delivery_dinner_end,
+            </if>
+            <if test="orderTimeBegin != null">
+                order_time_begin,
+            </if>
+            <if test="orderTimeEnd != null">
+                order_time_end,
+            </if>
+            <if test="todayBreakfastBegin != null">
+                today_order_breakfast_begin,
+            </if>
+            <if test="todayBreakfastEnd != null">
+                today_order_breakfast_end,
+            </if>
+            <if test="todayLunchBegin != null">
+                today_order_lunch_begin,
+            </if>
+            <if test="todayLunchEnd != null">
+                today_order_lunch_end,
+            </if>
+            <if test="todayDinnerBegin != null">
+                today_order_dinner_begin,
+            </if>
+            <if test="todayDinnerEnd != null">
+                today_order_dinner_end,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="hospitalId != null">
+                #{hospitalId,jdbcType=VARCHAR},
+            </if>
+            <if test="profile != null">
+                #{profile,jdbcType=VARCHAR},
+            </if>
+            <if test="detail != null">
+                #{detail},
+            </if>
+            <if test="telephone != null">
+                #{telephone},
+            </if>
+            <if test="canteenAddress != null">
+                #{canteenAddress},
+            </if>
+            <if test="deliveryBreakfastBegin != null">
+                #{deliveryBreakfastBegin},
+            </if>
+            <if test="deliveryBreakfastEnd != null">
+                #{deliveryBreakfastEnd},
+            </if>
+            <if test="deliveryLunchBegin != null">
+                #{deliveryLunchBegin},
+            </if>
+            <if test="deliveryLunchEnd != null">
+                #{deliveryLunchEnd},
+            </if>
+            <if test="deliveryDinnerBegin != null">
+                #{deliveryDinnerBegin},
+            </if>
+            <if test="deliveryDinnerEnd != null">
+                #{deliveryDinnerEnd},
+            </if>
+            <if test="orderTimeBegin != null">
+                #{orderTimeBegin},
+            </if>
+            <if test="orderTimeEnd != null">
+                #{orderTimeEnd},
+            </if>
+            <if test="todayBreakfastBegin != null">
+                #{todayBreakfastBegin},
+            </if>
+            <if test="todayBreakfastEnd != null">
+                #{todayBreakfastEnd},
+            </if>
+            <if test="todayLunchBegin != null">
+                #{todayLunchBegin},
+            </if>
+            <if test="todayLunchEnd != null">
+                #{todayLunchEnd},
+            </if>
+            <if test="todayDinnerBegin != null">
+                #{todayDinnerBegin},
+            </if>
+            <if test="todayDinnerEnd != null">
+                #{todayDinnerEnd},
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="update-canteen" parameterType="map">
+        update meal_canteen
+        <set>
+            <if test="name != null">
+                `name` = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="hospitalId != null">
+                hospital_id = #{hospitalId,jdbcType=VARCHAR},
+            </if>
+            <if test="profile != null">
+                profile = #{profile,jdbcType=VARCHAR},
+            </if>
+            <if test="detail != null">
+                detail = #{detail,jdbcType=VARCHAR},
+            </if>
+            <if test="telephone != null">
+                telephone = #{telephone,jdbcType=VARCHAR},
+            </if>
+            <if test="canteenAddress != null">
+                canteen_address = #{canteenAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="deliveryBreakfastBegin != null">
+                delivery_breakfast_begin = #{deliveryBreakfastBegin,jdbcType=TIME},
+            </if>
+            <if test="deliveryBreakfastEnd != null">
+                delivery_breakfast_end = #{deliveryBreakfastEnd,jdbcType=TIME},
+            </if>
+            <if test="deliveryLunchBegin != null">
+                delivery_lunch_begin = #{deliveryLunchBegin,jdbcType=TIME},
+            </if>
+            <if test="deliveryLunchEnd != null">
+                delivery_lunch_end = #{deliveryLunchEnd,jdbcType=TIME},
+            </if>
+            <if test="deliveryDinnerBegin != null">
+                delivery_dinner_begin = #{deliveryDinnerBegin,jdbcType=TIME},
+            </if>
+            <if test="deliveryDinnerEnd != null">
+                delivery_dinner_end = #{deliveryDinnerEnd,jdbcType=TIME},
+            </if>
+            <if test="orderTimeBegin != null">
+                order_time_begin = #{orderTimeBegin,jdbcType=TIME},
+            </if>
+            <if test="orderTimeEnd != null">
+                order_time_end = #{orderTimeEnd,jdbcType=TIME},
+            </if>
+            <if test="todayBreakfastBegin != null">
+                today_order_breakfast_begin = #{todayBreakfastBegin,jdbcType=TIME},
+            </if>
+            <if test="todayBreakfastEnd != null">
+                today_order_breakfast_end = #{todayBreakfastEnd,jdbcType=TIME},
+            </if>
+            <if test="todayLunchBegin != null">
+                today_order_lunch_begin = #{todayLunchBegin,jdbcType=TIME},
+            </if>
+            <if test="todayLunchEnd != null">
+                today_order_lunch_end = #{todayLunchEnd,jdbcType=TIME},
+            </if>
+            <if test="todayDinnerBegin != null">
+                today_order_dinner_begin = #{todayDinnerBegin,jdbcType=TIME},
+            </if>
+            <if test="todayDinnerEnd != null">
+                today_order_dinner_end = #{todayDinnerEnd,jdbcType=TIME},
+            </if>
+        </set>
+        <where>
+            id= #{id}
+        </where>
+    </update>
+
+    <delete id="delete-canteen" parameterType="map">
+        delete from meal_canteen
+        where id = #{id}
+    </delete>
+
+
+  
+</mapper>

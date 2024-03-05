@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="comDoctor">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId"/>
+        <result column="dept_id" jdbcType="VARCHAR" property="deptId"/>
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="title_id" jdbcType="VARCHAR" property="titleId"/>
+        <result column="expert" jdbcType="VARCHAR" property="expert"/>
+        <result column="desc" jdbcType="VARCHAR" property="desc"/>
+        <result column="update_time" jdbcType="CHAR" property="updateTime"/>
+        <result column="image_path" jdbcType="TINYINT" property="imagePath"/>
+        <result column="active" jdbcType="CHAR" property="active"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT DISTINCT DC.*,
+        GROUP_CONCAT(DP.name) AS deptName,
+        title.name AS `level`
+        FROM com_doctor DC
+        LEFT JOIN com_doctor_title title ON DC.title_id = title.id
+        LEFT JOIN com_dept DP ON FIND_IN_SET(DP.id, DC.dept_id)
+        WHERE DC.hospital_id = #{hospitalId}
+        <if test="keywords != null">
+            AND (
+            DC.id LIKE concat("%",#{keywords},"%") OR
+            DC.name LIKE concat("%",#{keywords},"%") OR
+            DC.desc LIKE concat("%",#{keywords},"%") OR
+            DC.expert LIKE concat("%",#{keywords},"%") OR
+            DC.name LIKE concat("%",#{keywords},"%") OR
+            DP.name LIKE concat("%",#{keywords},"%")
+            )
+        </if>
+        GROUP BY DC.id
+    </select>
+
+    <insert id="insert" parameterType="map">
+        INSERT INTO com_doctor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            hospital_id, dept_id, id, name, `desc`, title_id, expert, update_time, image_path, active
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{hospitalId}, #{deptId}, #{id}, #{name}, #{desc}, #{titleId}, #{expert},
+            NOW(), #{imagePath}, 1
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="map">
+        UPDATE com_doctor
+        <set>
+            <if test="id != null">id = #{id,jdbcType=VARCHAR},</if>
+            <if test="deptId != null">dept_id = #{deptId,jdbcType=VARCHAR},</if>
+            <if test="name != null">name = #{name,jdbcType=VARCHAR},</if>
+            <if test="desc != null">`desc` = #{desc,jdbcType=VARCHAR},</if>
+            <if test="titleId != null">title_id = #{titleId,jdbcType=VARCHAR},</if>
+            <if test="expert != null">expert = #{expert,jdbcType=VARCHAR},</if>
+            update_time = NOW(),
+            <if test="imagePath != null">image_path = #{imagePath,jdbcType=VARCHAR},</if>
+            <if test="active != null">active = #{active,jdbcType=VARCHAR},</if>
+        </set>
+        WHERE id = #{oid} AND hospital_id = #{hospitalId}
+    </update>
+
+    <delete id="deleteById" parameterType="map">
+        DELETE FROM com_doctor
+        WHERE id = #{id} AND hospital_id = #{hospitalId}
+    </delete>
+</mapper>

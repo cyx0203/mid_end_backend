@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="devState">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="dev_id" jdbcType="VARCHAR" property="devId"/>
+        <result column="cat_id" jdbcType="VARCHAR" property="catId"/>
+        <result column="value" jdbcType="VARCHAR" property="value"/>
+        <result column="wtype" jdbcType="VARCHAR" property="wtype"/>
+        <result column="err" jdbcType="VARCHAR" property="err"/>
+        <result column="dtime" jdbcType="VARCHAR" property="dtime"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+    </resultMap>
+
+    <delete id="deleteByDevId" parameterType="map">
+        DELETE FROM des_dev_state
+        WHERE dev_id = #{devId} AND hospital_id = #{hospitalId}
+    </delete>
+
+    <insert id="insertBatch" parameterType="map">
+        INSERT INTO des_dev_state
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="insertList != null">
+                hospital_id, dev_id, cat_id, value, dtime,
+            </if>
+        </trim>
+        values
+        <foreach collection="insertList" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                <if test="item != null">
+                    #{item.hospitalId}, #{item.devId}, #{item.catId}, #{item.value}, DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+
+    <select id="selectDevStateDetail" parameterType="map" resultType="map">
+        SELECT
+        B.cat_name stateName,
+        C.name stateValue,
+        C.color stateColor,
+        A.cat_id,
+        A.value,
+        A.dtime
+        FROM des_dev_state A
+        LEFT JOIN des_statecat B ON A.cat_id = B.cat_id
+        LEFT JOIN des_state C ON A.cat_id = C.cat_id AND A.value = C.value
+        WHERE A.dev_id = #{devId} AND hospital_id = #{hospitalId}
+        ORDER BY A.cat_id
+    </select>
+
+    <update id="updateDevState" parameterType="map">
+        UPDATE des_dev_state SET
+        value = #{value},
+        dtime = DATE_FORMAT(NOW(),'%Y%m%d%H%i%s')
+        WHERE dev_id = #{devId} AND hospital_id = #{hospitalId} AND cat_id = '2001'
+    </update>
+
+</mapper>

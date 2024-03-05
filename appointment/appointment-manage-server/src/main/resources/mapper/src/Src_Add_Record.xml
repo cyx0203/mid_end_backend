@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="srcAddRecord">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="src_sch_id" jdbcType="CHAR" property="srcSchId"/>
+        <result column="add_num" jdbcType="INTEGER" property="addNum"/>
+        <result column="start_order" jdbcType="INTEGER" property="startOrder"/>
+        <result column="end_order" jdbcType="INTEGER" property="endOrder"/>
+        <result column="reason" jdbcType="VARCHAR" property="reason"/>
+        <result column="stime" jdbcType="VARCHAR" property="stime"/>
+        <result column="etime" jdbcType="VARCHAR" property="etime"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+    </resultMap>
+
+    <select id="selectByKeyWords" parameterType="map" resultMap="BaseResultMap">
+        SELECT record.id, record.add_num, record.start_order, record.end_order, record.reason, record.create_user,
+        CONVERT(CONCAT(SUBSTR(record.stime,1,2),':',SUBSTR(record.stime,3,2)), CHAR) AS stime,
+        CONVERT(CONCAT(SUBSTR(record.etime,1,2),':',SUBSTR(record.etime,3,2)), CHAR) AS etime,
+		CONCAT(SUBSTR(record.create_time,1,10), ' ',SUBSTR(record.create_time,12,8)) AS create_time,
+		CONVERT(CONCAT(SUBSTR(sdate.`date`,1,4),'-',SUBSTR(sdate.`date`,5,2),'-',SUBSTR(sdate.`date`,7,2)), CHAR) AS `date`,
+		sch.noon, dept.name AS deptName, rtype.name AS registerTypeName, doctor.name AS docName
+		FROM src_add_record record 
+		LEFT OUTER JOIN src_schedule sch ON record.src_sch_id = sch.id
+		LEFT OUTER JOIN src_date sdate ON sch.src_date_id = sdate.id
+		LEFT OUTER JOIN midend.com_dept dept ON dept.id = sch.dept_id
+		LEFT OUTER JOIN midend.com_doctor doctor ON doctor.id = sch.doctor_id
+		LEFT OUTER JOIN midend.com_register_type rtype ON rtype.id = sch.register_type  
+        WHERE LEFT(record.create_time, 10) <![CDATA[ >= ]]> #{startDate} 
+        AND LEFT(record.create_time, 10) <![CDATA[ <= ]]> #{endDate}
+        AND record.hospital_id = #{hospitalId}
+        ORDER BY record.create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="map" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO src_add_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            hospital_id, src_sch_id, add_num, start_order, end_order, reason, stime, etime, create_user, create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{hospitalId}, #{srcSchId}, #{addNum}, #{startOrder}, #{endOrder}, #{reason}, #{stime}, #{etime}, #{createUser}, NOW()
+        </trim>
+    </insert>
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="merChannel">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="inst_id" property="instId" jdbcType="VARCHAR"/>
+    <result column="merchant_id" property="merchantId" jdbcType="VARCHAR"/>
+    <result column="channel_id" property="channelId" jdbcType="VARCHAR"/>
+    <result column="pay_type_id" property="payTypeId" jdbcType="VARCHAR"/>
+    <result column="active" property="active" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <resultMap id="ChannelMap" type="map">
+    <result column="inst_id" property="instId" jdbcType="VARCHAR"/>
+    <result column="merchant_id" property="merchantId" jdbcType="VARCHAR"/>
+    <result column="channel_id" property="channelId" jdbcType="VARCHAR"/>
+    <result column="pay_type_id" property="payTypeId" jdbcType="VARCHAR"/>
+    <result column="active" property="active" jdbcType="VARCHAR"/>
+    <result column="payTypeName" property="payTypeName" jdbcType="VARCHAR"/>
+    <result column="thirdName" property="thirdName" jdbcType="VARCHAR"/>
+    <result column="merchantName" property="merchantName" jdbcType="VARCHAR"/>
+    <result column="instName" property="instName" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+     inst_id,merchant_id, channel_id,pay_type_id,active
+  </sql>
+
+  <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+	SELECT
+    <include refid="Base_Column_List" />
+	FROM mer_channel ORDER BY merchant_id
+  </select>
+
+  <update id="updateById" parameterType="map">
+    UPDATE mer_channel
+    SET active = #{active}
+    WHERE merchant_id = #{merchantId} AND channel_id = #{channelId}
+  </update>
+
+  <select id="selectById" parameterType="map" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM mer_channel
+    <where>
+      <if test="merchantId != null">
+        merchant_id LIKE "%"#{merchantId}"%"
+      </if>
+      <if test="channelId != null">
+        AND channel_id LIKE "%"#{channelId}"%"
+      </if>
+    </where>
+    ORDER BY merchant_id
+  </select>
+
+  <select id="selectJoin" parameterType="map" resultMap="ChannelMap">
+        SELECT
+        C.*,D.name as payTypeName,D.thirdName,E.name as merchantName,F.name as instName
+        FROM mer_channel C
+        LEFT JOIN (SELECT
+            A.*,B.name as thirdName
+        FROm pay_type A LEFT JOIN pay_third B ON A.third_id = B.id) D ON C.pay_type_id = D.id
+        LEFT JOIN mer_merchant E ON C.merchant_id = E.id
+        LEFT JOIN mer_institution F ON C.inst_id = F.id
+        where channel_id = #{id}
+    </select>
+
+  <insert id="insert" parameterType="map">
+    INSERT INTO mer_channel
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      inst_id,merchant_id, channel_id,pay_type_id,active
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      #{instId},#{merchantId},#{channelId},#{payTypeId},#{active}
+    </trim>
+  </insert>
+
+  <update id="update" parameterType="map">
+    UPDATE mer_channel
+    SET active = #{active}
+    WHERE merchant_id = #{merchantId} AND channel_id = #{channelId} AND inst_id = #{instId} AND pay_type_id = #{payTypeId}
+  </update>
+</mapper>

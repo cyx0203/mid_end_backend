@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="payOrder">
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT A.order_trace AS `key`,
+        A.merchant_id AS merchantId,
+        M.name AS merchantName,
+        A.order_trace AS orderTrace,
+        A.order_amt AS orderAmt,
+        A.refund_amt AS refundAmt,
+        A.pay_status AS payStatus,
+        A.refund_status AS refundStatus,
+        A.channel_id AS channelId,
+        C.name AS channelName,
+        A.goods_id AS goodsId,
+        G.name AS goodsName,
+
+        A.buyer_name AS buyerName,
+        A.buyer_phone AS buyerPhone,
+        CONVERT(CONCAT(SUBSTR(A.create_date,1,4),'-',SUBSTR(A.create_date,5,2),'-',SUBSTR(A.create_date,7,2),' ',
+        SUBSTR(A.create_time,1,2),':',SUBSTR(A.create_time,3,2),':',SUBSTR(A.create_time,5,2)),CHAR) AS
+        createTimeFormat
+
+        FROM pay_order A
+        LEFT JOIN mer_merchant M ON M.id = A.merchant_id
+        LEFT JOIN pay_order_pay POP ON (POP.order_trace = A.order_trace AND POP.trans_type = 1)
+        LEFT JOIN midend.plat_channel C ON C.id = A.channel_id
+        LEFT JOIN pay_goods G ON G.id = A.goods_id
+        , mer_user U
+        <if test="orderTrace != null ">
+            ,(SELECT count(*),IFNULL(order_trace,'-') order_trace FROM pay_order_pay WHERE pay_order_pay.order_id = #{orderTrace}) O
+        </if>
+        WHERE U.account = #{account} AND A.merchant_id = U.merchant_id
+        <if test="startDate != null and endDate != null">
+            AND A.create_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+        <if test="hospitalId != null">
+            AND A.hospital_id = #{hospitalId}
+        </if>
+        <if test="merchantId != null">
+            AND A.merchant_id = #{merchantId}
+        </if>
+        <if test="orderTrace != null">
+            AND (A.order_trace LIKE CONCAT('%', #{orderTrace}, '%')  OR  A.order_trace LIKE CONCAT('%', O.order_trace, '%'))
+        </if>
+        <if test="payUserInfo != null">
+            AND (A.buyer_name LIKE CONCAT('%', #{payUserInfo}, '%') OR
+            A.buyer_phone LIKE CONCAT('%', #{payUserInfo}, '%'))
+        </if>
+        <if test="channelId != null">
+            AND A.channel_id = #{channelId}
+        </if>
+        <if test="payStatus != null">
+            AND A.pay_status = #{payStatus}
+        </if>
+        <if test="refundStatus != null">
+            AND A.refund_status = #{refundStatus}
+        </if>
+        <if test="goodsId != null">
+            AND G.id = #{goodsId}
+        </if>
+        <if test="payTypeId != null">
+            AND (POP.pay_type_id = #{payTypeId} OR POP.third_id = #{payTypeId})
+        </if>
+        ORDER BY A.create_date DESC, A.create_time DESC
+    </select>
+
+    <select id="selectForStat" parameterType="map" resultType="map">
+        SELECT COUNT(*) As incount,
+        IFNULL(SUM(A.order_amt), 0) As income
+        FROM pay_order A, mer_user U
+        <if test="orderId != null ">
+            ,(SELECT pay_order_pay.order_trace FROM pay_order_pay WHERE pay_order_pay.order_id = #{orderId}) O
+        </if>
+        WHERE U.account = #{account} AND A.merchant_id = U.merchant_id AND A.pay_status = '2' AND A.refund_status = '0'
+        <if test="startDate != null and endDate != null">
+            AND A.create_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+        <if test="merchantId != null">
+            AND A.merchant_id = #{merchantId}
+        </if>
+        <if test="orderTrace != null">
+            AND A.order_trace LIKE CONCAT('%', #{orderTrace}, '%')
+        </if>
+        <if test="orderId != null">
+            AND A.order_trace LIKE CONCAT('%', O.order_trace, '%')
+        </if>
+        <if test="payUserInfo != null">
+            AND (A.buyer_name LIKE CONCAT('%', #{payUserInfo}, '%') OR
+            A.buyer_phone LIKE CONCAT('%', #{payUserInfo}, '%'))
+        </if>
+        <if test="channelId != null">
+            AND A.channel_id = #{channelId}
+        </if>
+    </select>
+
+    <!--<select id="selectForExport" parameterType="map" resultMap="BaseResultMap">-->
+    <!--SELECT-->
+    <!--a.f_ordertrace,-->
+    <!--a.f_buyername,-->
+    <!--FORMAT(a.f_orderamt / 100, 2) AS orderAmt,-->
+    <!--C1.name AS channelName,-->
+    <!--C2.name AS ordertypeName,-->
+    <!--C3.f_name AS payTypeName,-->
+    <!--C4.name AS statusName,-->
+    <!--FORMAT(a.f_refundamt / 100, 2) AS refundAmt,-->
+    <!--a.f_thirdid,-->
+    <!--CONVERT(CONCAT(SUBSTR(a.f_regdate,1,4),'-',SUBSTR(a.f_regdate,5,2),'-',SUBSTR(a.f_regdate,7,2),' ',-->
+    <!--SUBSTR(a.f_regtime,1,2),':',SUBSTR(a.f_regtime,3,2),':',SUBSTR(a.f_regtime,5,2)),CHAR) AS-->
+    <!--dateFormat,-->
+    <!--CONVERT(CONCAT(IFNULL(b.f_refund_operid, ''), '-' , IFNULL(b.f_opername, '')), CHAR) AS payOperInfo,-->
+    <!--CONVERT(CONCAT(IFNULL(c.f_refund_operid, ''), '-' , IFNULL(c.f_opername, '')), CHAR) AS refundOperInfo-->
+    <!--FROM pay_order a-->
+    <!--LEFT JOIN sys_code C1 ON C1.par_id = 'CH' AND C1.id = a.f_channel-->
+    <!--LEFT JOIN sys_code C2 ON C2.par_id = 'JY' AND C2.id = a.f_ordertype-->
+    <!--LEFT JOIN pay_pay_type C3 ON C3.f_type = a.f_paytype-->
+    <!--LEFT JOIN sys_code C4 ON C4.par_id = 'DD' AND C4.id = a.f_status-->
+    <!--LEFT JOIN pay_order_pay b ON a.F_ORDERTRACE = b.F_ORDERTRACE and b.F_TYPE = 1-->
+    <!--LEFT JOIN pay_order_pay c ON a.F_ORDERTRACE = c.F_ORDERTRACE and c.F_TYPE = -1 and c.F_STATUS = 1-->
+    <!--LEFT JOIN pay_merchant M ON M.f_merchantid = a.f_merchantid-->
+    <!--, pay_merchant_user MU-->
+    <!--WHERE MU.user_id = #{userId} AND a.f_merchantid = MU.f_merchantid-->
+    <!--AND (a.f_status = '3' OR a.f_status = '5' OR a.f_status = '6' OR a.f_status = '7')-->
+    <!--<if test="queryDate != null">-->
+    <!--AND a.F_REGDATE = #{queryDate}-->
+    <!--</if>-->
+    <!--</select>-->
+
+</mapper>

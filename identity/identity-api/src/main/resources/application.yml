@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: identity-api
+  config:
+    location: file:config/application.yml

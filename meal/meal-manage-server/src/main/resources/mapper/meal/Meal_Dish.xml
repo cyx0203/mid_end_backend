@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mealdish">
+
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="price" jdbcType="DOUBLE" property="price" />
+        <result column="profile" jdbcType="VARCHAR" property="profile" />
+        <result column="detail" jdbcType="VARCHAR" property="detail" />
+        <result column="pic_file" jdbcType="VARCHAR" property="picFile" />
+        <result column="canteen_id" jdbcType="INTEGER" property="canteenId" />
+        <result column="dish_type_id" jdbcType="INTEGER" property="dishTypeId" />
+        <result column="status" jdbcType="CHAR" property="status" />
+        <result column="time_interval" jdbcType="VARCHAR" property="timeInterval" />
+        <result column="dishTypeName" jdbcType="VARCHAR" property="dishTypeName" />
+        <result column="sort" jdbcType="INTEGER" property="sort" />
+    </resultMap>
+    <select id="query-dish" parameterType="map" resultMap="BaseResultMap">
+        SELECT a.*, b.name as dishTypeName
+        FROM meal_dish a
+        left join meal_dish_type b on a.dish_type_id = b.id
+        <where>
+            <if test="id != null and id != ''">
+                a.id =#{id}
+            </if>
+            <if test="name != null and name != ''">
+                and `a.name` LIKE concat("%",#{name},"%")
+            </if>
+            <if test="canteenId != null">
+                and a.canteen_id = #{canteenId}
+            </if>
+            <if test="status != null and status != ''">
+                and a.status = #{status}
+            </if>
+            <if test="dishTypeId != null and dishTypeId != ''">
+                and a.dish_type_id = #{dishTypeId}
+            </if>
+        </where>
+        order by a.sort
+    </select>
+
+
+    <insert id="save-dish" parameterType="map">
+        insert into meal_dish
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="profile != null">
+                profile,
+            </if>
+            <if test="detail != null">
+                detail,
+            </if>
+            <if test="picFile != null">
+                pic_file,
+            </if>
+            <if test="canteenId != null">
+                canteen_id,
+            </if>
+            <if test="dishTypeId != null">
+                dish_type_id,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="timeInterval != null">
+                time_interval,
+            </if>
+            sort
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                #{price,jdbcType=DOUBLE},
+            </if>
+            <if test="profile != null">
+                #{profile,jdbcType=VARCHAR},
+            </if>
+            <if test="detail != null">
+                #{detail,jdbcType=VARCHAR},
+            </if>
+            <if test="picFile != null">
+                #{picFile,jdbcType=VARCHAR},
+            </if>
+            <if test="canteenId != null">
+                #{canteenId,jdbcType=INTEGER},
+            </if>
+            <if test="dishTypeId != null">
+                #{dishTypeId,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=CHAR},
+            </if>
+            <if test="timeInterval != null">
+                #{timeInterval,jdbcType=VARCHAR},
+            </if>
+            (select id from (select max(id) as id from meal_dish where canteen_id = #{canteenId,jdbcType=INTEGER} ) a)
+        </trim>
+    </insert>
+
+
+    <update id="update-dish" parameterType="map">
+        update meal_dish
+        <set>
+            <if test="name != null">
+                `name` = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                price = #{price,jdbcType=DOUBLE},
+            </if>
+            <if test="profile != null">
+                profile = #{profile,jdbcType=VARCHAR},
+            </if>
+            <if test="detail != null">
+                detail = #{detail,jdbcType=VARCHAR},
+            </if>
+            <if test="picFile != null">
+                pic_file = #{picFile,jdbcType=VARCHAR},
+            </if>
+            <if test="canteenId != null">
+                canteen_id = #{canteenId,jdbcType=INTEGER},
+            </if>
+            <if test="dishTypeId != null">
+                dish_type_id = #{dishTypeId,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=CHAR},
+            </if>
+            <if test="timeInterval != null">
+                time_interval = #{timeInterval,jdbcType=VARCHAR},
+            </if>
+
+        </set>
+        <where>
+            id= #{id}
+        </where>
+    </update>
+
+
+    <update id="update-sort" parameterType="map">
+        <foreach collection="list" item="item" separator=";">
+            update meal_dish
+            set sort = #{item.sort, jdbcType=INTEGER}
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+
+
+    <delete id="delete-dish" parameterType="map">
+        delete from meal_dish
+        where id = #{id}
+  </delete>
+
+
+  
+</mapper>

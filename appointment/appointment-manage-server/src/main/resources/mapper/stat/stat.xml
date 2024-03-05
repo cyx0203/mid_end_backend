@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="stat">
+    <resultMap id="BaseResultMap" type="map">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="order_no" jdbcType="VARCHAR" property="orderNo"/>
+        <result column="src_id" jdbcType="VARCHAR" property="srcId"/>
+        <result column="src_sch_id" jdbcType="VARCHAR" property="srcSchId"/>
+        <result column="date" jdbcType="VARCHAR" property="date"/>
+        <result column="idcard" jdbcType="VARCHAR" property="idcard"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_phone" jdbcType="VARCHAR" property="userPhone"/>
+        <result column="pay_type" jdbcType="VARCHAR" property="payType"/>
+        <result column="pay_fee" jdbcType="VARCHAR" property="payFee"/>
+        <result column="trans_order_no" jdbcType="VARCHAR" property="transOrderNo"/>
+        <result column="pay_account" jdbcType="VARCHAR" property="payAccount"/>
+        <result column="merchant_id" jdbcType="VARCHAR" property="merchantId"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="oper_id" jdbcType="VARCHAR" property="operId"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+        <result column="update_time" jdbcType="VARCHAR" property="updateTime"/>
+        <result column="create_source" jdbcType="VARCHAR" property="createSource"/>
+    </resultMap>
+
+    <select id="selectStatForTable" parameterType="map" resultType="map">
+        SELECT DISTINCT
+        sch.dept_id AS deptId,
+        dept.name AS deptName,
+        sch.register_type AS registerType,
+        rtype.name AS registerTypeName,
+        sch.doctor_id AS docId,
+        doc.name AS docName,
+        stat.count AS `count`
+        FROM src_schedule sch
+        INNER JOIN src_date AS d ON d.id = sch.src_date_id AND d.date BETWEEN #{startDate} AND #{endDate} AND d.hospital_id = #{hospitalId}
+        LEFT JOIN sch_dept AS dept ON dept.id = sch.dept_id
+        LEFT JOIN midend.com_register_type rtype ON rtype.id = sch.register_type
+        LEFT JOIN midend.com_doctor AS doc ON sch.doctor_id = doc.id
+        LEFT JOIN (
+          SELECT
+          sch.dept_id AS deptId,
+          sch.register_type AS registerType,
+          sch.doctor_id AS docId,
+          COUNT(1) AS `count`
+          FROM src_order o
+          LEFT JOIN src_schedule sch ON sch.id = o.src_sch_id
+          WHERE o.date BETWEEN #{startDate} AND #{endDate} AND o.status = '2'
+          <if test="queryDeptId != null">
+              AND sch.dept_id = #{queryDeptId}
+          </if>
+          GROUP BY deptId, registerType, docId
+          ) AS stat ON sch.dept_id = stat.deptId AND sch.register_type = stat.registerType AND (sch.doctor_id IS NULL OR sch.doctor_id = '' OR sch.doctor_id = stat.docId)
+        WHERE 1 = 1
+        <if test="queryDeptId != null">
+            AND sch.dept_id = #{queryDeptId}
+        </if>
+        ORDER BY dept.par_id, dept.id, rtype.order
+    </select>
+
+</mapper>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="hosp_branch_id" jdbcType="VARCHAR" property="hospBranchId"/>
+        <result column="term" jdbcType="VARCHAR" property="term"/>
+        <result column="inst_addr" jdbcType="VARCHAR" property="instAddr"/>
+        <result column="use_stat" jdbcType="CHAR" property="useStat"/>
+        <result column="ip" jdbcType="VARCHAR" property="ip"/>
+        <result column="port" jdbcType="VARCHAR" property="port"/>
+        <result column="mac" jdbcType="VARCHAR" property="mac"/>
+        <result column="type_id" jdbcType="VARCHAR" property="typeId"/>
+        <result column="model" jdbcType="VARCHAR" property="model"/>
+        <result column="code" jdbcType="VARCHAR" property="code"/>
+        <result column="work1" jdbcType="CHAR" property="work1"/>
+        <result column="work2" jdbcType="CHAR" property="work2"/>
+    </resultMap>
+
+
+    <select id="selectAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT A.*,
+        D1.name devTypeName,
+        C1.name AS useStatName,
+        B.name branchLv3Name,
+        C.name branchLv2Name
+        FROM dev_device A
+        LEFT JOIN plat_code C1 ON C1.par_id = 'C1' AND A.use_stat = C1.id
+        LEFT JOIN dev_type D1 ON D1.id = A.type_id
+        LEFT JOIN com_hosp_branch B ON A.hosp_branch_id = B.id
+        LEFT JOIN com_hosp_branch C ON B.par_id = C.id
+        WHERE A.hospital_id = #{hospitalId}
+        <if test="branchList != null">
+            AND B.list LIKE concat(#{branchList},'%')
+        </if>
+        <if test="id != null">
+            AND A.id LIKE concat("%",#{id},"%")
+        </if>
+        <if test="useStat != null">
+            AND A.use_stat = #{useStat}
+        </if>
+        order by A.id
+    </select>
+
+
+    <insert id="insert" parameterType="map">
+        INSERT INTO dev_device
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="hospitalId != null">hospital_id,</if>
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="hospBranchId != null">hosp_branch_id,</if>
+            <if test="instAddr != null">inst_addr,</if>
+            <if test="term != null">term,</if>
+            <if test="ip != null">ip,</if>
+            <if test="port != null">port,</if>
+            <if test="mac != null">mac,</if>
+            <if test="typeId != null">type_id,</if>
+            <if test="model != null">model,</if>
+            <if test="code != null">code,</if>
+            <if test="work1 != null">work1,</if>
+            <if test="work2 != null">work2,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="hospitalId != null">#{hospitalId},</if>
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="hospBranchId != null">#{hospBranchId},</if>
+            <if test="instAddr != null">#{instAddr},</if>
+            <if test="term != null">#{term},</if>
+            <if test="ip != null">#{ip},</if>
+            <if test="port != null">#{port,jdbcType=INTEGER},</if>
+            <if test="mac != null">#{mac},</if>
+            <if test="typeId != null">#{typeId},</if>
+            <if test="model != null">#{model},</if>
+            <if test="code != null">#{code},</if>
+            <if test="work1 != null">#{work1},</if>
+            <if test="work2 != null">#{work2},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="map">
+        UPDATE dev_device
+        <set>
+            <if test="branchId != null">branch_id = #{branchId},</if>
+            <if test="term != null">term = #{term},</if>
+            <if test="instAddr != null">inst_addr = #{instAddr},</if>
+            <if test="useStat != null">use_stat = #{useStat},</if>
+            <if test="ip != null">ip = #{ip},</if>
+            <if test="port != null">port = #{port},</if>
+            <if test="mac != null">mac = #{mac},</if>
+            <if test="typeId != null">type_id = #{typeId},</if>
+            <if test="model != null">model = #{model},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="work1 != null">work1 = #{work1},</if>
+            <if test="work2 != null">work2 = #{work2},</if>
+        </set>
+        WHERE hospital_id = #{hospitalId} AND id = #{id}
+    </update>
+
+
+    <delete id="deleteById" parameterType="map">
+        DELETE FROM midend.dev_device
+        WHERE id = #{id} AND hospital_id = #{hospitalId}
+    </delete>
+
+    <select id="selectDevListWithState" parameterType="map" resultMap="BaseResultMap">
+        SELECT A.*,
+        B.value stateValue,
+        C.name stateName,
+        C.pad1 stateColor,
+        G.name devTypeName,
+        D.name branchLv3Name,
+        E.name branchLv2Name
+        FROM dev_device A
+        LEFT JOIN des_dev_state B ON A.id = B.dev_id AND B.cat_id = '2001' AND B.hospital_id = #{hospitalId}
+        LEFT JOIN des_state C ON B.cat_id = C.cat_id AND B.value = C.value
+        LEFT JOIN dev_type G ON A.type_id = G.id
+        , dev_branch D, dev_branch E
+        WHERE A.hospital_id = #{hospitalId} AND A.branch_id = D.id AND D.par_id = E.id AND D.list LIKE
+        concat(#{branchList},'%')
+        <if test="stateList != null">
+            AND B.value IN
+            <foreach item="item" index="index" collection="stateList" separator="," open="(" close=")">
+                ${item}
+            </foreach>
+        </if>
+        <if test="stateList == null">
+            AND B.value = 99
+        </if>
+    </select>
+</mapper>

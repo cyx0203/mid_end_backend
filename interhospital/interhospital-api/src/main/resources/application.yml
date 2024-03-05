@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: interhospital-api
+  config:
+    location: file:config/application.yml

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="chkBizStatus">
+
+    <select id="selectStat" parameterType="map" resultType="map">
+        SELECT A.account_date accountDate,A.status, A.merchant_id merchantId
+        FROM chk_biz_getstatus A
+
+        <where>
+            1=1
+            <if test="merchantId != null and merchantId != ''">
+                AND A.merchant_id = #{merchantId}
+            </if>
+            <if test="startDate != null and endDate != null">
+                AND A.account_date BETWEEN #{startDate} AND #{endDate}
+            </if>
+        </where>
+        ORDER BY A.account_date
+    </select>
+
+</mapper>

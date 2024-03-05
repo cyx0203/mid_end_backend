@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mer_channel">
+	<resultMap id="BaseResultMap" type="map">
+	    <id column="inst_id" jdbcType="VARCHAR" property="inst_id" />
+		<id column="merchant_id" jdbcType="VARCHAR" property="merchant_id" />
+		<id column="channel_id" jdbcType="VARCHAR" property="channel_id" />
+		<id column="pay_type_id" jdbcType="CHAR" property="pay_type_id" />
+		<result column="active" jdbcType="CHAR" property="active" />
+	</resultMap>
+
+	<select id="selectActive" resultMap="BaseResultMap">
+		select a.inst_id,
+		a.merchant_id,a.channel_id,a.pay_type_id from
+		mer_channel a
+		where active = '1'
+	</select>
+	
+    <select id="selectMerchantId" parameterType="map" resultMap="BaseResultMap">
+		select a.merchant_id from
+		mer_channel a
+		where inst_id = #{merchantId,jdbcType=VARCHAR} 
+		and channel_id = #{chanelType,jdbcType=VARCHAR} 
+		and pay_type_id = #{payType,jdbcType=CHAR} 
+		and active = '1'
+	</select>
+</mapper>

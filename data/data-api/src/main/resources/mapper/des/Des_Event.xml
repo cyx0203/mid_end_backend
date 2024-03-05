@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="desevent">
+  <resultMap id="BaseResultMap" type="map">
+    <result column="id" jdbcType="VARCHAR" property="id"/>
+    <result column="tstart" jdbcType="VARCHAR" property="tStart"/>
+    <result column="tstart_t" jdbcType="VARCHAR" property="tStartT"/>
+    <result column="dev_id" jdbcType="VARCHAR" property="devId"/>
+    <result column="cat_id" jdbcType="DECIMAL" property="stateId"/>
+    <result column="value" jdbcType="DECIMAL" property="value"/>
+    <result column="to" jdbcType="VARCHAR" property="to"/>
+    <result column="totype" jdbcType="VARCHAR" property="toType"/>
+    <result column="title" jdbcType="VARCHAR" property="title"/>
+    <result column="phase" jdbcType="VARCHAR" property="phase"/>
+    <result column="ev_step" jdbcType="DECIMAL" property="evStep"/>
+    <result column="ev_ack" jdbcType="VARCHAR" property="evAck"/>
+    <result column="ev_up" jdbcType="DECIMAL" property="evUp"/>
+    <result column="ev_real" jdbcType="VARCHAR" property="evReal"/>
+    <result column="ev_long" jdbcType="DECIMAL" property="evLong"/>
+    <result column="tl_total" jdbcType="DECIMAL" property="tlTotal"/>
+    <result column="prced" jdbcType="VARCHAR" property="prced"/>
+    <result column="active" jdbcType="VARCHAR" property="active"/>
+    <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+  </resultMap>
+
+
+  <insert id="insertErrEvents" parameterType="map">
+    INSERT INTO des_event
+    (
+    hospital_id
+    tstart,
+    tstart_t,
+    dev_id,
+    cat_id,
+    value,
+    phase,
+    prced,
+    active,
+    title
+    )
+    VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (
+      #{item.hospitalId},
+      DATE_FORMAT(NOW(),'%Y%m%d'),
+      DATE_FORMAT(NOW(),'%H%i%s'),
+      #{item.id},
+      #{item.stateId},
+      #{item.value},
+      '1',
+      '0',
+      '1',
+      #{item.title}
+      )
+    </foreach>
+  </insert>
+
+
+  <update id="updateEvents" parameterType="map">
+    <foreach collection="list" item="item" separator=";">
+      UPDATE des_event SET
+      <if test="item.value == 0">
+        value = value,
+        phase = '4',
+        ev_real = DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
+        tl_total = TIMESTAMPDIFF(MINUTE,CONCAT(tstart,tstart_t),DATE_FORMAT(NOW(),'%Y%m%d%H%i%s')),
+        active = '0',
+        title = title
+      </if>
+      <if test="item.value != 0">
+        value = #{item.value},
+        phase = '1',
+        active = '1',
+        title = #{item.title}
+      </if>
+      WHERE dev_id = #{item.id} AND cat_id = #{item.stateId} AND active = '1' AND HOSPITAL_ID =
+      #{item.hospitalId}
+    </foreach>
+  </update>
+
+</mapper>

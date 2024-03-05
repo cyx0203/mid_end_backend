@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="devCat">
+    <resultMap id="BaseResultMap" type="map">
+        <result column="cat_id" jdbcType="INTEGER" property="catId"/>
+        <result column="cat_name" jdbcType="VARCHAR" property="catName"/>
+        <result column="show" jdbcType="VARCHAR" property="show"/>
+        <result column="nrange" jdbcType="VARCHAR" property="nrange"/>
+        <result column="wrange" jdbcType="VARCHAR" property="wrange"/>
+        <result column="pad1" jdbcType="VARCHAR" property="pad1"/>
+    </resultMap>
+
+    <select id="selectAll" parameterType="map" resultType="map">
+        SELECT *
+        FROM dev_statecat
+        WHERE cat_id != 2001
+    </select>
+
+    <select id="selectStatecat" parameterType="map" resultMap="BaseResultMap">
+        select id, name, nrange, wrange
+        from dev_statecat
+        <where>
+            <if test="catId != null">
+                cat_id = #{catId,jdbcType=INTEGER}
+            </if>
+            <if test="catIdPrefix != null">
+                AND cat_id LIKE concat(#{catIdPrefix},"0%")
+            </if>
+        </where>
+    </select>
+
+    <select id="selectOpt" parameterType="map" resultMap="BaseResultMap">
+        select
+        cat_id value, cat_name label
+        from dev_statecat
+        <where>
+            <if test="catId != null">
+                cat_id = #{catId,jdbcType=INTEGER}
+            </if>
+            <if test="catIdPrefix != null">
+                AND cat_id LIKE concat(#{catIdPrefix},"01%")
+                OR cat_id LIKE concat(#{catIdPrefix},"02%")
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

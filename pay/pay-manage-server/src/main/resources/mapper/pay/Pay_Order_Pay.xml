@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="payOrderPay">
+
+    <resultMap id="BaseResultMap" type="map">
+        <id column="order_id" jdbcType="VARCHAR" property="orderId" />
+        <result column="merchant_id" jdbcType="VARCHAR" property="merchantId" />
+        <result column="hospital_id" jdbcType="VARCHAR" property="hospitalId" />
+        <result column="order_trace" jdbcType="VARCHAR" property="orderTrace" />
+        <result column="trans_type" jdbcType="INTEGER" property="transType" />
+        <result column="third_id" jdbcType="CHAR" property="thirdId" />
+        <result column="pay_type_id" jdbcType="CHAR" property="payTypeId" />
+        <result column="channel_id" jdbcType="VARCHAR" property="channelId" />
+        <result column="order_amt" jdbcType="INTEGER" property="orderAmt" />
+        <result column="third_seq_no" jdbcType="VARCHAR" property="thirdSeqNo" />
+        <result column="create_date" jdbcType="CHAR" property="createDate" />
+        <result column="create_time" jdbcType="CHAR" property="createTime" />
+        <result column="third_date" jdbcType="CHAR" property="thirdDate" />
+        <result column="third_time" jdbcType="CHAR" property="thirdTime" />
+        <result column="status" jdbcType="CHAR" property="status" />
+        <result column="refund_reason" jdbcType="VARCHAR" property="refundReason" />
+        <result column="oper_id" jdbcType="VARCHAR" property="operId" />
+        <result column="oper_name" jdbcType="VARCHAR" property="operName" />
+        <result column="term_id" jdbcType="VARCHAR" property="termId" />
+        <result column="refund_id" jdbcType="VARCHAR" property="refundId" />
+    </resultMap>
+
+    <resultMap id="BaseMap" type="map">
+
+        <result column="goodsId" jdbcType="VARCHAR" property="goodsId" />
+        <collection property="children" javaType="java.util.ArrayList" ofType="java.util.Map">
+            <result column="trans_type" jdbcType="VARCHAR" property="transType" />
+            <result column="incount" jdbcType="VARCHAR" property="incount" />
+            <result column="income" jdbcType="VARCHAR" property="income" />
+        </collection>
+
+    </resultMap>
+
+    <select id="selectByTrace" parameterType="map" resultType="map">
+        SELECT
+        A.merchant_id AS merchantId,
+        A.order_id AS orderId,
+        A.trans_type AS transType,
+        A.third_id AS thirdId,
+        T.name AS thirdName,
+        P.name AS payTypeName,
+        A.channel_id AS channelId,
+        C.name AS channelName,
+        MM.name AS merchantName,
+
+        A.order_amt AS orderAmt,
+        IFNULL(A.third_seq_no, '-') AS thirdSeqNo,
+        A.status AS status,
+        IFNULL(A.refund_reason, '-') AS refundReason,
+        IFNULL(A.oper_id, '-') AS operId,
+        IFNULL(A.term_id, '-') AS termId,
+
+        CONVERT(CONCAT(SUBSTR(A.create_date,1,4),'-',SUBSTR(A.create_date,5,2),'-',SUBSTR(A.create_date,7,2),' ',
+        SUBSTR(A.create_time,1,2),':',SUBSTR(A.create_time,3,2),':',SUBSTR(A.create_time,5,2)),CHAR) AS
+        createTimeFormat,
+
+        CONVERT(CONCAT(SUBSTR(A.third_date,1,4),'-',SUBSTR(A.third_date,5,2),'-',SUBSTR(A.third_date,7,2),' ',
+        SUBSTR(A.third_time,1,2),':',SUBSTR(A.third_time,3,2),':',SUBSTR(A.third_time,5,2)),CHAR) AS
+        thirdTimeFormat,
+
+        M.acct_pay AS medAcctPay,
+        M.fund_pay_sumamt AS medFundPay,
+        PO.buyer_id as buyerId,
+        PO.buyer_name as buyerName,
+        PO.buyer_phone as buyerPhone
+
+        FROM pay_order_pay A
+        LEFT JOIN midend.plat_channel C ON C.id = A.channel_id
+        LEFT JOIN pay_third T ON T.id = A.third_id
+        LEFT JOIN pay_type P ON P.id = A.pay_type_id
+        LEFT JOIN mer_merchant MM ON MM.id = A.merchant_id
+        LEFT JOIN pay_medical_fee M ON A.third_id = '06' AND M.order_id = A.order_id
+        LEFT JOIN pay_order PO ON PO.order_trace = A.order_trace
+
+        WHERE A.order_trace = #{orderTrace}
+        ORDER BY A.create_date, A.create_time
+    </select>
+
+    <select id="selectPayDetail" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        A.merchant_id,A.hospital_id,A.order_trace,A.trans_type,A.third_id,A.pay_type_id,A.channel_id,A.order_amt,
+        A.third_seq_no ,A.create_date ,A.create_time ,A.third_date ,A.third_time ,A.status ,A.refund_reason ,A.oper_id ,
+        A.oper_name ,A.term_id,
+
+        CASE A.trans_type WHEN -1 THEN (SELECT order_id FROM pay_order_pay WHERE order_trace =
+        (SELECT order_trace FROM pay_order_pay WHERE order_id = A.order_id) AND trans_type ='1')
+        ELSE A.order_id END as order_id,
+        CASE A.trans_type WHEN -1 THEN A.order_id ELSE NULL END as refund_id,
+        (A.order_amt+ IFNULL(C.acct_pay,0) +IFNULL(C.fund_pay_sumamt,0)) as orderSum,
+
+        CONCAT(A.create_date,A.create_time) `date`,
+        B.buyer_name AS buyerName,
+        B.buyer_phone AS buyerPhone,
+        B.goods_id AS goodsId,
+        IFNULL(B.order_amt, '0') AS totalAmt,
+        IFNULL(C.acct_pay, '0') AS acctPay,
+        IFNULL(C.fund_pay_sumamt, '0') AS fundPaySumamt,
+        D.name AS merchantName,
+        E.name AS payTypeName,
+        F.name AS channelName,
+        G.name AS goodsName
+        FROM pay_order_pay A
+        LEFT JOIN pay_order B ON B.order_trace = A.order_trace
+        LEFT JOIN pay_medical_fee C ON C.order_id = A.order_id
+        LEFT JOIN mer_merchant D ON D.id = A.merchant_id
+        LEFT JOIN pay_type E ON E.id = A.pay_type_id
+        LEFT JOIN midend.plat_channel F ON F.id = A.channel_id
+        LEFT JOIN pay_goods G ON G.id = B.goods_id
+        WHERE
+        1=1
+        <if test="merchantId != null">
+            AND A.merchant_id = #{merchantId}
+        </if>
+        <if test="hospitalId != null">
+            AND A.hospital_id = #{hospitalId}
+        </if>
+        <if test="channelId != null">
+            AND A.channel_id = #{channelId}
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND A.create_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+        <if test="transType != null">
+            AND A.trans_type = #{transType}
+        </if>
+        <if test="queryNo != null">
+            AND (
+            A.order_id LIKE concat("%",#{queryNo},"%") OR
+            A.order_trace LIKE concat("%",#{queryNo},"%") OR
+            A.third_seq_no LIKE concat("%",#{queryNo},"%") OR
+            (SELECT order_id FROM pay_order_pay WHERE order_trace =
+            (SELECT order_trace FROM pay_order_pay WHERE order_id = A.order_id) AND trans_type ='1')
+            LIKE concat("%",#{queryNo},"%")
+            )
+        </if>
+        <if test="payUserInfo != null">
+            AND (B.buyer_name LIKE CONCAT('%', #{payUserInfo}, '%') OR
+            B.buyer_phone LIKE CONCAT('%', #{payUserInfo}, '%'))
+        </if>
+        <if test="operId != null">
+            AND A.oper_Id = #{operId}
+        </if>
+        <if test="status != null">
+            AND A.status = #{status}
+        </if>
+        <if test="payTypeId != null">
+            AND (A.pay_type_id = #{payTypeId} OR A.third_id = #{payTypeId})
+        </if>
+        <if test="goodsId != null">
+            AND B.goods_id = #{goodsId}
+        </if>
+        ORDER BY A.create_time DESC
+    </select>
+
+    <select id="selectPayDetailForRefund" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        A.merchant_id,A.hospital_id,A.order_trace,A.trans_type,A.third_id,A.pay_type_id,A.channel_id,A.order_amt,
+        A.third_seq_no ,A.create_date ,A.create_time ,A.third_date ,A.third_time ,A.status ,A.refund_reason ,A.oper_id ,
+        A.oper_name ,A.term_id,
+
+        CASE A.trans_type WHEN -1 THEN (SELECT order_id FROM pay_order_pay WHERE order_trace =
+        (SELECT order_trace FROM pay_order_pay WHERE order_id = A.order_id) AND trans_type ='1')
+        ELSE A.order_id END as order_id,
+        CASE A.trans_type WHEN -1 THEN A.order_id ELSE NULL END as refund_id,
+        (A.order_amt+ IFNULL(C.acct_pay,0) +IFNULL(C.fund_pay_sumamt,0)) as orderSum,
+
+        CONCAT(A.create_date,A.create_time) `date`,
+        B.buyer_name AS buyerName,
+        B.buyer_phone AS buyerPhone,
+        B.goods_id AS goodsId,
+        IFNULL(B.order_amt, '0') AS totalAmt,
+        IFNULL(C.acct_pay, '0') AS acctPay,
+        IFNULL(C.fund_pay_sumamt, '0') AS fundPaySumamt,
+        D.name AS merchantName,
+        E.name AS payTypeName,
+        F.name AS channelName,
+        G.name AS goodsName
+        FROM pay_order_pay A
+        LEFT JOIN pay_order B ON B.order_trace = A.order_trace
+        LEFT JOIN pay_medical_fee C ON C.order_id = A.order_id
+        LEFT JOIN mer_merchant D ON D.id = A.merchant_id
+        LEFT JOIN pay_type E ON E.id = A.pay_type_id
+        LEFT JOIN midend.plat_channel F ON F.id = A.channel_id
+        LEFT JOIN pay_goods G ON G.id = B.goods_id
+        WHERE
+        A.trans_type = -1
+        <if test="merchantId != null">
+            AND A.merchant_id = #{merchantId}
+        </if>
+        <if test="hospitalId != null">
+            AND A.hospital_id = #{hospitalId}
+        </if>
+        <if test="channelId != null">
+            AND A.channel_id = #{channelId}
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND A.create_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+        <if test="queryNo != null">
+            AND (
+            A.order_id LIKE concat("%",#{queryNo},"%") OR
+            A.order_trace LIKE concat("%",#{queryNo},"%") OR
+            A.third_seq_no LIKE concat("%",#{queryNo},"%") OR
+            (SELECT order_id FROM pay_order_pay WHERE order_trace =
+            (SELECT order_trace FROM pay_order_pay WHERE order_id = A.order_id) AND trans_type ='1')
+            LIKE concat("%",#{queryNo},"%")
+            )
+        </if>
+        <if test="payUserInfo != null">
+            AND (B.buyer_name LIKE CONCAT('%', #{payUserInfo}, '%') OR
+            B.buyer_phone LIKE CONCAT('%', #{payUserInfo}, '%'))
+        </if>
+        <if test="operId != null">
+            AND A.oper_Id = #{operId}
+        </if>
+        <if test="payTypeId != null">
+            AND (A.pay_type_id = #{payTypeId} OR A.third_id = #{payTypeId})
+        </if>
+        <if test="goodsId != null">
+            AND B.goods_id = #{goodsId}
+        </if>
+        ORDER BY A.create_time DESC
+    </select>
+
+    <select id="selectPayTotal" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        COUNT(*) AS incount,
+        ROUND(IF(A.order_amt IS NULL,0, SUM(A.order_amt *A.trans_type)/100 ),2) AS income,
+        ROUND(IF(C.fund_pay_sumamt IS NULL,0, SUM(C.fund_pay_sumamt *A.trans_type)/100 ),2) AS ybplan
+        FROM pay_order_pay A
+        LEFT JOIN pay_order B ON B.order_trace = A.order_trace
+        LEFT JOIN pay_medical_fee C ON C.order_id = A.order_id
+        WHERE
+        A.status = 1
+        <if test="merchantId != null">
+            AND A.merchant_id = #{merchantId}
+        </if>
+        <if test="hospitalId != null">
+            AND A.hospital_id = #{hospitalId}
+        </if>
+        <if test="channelId != null">
+            AND A.channel_id = #{channelId}
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND A.create_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+    </select>
+
+    <select id="selectPayTypeTotal" parameterType="map" resultMap="BaseMap">
+        SELECT B.goods_id AS goodsId,A.trans_type,
+        COUNT(*) AS incount,
+        ROUND(IF(A.order_amt IS NULL,0, SUM(A.order_amt *A.trans_type)/100 ),2) AS income
+        FROM pay_order_pay A
+        LEFT JOIN pay_order B ON B.order_trace = A.order_trace
+        WHERE
+        A.status = 1
+        <if test="merchantId != null">
+            AND A.merchant_id = #{merchantId}
+        </if>
+        <if test="hospitalId != null">
+            AND A.hospital_id = #{hospitalId}
+        </if>
+        <if test="channelId != null">
+            AND A.channel_id = #{channelId}
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND A.create_date BETWEEN #{startDate} AND #{endDate}
+        </if>
+        GROUP BY B.goods_id,A.trans_type
+    </select>
+
+    <select id="selectByTraceJoinMedicalFee" parameterType="map" resultType="map">
+        SELECT
+        A.merchant_id AS merchantId,
+        A.order_id AS orderId,
+        A.trans_type AS transType,
+        A.third_id AS thirdId,
+        T.name AS thirdName,
+        P.name AS payTypeName,
+        A.channel_id AS channelId,
+        C.name AS channelName,
+        MM.name AS merchantName,
+        IFNULL(PMF.acct_pay,0) AS acctPay,
+        IFNULL(PMF.fund_pay_sumamt,0) AS fundPaySumamt,
+
+        A.order_amt AS orderAmt,
+        IFNULL(A.third_seq_no, '-') AS thirdSeqNo,
+        A.status AS status,
+        IFNULL(A.refund_reason, '-') AS refundReason,
+        IFNULL(A.oper_id, '-') AS operId,
+        IFNULL(A.term_id, '-') AS termId,
+
+        CONVERT(CONCAT(SUBSTR(A.create_date,1,4),'-',SUBSTR(A.create_date,5,2),'-',SUBSTR(A.create_date,7,2),' ',
+        SUBSTR(A.create_time,1,2),':',SUBSTR(A.create_time,3,2),':',SUBSTR(A.create_time,5,2)),CHAR) AS
+        createTimeFormat,
+
+        CONVERT(CONCAT(SUBSTR(A.third_date,1,4),'-',SUBSTR(A.third_date,5,2),'-',SUBSTR(A.third_date,7,2),' ',
+        SUBSTR(A.third_time,1,2),':',SUBSTR(A.third_time,3,2),':',SUBSTR(A.third_time,5,2)),CHAR) AS
+        thirdTimeFormat,
+
+        M.acct_pay AS medAcctPay,
+        M.fund_pay_sumamt AS medFundPay,
+        PO.buyer_id as buyerId,
+        PO.buyer_name as buyerName,
+        PO.buyer_phone as buyerPhone
+
+        FROM pay_order_pay A
+        LEFT JOIN midend.plat_channel C ON C.id = A.channel_id
+        LEFT JOIN pay_third T ON T.id = A.third_id
+        LEFT JOIN pay_type P ON P.id = A.pay_type_id
+        LEFT JOIN mer_merchant MM ON MM.id = A.merchant_id
+        LEFT JOIN pay_medical_fee M ON A.third_id = '06' AND M.order_id = A.order_id
+        LEFT JOIN pay_order PO ON PO.order_trace = A.order_trace
+        LEFT JOIN pay_medical_fee PMF ON PMF.order_id = A.order_id
+
+        WHERE A.order_trace = #{orderTrace}
+        ORDER BY A.create_date, A.create_time
+    </select>
+
+    <update id="updateStatus" parameterType="map">
+        UPDATE pay_order_pay
+        SET status = '9'
+        WHERE order_id = #{orderId}
+    </update>
+
+
+</mapper>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="comfinance">
+  <resultMap id="BaseResultMap" type="map">
+    <id column="hospital_id" jdbcType="VARCHAR" property="hospitalId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <id column="level" jdbcType="VARCHAR" property="level" />
+    <result column="dept_id" jdbcType="VARCHAR" property="deptId" />
+    <result column="job_id" jdbcType="VARCHAR" property="jobId" />
+    <result column="job_pwd" jdbcType="VARCHAR" property="jobPwd" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="level_name" jdbcType="VARCHAR" property="levelName" />
+    <result column="desc" jdbcType="VARCHAR" property="desc" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="image_path" jdbcType="VARCHAR" property="imagePath" />
+    <result column="active" jdbcType="CHAR" property="active" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    hospital_id, id, level, dept_id, job_id, job_pwd, name, level_name, desc, update_time, 
+    image_path, active
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from com_finance
+    where hospital_id = #{hospitalId,jdbcType=VARCHAR}
+      and id = #{id,jdbcType=VARCHAR}
+      and level = #{level,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from com_finance
+    where hospital_id = #{hospitalId,jdbcType=VARCHAR}
+      and id = #{id,jdbcType=VARCHAR}
+      and level = #{level,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="map">
+    insert into com_finance (hospital_id, id, level, 
+      dept_id, job_id, job_pwd, 
+      name, level_name, desc, 
+      update_time, image_path, active
+      )
+    values (#{hospitalId,jdbcType=VARCHAR}, #{id,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, 
+      #{deptId,jdbcType=VARCHAR}, #{jobId,jdbcType=VARCHAR}, #{jobPwd,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{levelName,jdbcType=VARCHAR}, #{desc,jdbcType=VARCHAR}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{imagePath,jdbcType=VARCHAR}, #{active,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="map">
+    insert into com_finance
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="hospitalId != null">
+        hospital_id,
+      </if>
+      <if test="id != null">
+        id,
+      </if>
+      <if test="level != null">
+        level,
+      </if>
+      <if test="deptId != null">
+        dept_id,
+      </if>
+      <if test="jobId != null">
+        job_id,
+      </if>
+      <if test="jobPwd != null">
+        job_pwd,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="levelName != null">
+        level_name,
+      </if>
+      <if test="desc != null">
+        desc,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="imagePath != null">
+        image_path,
+      </if>
+      <if test="active != null">
+        active,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="hospitalId != null">
+        #{hospitalId,jdbcType=VARCHAR},
+      </if>
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null">
+        #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="deptId != null">
+        #{deptId,jdbcType=VARCHAR},
+      </if>
+      <if test="jobId != null">
+        #{jobId,jdbcType=VARCHAR},
+      </if>
+      <if test="jobPwd != null">
+        #{jobPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="levelName != null">
+        #{levelName,jdbcType=VARCHAR},
+      </if>
+      <if test="desc != null">
+        #{desc,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="imagePath != null">
+        #{imagePath,jdbcType=VARCHAR},
+      </if>
+      <if test="active != null">
+        #{active,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="map">
+    update com_finance
+    <set>
+      <if test="deptId != null">
+        dept_id = #{deptId,jdbcType=VARCHAR},
+      </if>
+      <if test="jobId != null">
+        job_id = #{jobId,jdbcType=VARCHAR},
+      </if>
+      <if test="jobPwd != null">
+        job_pwd = #{jobPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="levelName != null">
+        level_name = #{levelName,jdbcType=VARCHAR},
+      </if>
+      <if test="desc != null">
+        desc = #{desc,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="imagePath != null">
+        image_path = #{imagePath,jdbcType=VARCHAR},
+      </if>
+      <if test="active != null">
+        active = #{active,jdbcType=CHAR},
+      </if>
+    </set>
+    where hospital_id = #{hospitalId,jdbcType=VARCHAR}
+      and id = #{id,jdbcType=VARCHAR}
+      and level = #{level,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="map">
+    update com_finance
+    set dept_id = #{deptId,jdbcType=VARCHAR},
+      job_id = #{jobId,jdbcType=VARCHAR},
+      job_pwd = #{jobPwd,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      level_name = #{levelName,jdbcType=VARCHAR},
+      desc = #{desc,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      image_path = #{imagePath,jdbcType=VARCHAR},
+      active = #{active,jdbcType=CHAR}
+    where hospital_id = #{hospitalId,jdbcType=VARCHAR}
+      and id = #{id,jdbcType=VARCHAR}
+      and level = #{level,jdbcType=VARCHAR}
+  </update>
+  
+</mapper>
